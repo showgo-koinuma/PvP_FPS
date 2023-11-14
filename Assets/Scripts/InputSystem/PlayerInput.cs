@@ -28,6 +28,8 @@ public class PlayerInput : MonoBehaviour
     event Action _updateAction;
 
     // inputの状態を保存し、条件で実行するためのもの
+    Vector2 _lookRotation;
+    public Vector2 LookRotation { get => _lookRotation; }
     Vector2 _inputMoveVector;
     public Vector2 InputMoveVector { get => _inputMoveVector; }
     bool _inputOnFire = false;
@@ -49,6 +51,9 @@ public class PlayerInput : MonoBehaviour
         }
 
         // コールバックを登録していく TODO:操作が増えた場合書き足す必要がある
+        _gameInput.InGame.Jump.started += OnLookRotate;
+        _gameInput.InGame.Look.performed += OnLookRotate;
+        _gameInput.InGame.Look.canceled += OnLookRotate;
         _gameInput.InGame.Move.started += OnMove;
         _gameInput.InGame.Move.performed += OnMove;
         _gameInput.InGame.Move.canceled += OnMove;
@@ -65,6 +70,10 @@ public class PlayerInput : MonoBehaviour
     }
 
     #region inputによって直接コールバックされる
+    void OnLookRotate(InputAction.CallbackContext context)
+    {
+        _lookRotation = context.ReadValue<Vector2>();
+    }
     void OnMove(InputAction.CallbackContext context)
     {
         _inputMoveVector = context.ReadValue<Vector2>();

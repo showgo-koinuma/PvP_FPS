@@ -32,7 +32,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float _jumpForce = 550f;
 
     // Input
-    float _moveInputX, _moveInputY;
+    //float _moveInputX, _moveInputY;
     bool _jumping, _sprinting, _crouching;
 
     // Sliding
@@ -60,21 +60,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        MyInput();
-        if (_jumping) Jump();
+        //MyInput();
+        //if (_jumping) Jump();
     }
 
     private void MyInput()
     {
-        _moveInputX = Input.GetAxisRaw("Horizontal");
-        _moveInputY = Input.GetAxisRaw("Vertical");
+        //_moveInputX = Input.GetAxisRaw("Horizontal");
+        //_moveInputY = Input.GetAxisRaw("Vertical");
         _jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
         _crouching = Input.GetKey(KeyCode.LeftControl);
 
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-            StartCrouch();
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-            StopCrouch();
+        if (Input.GetKeyDown(KeyCode.LeftControl)) StartCrouch();
+        if (Input.GetKeyUp(KeyCode.LeftControl)) StopCrouch();
     }
 
     private void StartCrouch()
@@ -98,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Movement()
     {
+        Vector2 moveInput = PlayerInput.Instance.InputMoveVector;
         _rb.AddForce(Vector3.down * Time.deltaTime * 10); // ‰º•ûŒü‚ÉAddForce
 
         //Find actual velocity relative to where player is looking
@@ -105,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
         float xMag = mag.x, yMag = mag.y;
 
         //Counteract sliding and sloppy movement
-        CounterMovement(_moveInputX, _moveInputY, mag);
+        CounterMovement(moveInput.x, moveInput.y, mag);
 
         //If sliding down a ramp, add force down so player stays grounded and also builds speed
         if (_crouching && _grounded && _readyToJump)
@@ -116,10 +115,10 @@ public class PlayerMovement : MonoBehaviour
 
         //If speed is larger than maxspeed, cancel out the input so you don't go over max speed
         float maxSpeed = _maxSpeed;
-        if (_moveInputX > 0 && xMag > maxSpeed) _moveInputX = 0;
-        if (_moveInputX < 0 && xMag < -maxSpeed) _moveInputX = 0;
-        if (_moveInputY > 0 && yMag > maxSpeed) _moveInputY = 0;
-        if (_moveInputY < 0 && yMag < -maxSpeed) _moveInputY = 0;
+        if (moveInput.x > 0 && xMag > maxSpeed) moveInput.x = 0;
+        if (moveInput.x < 0 && xMag < -maxSpeed) moveInput.x = 0;
+        if (moveInput.y > 0 && yMag > maxSpeed) moveInput.y = 0;
+        if (moveInput.y < 0 && yMag < -maxSpeed) moveInput.y = 0;
 
         //Some multipliers
         float multiplier = 1f, multiplierV = 1f;
@@ -135,11 +134,11 @@ public class PlayerMovement : MonoBehaviour
         if (_grounded && _crouching) multiplierV = 0f;
 
         //Apply forces to move player
-        _rb.AddForce(_orientation.transform.forward * _moveInputY * _moveSpeed * Time.deltaTime * multiplier * multiplierV);
-        _rb.AddForce(_orientation.transform.right * _moveInputX * _moveSpeed * Time.deltaTime * multiplier);
+        _rb.AddForce(_orientation.transform.forward * moveInput.y * _moveSpeed * Time.deltaTime * multiplier * multiplierV);
+        _rb.AddForce(_orientation.transform.right * moveInput.x * _moveSpeed * Time.deltaTime * multiplier);
     }
 
-    private void Jump()
+    void Jump()
     {
         if (_grounded && _readyToJump)
         {
@@ -251,5 +250,10 @@ public class PlayerMovement : MonoBehaviour
     private void StopGrounded()
     {
         _grounded = false;
+    }
+
+    private void OnEnable()
+    {
+        PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
     }
 }
