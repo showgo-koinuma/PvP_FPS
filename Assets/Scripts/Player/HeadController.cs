@@ -19,8 +19,8 @@ public class HeadController : MonoBehaviour
     {
         //float mouseX = Input.GetAxis("Mouse X") * _XSensitivity * Time.deltaTime * _sensMultiplier;
         //float mouseY = Input.GetAxis("Mouse Y") * _YSensitivity * Time.deltaTime * _sensMultiplier;
-        Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.deltaTime * _sensMultiplier,
-            PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.deltaTime * _sensMultiplier);
+        Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.fixedDeltaTime * _sensMultiplier,
+            PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.fixedDeltaTime * _sensMultiplier);
 
         //Find current look rotation
         Vector3 rot = _orientation.localRotation.eulerAngles;
