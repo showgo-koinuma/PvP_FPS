@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
+using Photon.Pun;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPunCallbacks
 {
     [SerializeField] Transform _playerCam;
     Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
@@ -41,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Awake()
     {
+        if (!photonView.IsMine) this.enabled = false;
         _rb = GetComponent<Rigidbody>();
         _orientation = GetComponent<Transform>();
     }
@@ -55,7 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Movement();
+        //Movement();
     }
 
     private void Update()
@@ -254,6 +256,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
+        PlayerInput.Instance.SetUpdateAction(Movement);
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
     }
 }
