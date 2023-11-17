@@ -3,8 +3,14 @@ using Photon.Realtime;
 using UnityEngine;
 
 // MonoBehaviourPunCallbacksを継承して、PUNのコールバックを受け取れるようにする
+/// <summary>マッチングシステムのない仮のconnect</summary>
 public class InGamePlayerSpawner : MonoBehaviourPunCallbacks
 {
+    /* マスターサーバー -> ロビー -> 指定名のJoinOrCreateRoom
+     * 成功 -> onCreateRoomかonJoinedRoomで１人目２人目を判定
+     * 失敗 -> 失敗コールバック -> roomが満員またはその他のエラー
+    */
+
     private void Start()
     {
         // PhotonServerSettingsの設定内容を使ってマスターサーバーへ接続する
@@ -21,11 +27,17 @@ public class InGamePlayerSpawner : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinOrCreateRoom("Room", roomOptions, TypedLobby.Default);
     }
 
-    // ゲームサーバーへの接続が成功した時に呼ばれるコールバック
+    // roomに参加したとき
     public override void OnJoinedRoom()
     {
         // ランダムな座標に自身のアバター（ネットワークオブジェクト）を生成する
         var position = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
         PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
+    }
+
+    /// <summary>roomへの参加に失敗した</summary>
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.Log("OnJoinRoomFailed: " + message);
     }
 }

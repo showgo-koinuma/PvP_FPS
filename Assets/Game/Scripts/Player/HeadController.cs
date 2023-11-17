@@ -1,7 +1,10 @@
+using Cinemachine;
+using Photon.Pun;
 using UnityEngine;
 
-public class HeadController : MonoBehaviour
+public class HeadController : MonoBehaviourPun
 {
+    [SerializeField, Tooltip("自分のカメラ")] GameObject _myCinemachine;
     [SerializeField, Tooltip("動く頭")] Transform _head;
     [SerializeField, Tooltip("body 体の向きを取得するため")] Transform _orientation;
     private float _xRotation;
@@ -10,9 +13,13 @@ public class HeadController : MonoBehaviour
     /// <summary>なにこれ</summary>
     private float _sensMultiplier = 1f; // 感度変更用？デバフ、スタンとかかな 割合で増減できる
 
-    private void Update()
+    private void Awake()
     {
-        Look();
+        if (!photonView.IsMine) this.enabled = false;
+        else
+        {
+            Instantiate(_myCinemachine, transform).GetComponent<CinemachineVirtualCamera>().Follow = _head;
+        }
     }
 
     void Look()
@@ -33,5 +40,10 @@ public class HeadController : MonoBehaviour
         //Perform the rotations
         _orientation.transform.localRotation = Quaternion.Euler(0, desiredX, 0);
         _head.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+    }
+
+    private void OnEnable()
+    {
+        InGameManager.Instance.UpdateAction += Look;
     }
 }

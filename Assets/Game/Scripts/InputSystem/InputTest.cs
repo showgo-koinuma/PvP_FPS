@@ -4,9 +4,9 @@ public class InputTest : MonoBehaviour
 {
     private void OnEnable()
     {
-        PlayerInput.Instance.SetUpdateAction(OnFire);
+        //PlayerInput.Instance.SetUpdateAction(OnFire);
         PlayerInput.Instance.SetInputAction(InputType.Jump, OnJump);
-        PlayerInput.Instance.SetUpdateAction(OnMove);
+        //PlayerInput.Instance.SetUpdateAction(OnMove);
     }
 
     void OnFire()

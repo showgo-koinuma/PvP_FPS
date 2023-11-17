@@ -24,8 +24,6 @@ public class PlayerInput : MonoBehaviour
     GameInput _gameInput;
     /// <summary>InputTypeとそれに対応するActionのDictionary</summary>
     Dictionary<InputType, Action> _actionDic = new Dictionary<InputType, Action>();
-    /// <summary>updateで実行するものは全てここで実行する</summary>
-    event Action _updateAction;
 
     // inputの状態を保存し、条件で実行するためのもの
     Vector2 _lookRotation;
@@ -51,7 +49,7 @@ public class PlayerInput : MonoBehaviour
         }
 
         // コールバックを登録していく TODO:操作が増えた場合書き足す必要がある
-        _gameInput.InGame.Jump.started += OnLookRotate;
+        _gameInput.InGame.Look.started += OnLookRotate;
         _gameInput.InGame.Look.performed += OnLookRotate;
         _gameInput.InGame.Look.canceled += OnLookRotate;
         _gameInput.InGame.Move.started += OnMove;
@@ -87,18 +85,6 @@ public class PlayerInput : MonoBehaviour
         _inputOnFire = context.phase == InputActionPhase.Started;
     }
     #endregion
-
-    /// <summary>updateで呼ぶものをセットする</summary>
-    /// <param name="action"></param>
-    public void SetUpdateAction(Action action)
-    {
-        _updateAction += action;
-    }
-
-    private void Update()
-    {
-        _updateAction?.Invoke();
-    }
 }
 
 public enum InputType

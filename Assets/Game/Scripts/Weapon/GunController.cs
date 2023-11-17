@@ -9,7 +9,7 @@ public class GunController : MonoBehaviour
     GunState _currentGunState = GunState.nomal;
     int _currentMagazine;
     LineRenderer _ballisticLine;
-    float _ballisticFadeOutTime = 0.1f;
+    float _ballisticFadeOutTime = 0.02f;
 
     private void Awake()
     {
@@ -67,7 +67,7 @@ public class GunController : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerInput.Instance.SetUpdateAction(Fire);
+        InGameManager.Instance.UpdateAction += Fire;
     }
 }
 

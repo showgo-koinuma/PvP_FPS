@@ -3,9 +3,8 @@ using UnityEngine;
 using Photon.Pun;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviourPunCallbacks
+public class PlayerMovement : MonoBehaviourPun
 {
-    [SerializeField] Transform _playerCam;
     Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
     private Rigidbody _rb;
 
@@ -64,6 +63,7 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
     {
         //MyInput();
         //if (_jumping) Jump();
+        //_jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
     }
 
     private void MyInput()
@@ -106,7 +106,8 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         float xMag = mag.x, yMag = mag.y;
 
         //Counteract sliding and sloppy movement
-        CounterMovement(moveInput.x, moveInput.y, mag);
+        //CounterMovement(moveInput.x, moveInput.y, mag); 一旦なしで
+        _jumping = false;
 
         //If sliding down a ramp, add force down so player stays grounded and also builds speed
         if (_crouching && _grounded && _readyToJump)
@@ -145,10 +146,11 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         if (_grounded && _readyToJump)
         {
             _readyToJump = false;
+            _jumping = true;
 
             _rb.AddForce(Vector2.up * _jumpForce * 1.5f);
-            _rb.AddForce(_normalVector * _jumpForce * 0.5f); // 坂道の影響を少し受ける
-
+            //_rb.AddForce(_normalVector * _jumpForce * 0.5f); // 坂道の影響を少し受ける
+            Debug.Log(_normalVector);
             //If jumping while falling, reset y velocity. よくわからん　リセットは必要だけどAddForceの後にやるのか...
             Vector3 vel = _rb.velocity;
             if (_rb.velocity.y < 0.5f)
@@ -165,6 +167,10 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         _readyToJump = true;
     }
 
+    /// <summary>な　に　こ　れ</summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="mag"></param>
     private void CounterMovement(float x, float y, Vector2 mag)
     {
         if (!_grounded || _jumping) return;
@@ -256,7 +262,8 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
     private void OnEnable()
     {
-        PlayerInput.Instance.SetUpdateAction(Movement);
+        //PlayerInput.Instance.SetUpdateAction(Movement);
+        InGameManager.Instance.UpdateAction += Movement;
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
     }
 }
