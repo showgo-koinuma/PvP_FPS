@@ -1,6 +1,7 @@
+using Photon.Pun;
 using UnityEngine;
 
-public class ChangeColorCntlr : MonoBehaviour , Damageable
+public class ChangeColorCntlr : Damageable
 {
     [SerializeField] Material[] _materials;
     MeshRenderer _meshRenderer;
@@ -12,7 +13,8 @@ public class ChangeColorCntlr : MonoBehaviour , Damageable
         ChangeMaterial();
     }
 
-    void Damageable.OnDamageTaken(int damage, Collider hitCollider)
+    [PunRPC]
+    protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff)
     {
         ChangeMaterial();
     }
