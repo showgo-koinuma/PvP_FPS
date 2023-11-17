@@ -80,13 +80,9 @@ public class GunController : MonoBehaviourPun
 
     private void OnEnable()
     {
-        InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject);
+        InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += FireCalculation;
-    }
-
-    private void Start()
-    {
     }
 }
 

@@ -17,6 +17,7 @@ public class ChangeColorCntlr : Damageable
     protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
     {
         ChangeMaterial();
+        // idから撃ったobjを参照し、ラグがあっても処理通りの弾道を表示する
         StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<GunController>().DrawBallistic(transform.position + objVectorDiff));
     }
 
