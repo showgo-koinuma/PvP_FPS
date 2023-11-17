@@ -11,12 +11,11 @@ public abstract class Damageable : MonoBehaviourPunCallbacks
         _colliders = GetComponentsInChildren<Collider>();
     }
 
-    public void OnDamageTakenInvoker(int damage, int collierIndex, Vector3 objVectorDiff)
+    public void OnDamageTakenInvoker(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
     {
-        Debug.Log("koko");
-        photonView.RPC(nameof(OnDamageTaken), RpcTarget.All, damage, collierIndex, objVectorDiff);
+        photonView.RPC(nameof(OnDamageTaken), RpcTarget.All, damage, collierIndex, objVectorDiff, playerID);
     }
 
     [PunRPC]
-    protected abstract void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff);
+    protected abstract void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff, int playerID);
 }

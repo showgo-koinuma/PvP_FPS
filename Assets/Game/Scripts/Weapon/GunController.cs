@@ -14,7 +14,6 @@ public class GunController : MonoBehaviourPun
 
     private void Awake()
     {
-        if (!photonView.IsMine) this.enabled = false;
         _currentMagazine = _gunStatus.FullMagazineSize;
     }
 
@@ -30,10 +29,11 @@ public class GunController : MonoBehaviourPun
 
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit))
         {
+            Debug.Log(hit.collider.gameObject.name);
+
             if (hit.collider.gameObject.TryGetComponent(out Damageable damageable))
             {
-                damageable.OnDamageTakenInvoker(_gunStatus.Damage, Array.IndexOf(damageable.Colliders, hit.collider), hit.transform.position - hit.point);
-                //photonView.RPC(nameof(), RpcTarget.All, hit.transform);
+                damageable.OnDamageTakenInvoker(_gunStatus.Damage, Array.IndexOf(damageable.Colliders, hit.collider), hit.transform.position - hit.point, photonView.ViewID);
             }
             else
             {
@@ -50,10 +50,7 @@ public class GunController : MonoBehaviourPun
     [PunRPC]
     void FireNoAction(Vector3 hitPos)
     {
-        Debug.Log("no aciton");
-        _ballisticLine.SetPosition(0, _muzzlePos.position);
-        _ballisticLine.SetPosition(1, hitPos);
-        StartCoroutine(FadeBallistic());
+        StartCoroutine(DrawBallistic(hitPos));
     }
 
     void Reload()
@@ -71,8 +68,11 @@ public class GunController : MonoBehaviourPun
         _currentGunState = GunState.nomal;
     }
 
-    IEnumerator FadeBallistic()
+    /// <summary>FadeOut‚·‚é’e“¹‚ð•`‰æ‚·‚é</summary>
+    public IEnumerator DrawBallistic(Vector3 target)
     {
+        _ballisticLine.SetPosition(0, _muzzlePos.position);
+        _ballisticLine.SetPosition(1, target);
         Vector3 pos = _muzzlePos.position;
         yield return new WaitForSeconds(_ballisticFadeOutTime);
         _ballisticLine.SetPosition(1, pos);
@@ -80,7 +80,13 @@ public class GunController : MonoBehaviourPun
 
     private void OnEnable()
     {
+        InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject);
+        if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += FireCalculation;
+    }
+
+    private void Start()
+    {
     }
 }
 

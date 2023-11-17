@@ -150,7 +150,6 @@ public class PlayerMovement : MonoBehaviourPun
 
             _rb.AddForce(Vector2.up * _jumpForce * 1.5f);
             //_rb.AddForce(_normalVector * _jumpForce * 0.5f); // 坂道の影響を少し受ける
-            Debug.Log(_normalVector);
             //If jumping while falling, reset y velocity. よくわからん　リセットは必要だけどAddForceの後にやるのか...
             Vector3 vel = _rb.velocity;
             if (_rb.velocity.y < 0.5f)

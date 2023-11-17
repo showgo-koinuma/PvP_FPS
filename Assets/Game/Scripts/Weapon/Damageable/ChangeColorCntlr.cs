@@ -14,9 +14,10 @@ public class ChangeColorCntlr : Damageable
     }
 
     [PunRPC]
-    protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff)
+    protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
     {
         ChangeMaterial();
+        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<GunController>().DrawBallistic(transform.position + objVectorDiff));
     }
 
     void ChangeMaterial()
