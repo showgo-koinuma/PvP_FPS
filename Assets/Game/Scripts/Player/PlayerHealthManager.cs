@@ -1,9 +1,52 @@
 using UnityEngine;
+using Photon.Pun;
+using UnityEngine.UI;
+using DG.Tweening;
+
 /// <summary>playerÇÃHPÇä«óùÇ∑ÇÈ</summary>
 public class PlayerHealthManager : Damageable
 {
-    protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
+    [SerializeField] int _maxHp = 200;
+    [SerializeField] Image _damagaeCanvasImage;
+    int _currentHp;
+    int CurrentHp
     {
-        throw new System.NotImplementedException();
+        get => _currentHp;
+        set
+        {
+            _currentHp = value;
+            if (_currentHp <= 0) OnDead();
+        }
+    }
+
+    private void Awake()
+    {
+        _currentHp = _maxHp;
+    }
+
+    [PunRPC]
+    protected override void OnDamageTakenShare(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
+    {
+        CurrentHp -= damage;
+        OnDamageTakenIsMine();
+        // íeìπï\é¶
+        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<GunController>().DrawBallistic(transform.position + objVectorDiff));
+    }
+
+    private void OnDamageTakenIsMine()
+    {
+        if (!photonView.IsMine) return;
+        Debug.Log("dame-ji");
+        // dame-ji gamen akaku
+        Color color = _damagaeCanvasImage.color;
+        color.a = 0.3f;
+        _damagaeCanvasImage.color = color;
+        _damagaeCanvasImage.DOFade(0, 0.1f);
+    }
+
+    void OnDead()
+    {
+        Debug.Log("sinnda");
+        _currentHp = _maxHp;
     }
 }
