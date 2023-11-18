@@ -7,14 +7,14 @@ public class ChangeColorCntlr : Damageable
     MeshRenderer _meshRenderer;
     int _index = 0;
 
-    private void Start()
+    private void Awake()
     {
         _meshRenderer = GetComponent<MeshRenderer>();
         ChangeMaterial();
     }
 
     [PunRPC]
-    protected override void OnDamageTaken(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
+    protected override void OnDamageTakenShare(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
     {
         ChangeMaterial();
         // idから撃ったobjを参照し、ラグがあっても処理通りの弾道を表示する
