@@ -30,9 +30,8 @@ public class InGamePlayerSpawner : MonoBehaviourPunCallbacks
     // roomに参加したとき
     public override void OnJoinedRoom()
     {
-        // ランダムな座標に自身のアバター（ネットワークオブジェクト）を生成する
-        var position = new Vector3(Random.Range(-10f, 10f), 0, Random.Range(-10f, 10f));
-        PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
+        // Playerを生成し、RespawnでTrasformを初期化する
+        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity).GetComponent<PlayerManager>().Respawn();
     }
 
     /// <summary>roomへの参加に失敗した</summary>

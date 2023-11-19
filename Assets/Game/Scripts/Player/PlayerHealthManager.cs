@@ -8,6 +8,7 @@ public class PlayerHealthManager : Damageable
 {
     [SerializeField] int _maxHp = 200;
     [SerializeField] Image _damagaeCanvasImage;
+    PlayerManager _pManager;
     int _currentHp;
     int CurrentHp
     {
@@ -21,6 +22,7 @@ public class PlayerHealthManager : Damageable
 
     private void Awake()
     {
+        _pManager = GetComponent<PlayerManager>();
         _currentHp = _maxHp;
     }
 
@@ -48,5 +50,6 @@ public class PlayerHealthManager : Damageable
     {
         Debug.Log("sinnda");
         _currentHp = _maxHp;
+        _pManager.Respawn();
     }
 }
