@@ -46,6 +46,8 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     GameObject _activeObj;
     /// <summary>Roomの最大人数</summary>
     int _maxRoomPlayer = 2;
+    /// <summary>InGameのscene in buildの数字</summary>
+    int _inGameSceneInBuildNum = 1;
 
     private void Start()
     {
@@ -131,6 +133,11 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
         else Debug.Log("roomの名前が設定されていません"); // to:do 入力がないエラー
     }
 
+    public void OnStartGame() // start game button
+    {
+        PhotonNetwork.LoadLevel(_inGameSceneInBuildNum);
+    }
+
     public void OnChangeNameButton()
     {
         PhotonNetwork.NickName = _inputPlayerNameText.text;
@@ -177,9 +184,17 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     {
         ChangeUIObj(_defaultButtonsObj); // default UIに戻る
     }
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        GeneratePlayerNameTextObj();
+    }
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         GeneratePlayerNameTextObj(); // player listのUI更新
+    }
+    public override void OnMasterClientSwitched(Player newMasterClient) // Masterに切り替わったらButton表示
+    {
+        if (PhotonNetwork.IsMasterClient) _gameStartButton.SetActive(true);
     }
     #endregion
 }

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,23 @@ public class InGameManager : MonoBehaviour
     {
         if (_instance) Destroy(gameObject);
         else _instance = this;
+    }
+
+    private void Start()
+    {
+        Vector3 position;
+        Quaternion forword;
+        if (PhotonNetwork.LocalPlayer.IsMasterClient)
+        {
+            position = InGameManager.Instance.PlayerSpawnPoints[0];
+            forword = Quaternion.Euler(Vector3.forward);
+        }
+        else
+        {
+            position = InGameManager.Instance.PlayerSpawnPoints[1];
+            forword = Quaternion.Euler(Vector3.back);
+        }
+        PhotonNetwork.Instantiate("Player", position, forword);
     }
 
     private void Update()
