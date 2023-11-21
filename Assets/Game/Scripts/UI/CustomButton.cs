@@ -10,6 +10,7 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField, Tooltip("ボタンの実行内容")] public UnityEvent _buttonAction;
+    public event Action ButtonAction;
     CanvasGroup _canvasGroup;
 
     private void Awake() => _canvasGroup = GetComponent<CanvasGroup>();
@@ -18,6 +19,7 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     public void OnPointerClick(PointerEventData eventData) 
     {
         _buttonAction?.Invoke(); // Actionが設定されてないときはDebugを出したい
+        ButtonAction?.Invoke();
     }
     // カーソルが重なる
     public void OnPointerEnter(PointerEventData eventData) { }
