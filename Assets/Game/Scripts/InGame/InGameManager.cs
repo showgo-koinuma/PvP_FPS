@@ -31,7 +31,7 @@ public class InGameManager : MonoBehaviour
         else
         {
             position = InGameManager.Instance.PlayerSpawnPoints[1];
-            forword = Quaternion.Euler(Vector3.back);
+            forword = Quaternion.AngleAxis(180, Vector3.up);
         }
         PhotonNetwork.Instantiate("Player", position, forword);
     }

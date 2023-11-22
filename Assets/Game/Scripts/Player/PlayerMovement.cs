@@ -106,7 +106,7 @@ public class PlayerMovement : MonoBehaviourPun
         float xMag = mag.x, yMag = mag.y;
 
         //Counteract sliding and sloppy movement
-        //CounterMovement(moveInput.x, moveInput.y, mag); ˆê’U‚È‚µ‚Å
+        CounterMovement(moveInput.x, moveInput.y, mag); //ˆê’U‚È‚µ‚Å
         _jumping = false;
 
         //If sliding down a ramp, add force down so player stays grounded and also builds speed
@@ -172,7 +172,7 @@ public class PlayerMovement : MonoBehaviourPun
     /// <param name="mag"></param>
     private void CounterMovement(float x, float y, Vector2 mag)
     {
-        if (!_grounded || _jumping) return;
+        if (!_grounded || !_readyToJump) return;
 
         //Slow down sliding
         if (_crouching)
