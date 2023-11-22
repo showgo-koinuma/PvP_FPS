@@ -9,6 +9,7 @@ public class GunController : MonoBehaviourPun
     [SerializeField] Transform _muzzlePos;
     [SerializeField, Tooltip("弾道のLine")] LineRenderer _ballisticLine;
     GunState _currentGunState = GunState.nomal;
+    int _hitLayer;
     int _currentMagazine;
     float _ballisticFadeOutTime = 0.02f;
 
@@ -27,9 +28,9 @@ public class GunController : MonoBehaviourPun
             return;
         }
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit))
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, float.MaxValue, _hitLayer))
         {
-            Debug.Log(hit.collider.gameObject.name);
+            Debug.Log(hit.collider.name);
 
             if (hit.collider.gameObject.TryGetComponent(out Damageable damageable))
             {
@@ -83,6 +84,16 @@ public class GunController : MonoBehaviourPun
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += FireCalculation;
+        if (PhotonNetwork.LocalPlayer.IsMasterClient) // hit layerを初期化
+        {
+            gameObject.layer = 6;
+            _hitLayer = ~(1 << 6);
+        }
+        else
+        {
+            gameObject.layer = 7;
+            _hitLayer = ~(1 << 7);
+        }
     }
 }
 
