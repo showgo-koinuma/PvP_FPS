@@ -61,6 +61,8 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
         _loadingText.text = "Connecting Network...";
         ConnectNetwork(); // networkに接続
 
+        PhotonNetwork.SendRate = 30;
+        PhotonNetwork.SerializationRate = 30;
     }
 
     /// <summary>ロビーに接続、またはロビー接続時の処理を実行</summary>
@@ -75,7 +77,6 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     {
         CloseAllUI();
         (_activeObj = toUIObj).SetActive(true);
-        if (_activeObj == _joinRoomObj) ; // room listを更新
     }
 
     /// <summary>全てのUIを非表示にする</summary>
