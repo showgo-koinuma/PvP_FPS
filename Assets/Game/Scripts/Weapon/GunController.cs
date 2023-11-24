@@ -39,7 +39,6 @@ public class GunController : MonoBehaviourPun
 
         Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion),
             UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 0) * Camera.main.transform.forward;
-        Debug.Log(_currentDiffusion);
         if (Physics.Raycast(Camera.main.transform.position, dir, out RaycastHit hit, float.MaxValue, _hitLayer))
         {
             Debug.Log(hit.collider.name);
@@ -70,7 +69,7 @@ public class GunController : MonoBehaviourPun
 
     void Reload()
     {
-        if (_currentGunState != GunState.nomal) return;
+        if (_currentGunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize) return;
         Debug.Log("reload");
         _currentGunState = GunState.reloading;
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
@@ -97,6 +96,7 @@ public class GunController : MonoBehaviourPun
     {
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         if (!photonView.IsMine) return;
+        PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
         InGameManager.Instance.UpdateAction += FireCalculation;
         if (PhotonNetwork.LocalPlayer.IsMasterClient) // hit layerを初期化
         {

@@ -58,6 +58,7 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Jump.started += OnJump;
         _gameInput.InGame.Fire.started += OnFire;
         _gameInput.InGame.Fire.canceled += OnFire;
+        _gameInput.InGame.Reload.started += OnReload;
     }
 
     /// <summary>コールバックに登録するActionをセット出来る</summary>
@@ -84,6 +85,10 @@ public class PlayerInput : MonoBehaviour
     {
         _inputOnFire = context.phase == InputActionPhase.Started;
     }
+    private void OnReload(InputAction.CallbackContext context)
+    {
+        _actionDic[InputType.Reload]?.Invoke();
+    }
     #endregion
 }
 
@@ -92,4 +97,5 @@ public enum InputType
     //Move, // dictionaryを使わない場合要らない？
     Jump,
     //Fire,
+    Reload
 }
