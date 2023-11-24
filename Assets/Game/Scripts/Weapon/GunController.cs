@@ -13,6 +13,7 @@ public class GunController : MonoBehaviourPun
     int _hitLayer;
     int _currentMagazine;
     float _ballisticFadeOutTime = 0.02f;
+    float _currentDiffusion = 0;
 
     private void Awake()
     {
@@ -23,14 +24,23 @@ public class GunController : MonoBehaviourPun
     /// <summary>ËŒ‚‚É‚Ç‚Ì‚æ‚¤‚Èˆ—‚ğ‚·‚é‚©ŒvZ‚·‚é</summary>
     void FireCalculation()
     {
-        if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire)) return; // nomal‚Å‚È‚¢‚ÆŒ‚‚Ä‚È‚¢
+        if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
+        {
+            if (_currentDiffusion > 0.1f) _currentDiffusion -= _currentDiffusion * Time.deltaTime;
+            else _currentDiffusion = 0;
+            return; // nomal‚Å‚È‚¢‚ÆŒ‚‚Ä‚È‚¢
+        }
+
         if (_currentMagazine <= 0) // ’e‚ª‚È‚¯‚ê‚Îreload
         {
             Reload();
             return;
         }
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, float.MaxValue, _hitLayer))
+        Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion),
+            UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 0) * Camera.main.transform.forward;
+        Debug.Log(_currentDiffusion);
+        if (Physics.Raycast(Camera.main.transform.position, dir, out RaycastHit hit, float.MaxValue, _hitLayer))
         {
             Debug.Log(hit.collider.name);
 
@@ -44,6 +54,7 @@ public class GunController : MonoBehaviourPun
             }
         }
 
+        _currentDiffusion += _gunStatus.Diffusion;
         _headCntler.Recoil(UnityEngine.Random.Range(0, -_gunStatus.RecoilY), UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX)); // ”½“®‚ğ‰æ–Ê‚É”½‰f
         _currentMagazine--;
         _currentGunState = GunState.interval;

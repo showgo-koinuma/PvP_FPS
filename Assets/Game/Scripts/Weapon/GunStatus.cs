@@ -9,6 +9,7 @@ public class GunStatus : ScriptableObject
     [SerializeField] float _reloadTime;
     [SerializeField] float _randomRecoilY;
     [SerializeField] float _randomRecoilX;
+    [SerializeField] float _diffusionValue;
 
     public int Damage { get => _damage; }
     public int FullMagazineSize { get => _fullMagazineSize; }
@@ -16,6 +17,7 @@ public class GunStatus : ScriptableObject
     public float ReloadTime { get => _reloadTime; }
     public float RecoilY {  get => _randomRecoilY; }
     public float RecoilX { get => _randomRecoilX; }
+    public float Diffusion {  get => _diffusionValue; }
 }
 /* 武器に必要なステータス
 * damage

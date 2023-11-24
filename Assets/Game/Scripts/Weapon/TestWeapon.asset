@@ -16,5 +16,6 @@ MonoBehaviour:
   _fullMagazineSize: 30
   _fireInterval: 0.25
   _reloadTime: 2
-  _randomRecoilY: -2
-  _randomRecoilX: 2
+  _randomRecoilY: 10
+  _randomRecoilX: 5
+  _diffusionValue: 1
