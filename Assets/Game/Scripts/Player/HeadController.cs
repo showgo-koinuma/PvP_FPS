@@ -13,6 +13,12 @@ public class HeadController : MonoBehaviourPun
     /// <summary>なにこれ</summary>
     private float _sensMultiplier = 1f; // 感度変更用？デバフ、スタンとかかな 割合で増減できる
 
+    // リコイル
+    Vector3 _targetRotation;
+    Vector3 _currentRotation;
+    float _returnSpeed = 2;
+    float _snappiness = 3;
+
     private void Awake()
     {
         if (!photonView.IsMine) this.enabled = false;
@@ -24,8 +30,6 @@ public class HeadController : MonoBehaviourPun
 
     void Look()
     {
-        //float mouseX = Input.GetAxis("Mouse X") * _XSensitivity * Time.deltaTime * _sensMultiplier;
-        //float mouseY = Input.GetAxis("Mouse Y") * _YSensitivity * Time.deltaTime * _sensMultiplier;
         Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.fixedDeltaTime * _sensMultiplier,
             PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.fixedDeltaTime * _sensMultiplier);
 
@@ -42,8 +46,21 @@ public class HeadController : MonoBehaviourPun
         _head.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
     }
 
+    public void Recoil(float recoilY, float recoilX)
+    {
+        _targetRotation += new Vector3(recoilY, recoilX, 0);
+    }
+
+    void ReflectsRecoil()
+    {
+        _targetRotation = Vector3.Lerp(_targetRotation, Vector3.zero, _returnSpeed * Time.deltaTime);
+        _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * Time.deltaTime);
+        _head.transform.localRotation = Quaternion.Euler(_currentRotation + _head.transform.localRotation.eulerAngles);
+    }
+
     private void OnEnable()
     {
         InGameManager.Instance.UpdateAction += Look;
+        InGameManager.Instance.UpdateAction += ReflectsRecoil;
     }
 }

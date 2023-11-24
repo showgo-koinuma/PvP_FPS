@@ -9,12 +9,14 @@ public class GunController : MonoBehaviourPun
     [SerializeField] Transform _muzzlePos;
     [SerializeField, Tooltip("’e“¹‚ÌLine")] LineRenderer _ballisticLine;
     GunState _currentGunState = GunState.nomal;
+    HeadController _headCntler;
     int _hitLayer;
     int _currentMagazine;
     float _ballisticFadeOutTime = 0.02f;
 
     private void Awake()
     {
+        _headCntler = GetComponent<HeadController>();
         _currentMagazine = _gunStatus.FullMagazineSize;
     }
 
@@ -42,6 +44,7 @@ public class GunController : MonoBehaviourPun
             }
         }
 
+        _headCntler.Recoil(UnityEngine.Random.Range(0, -_gunStatus.RecoilY), UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX)); // ”½“®‚ð‰æ–Ê‚É”½‰f
         _currentMagazine--;
         _currentGunState = GunState.interval;
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval);

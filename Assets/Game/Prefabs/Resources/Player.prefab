@@ -390,7 +390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f87875c2316584f9fc02be2d7f55cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 4500
+  _moveSpeed: 1500
   _maxSpeed: 20
   _whatIsGround:
     serializedVersion: 2
@@ -401,7 +401,7 @@ MonoBehaviour:
   _slideCounterMovement: 0.2
   _crouchScale: {x: 1, y: 0.5, z: 1}
   _jumpCooldown: 0.25
-  _jumpForce: 550
+  _jumpForce: 300
 --- !u!114 &3429649735527690838
 MonoBehaviour:
   m_ObjectHideFlags: 0
