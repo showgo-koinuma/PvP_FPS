@@ -10,6 +10,8 @@ public class GunStatus : ScriptableObject
     [SerializeField] float _randomRecoilY;
     [SerializeField] float _randomRecoilX;
     [SerializeField] float _diffusionValue;
+    [SerializeField] int _adsFov;
+    [SerializeField] float _timeADSTake;
 
     public int Damage { get => _damage; }
     public int FullMagazineSize { get => _fullMagazineSize; }
@@ -18,6 +20,8 @@ public class GunStatus : ScriptableObject
     public float RecoilY {  get => _randomRecoilY; }
     public float RecoilX { get => _randomRecoilX; }
     public float Diffusion {  get => _diffusionValue; }
+    public int ADSFov {  get => _adsFov; }
+    public float ADSSpeed { get => _timeADSTake; }
 }
 /* 武器に必要なステータス
 * damage

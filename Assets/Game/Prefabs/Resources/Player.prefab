@@ -420,6 +420,7 @@ MonoBehaviour:
   _orientation: {fileID: 3014770872836373231}
   _XSensitivity: 20
   _YSensitivity: 20
+  _adsSensRate: 0.5
 --- !u!114 &8254997034862268055
 MonoBehaviour:
   m_ObjectHideFlags: 0

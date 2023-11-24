@@ -32,6 +32,8 @@ public class PlayerInput : MonoBehaviour
     public Vector2 InputMoveVector { get => _inputMoveVector; }
     bool _inputOnFire = false;
     public bool InputOnFire { get => _inputOnFire; }
+    bool _isADS = false;
+    public bool IsADS { get => _isADS; }
 
     private void Awake()
     {
@@ -59,6 +61,8 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Fire.started += OnFire;
         _gameInput.InGame.Fire.canceled += OnFire;
         _gameInput.InGame.Reload.started += OnReload;
+        _gameInput.InGame.ADS.started += OnADS;
+        _gameInput.InGame.ADS.canceled += OnADS;
     }
 
     /// <summary>コールバックに登録するActionをセット出来る</summary>
@@ -85,9 +89,14 @@ public class PlayerInput : MonoBehaviour
     {
         _inputOnFire = context.phase == InputActionPhase.Started;
     }
-    private void OnReload(InputAction.CallbackContext context)
+    void OnReload(InputAction.CallbackContext context)
     {
         _actionDic[InputType.Reload]?.Invoke();
+    }
+    void OnADS(InputAction.CallbackContext context)
+    {
+        _isADS = context.phase == InputActionPhase.Started;
+        _actionDic[InputType.ADS]?.Invoke();
     }
     #endregion
 }
@@ -97,5 +106,6 @@ public enum InputType
     //Move, // dictionaryを使わない場合要らない？
     Jump,
     //Fire,
-    Reload
+    Reload,
+    ADS
 }

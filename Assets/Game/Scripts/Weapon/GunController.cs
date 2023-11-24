@@ -49,15 +49,18 @@ public class GunController : MonoBehaviourPun
             }
             else
             {
-                photonView.RPC(nameof(FireNoAction), RpcTarget.All, hit.point);
+                photonView.RPC(nameof(FireNoAction), RpcTarget.All, hit.point); // 動くobjでなければ単純な処理となる
             }
         }
 
-        _currentDiffusion += _gunStatus.Diffusion;
+        // ads中は拡散しない
+        if (!PlayerInput.Instance.IsADS) _currentDiffusion += _gunStatus.Diffusion;
+        else _currentDiffusion = 0;
+
         _headCntler.Recoil(UnityEngine.Random.Range(0, -_gunStatus.RecoilY), UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX)); // 反動を画面に反映
         _currentMagazine--;
-        _currentGunState = GunState.interval;
-        Invoke(nameof(ReturnGunState), _gunStatus.FireInterval);
+        _currentGunState = GunState.interval; // インターバルに入れて
+        Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
     }
 
     /// <summary>計算結果の処理を反映する(no Action)</summary>
@@ -74,6 +77,11 @@ public class GunController : MonoBehaviourPun
         _currentGunState = GunState.reloading;
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
         Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // 強引すぎるか
+    }
+
+    void ADS()
+    {
+        _headCntler.OnADSCamera(PlayerInput.Instance.IsADS, _gunStatus.ADSFov, _gunStatus.ADSSpeed);
     }
 
     /// <summary>gun stateをnomalに戻す</summary>
@@ -97,6 +105,7 @@ public class GunController : MonoBehaviourPun
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         if (!photonView.IsMine) return;
         PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
+        PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
         if (PhotonNetwork.LocalPlayer.IsMasterClient) // hit layerを初期化
         {

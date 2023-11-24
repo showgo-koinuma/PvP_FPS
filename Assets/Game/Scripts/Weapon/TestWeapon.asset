@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _damage: 20
   _fullMagazineSize: 30
-  _fireInterval: 0.25
+  _fireInterval: 0.1
   _reloadTime: 2
   _randomRecoilY: 10
   _randomRecoilX: 5
-  _diffusionValue: 1
+  _diffusionValue: 0.3
+  _adsFov: 70
