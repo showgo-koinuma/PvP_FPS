@@ -5,11 +5,12 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviourPun
 {
     int _score = 0;
+    int _clearScore = 1;
 
     public void AddScore()
     {
         _score++;
-        if (_score >= 10) // ゲーム終了条件
+        if (_score >= _clearScore) // ゲーム終了条件
         {
             InGameManager.Instance.FinishGame();
         } 

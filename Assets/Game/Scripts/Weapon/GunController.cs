@@ -8,6 +8,7 @@ public class GunController : MonoBehaviourPun
     [SerializeField] GunStatus _gunStatus;
     [SerializeField] Transform _muzzlePos;
     [SerializeField, Tooltip("弾道のLine")] LineRenderer _ballisticLine;
+    bool _setedAction = false;
     GunState _currentGunState = GunState.nomal;
     HeadController _headCntler;
     int _hitLayer;
@@ -104,6 +105,7 @@ public class GunController : MonoBehaviourPun
     {
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         if (!photonView.IsMine) return;
+        _setedAction = true;
         PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
@@ -117,6 +119,14 @@ public class GunController : MonoBehaviourPun
             gameObject.layer = 7;
             _hitLayer = ~(1 << 7);
         }
+    }
+
+    private void OnDisable()
+    {
+        if (!_setedAction) return;
+        PlayerInput.Instance.DelInputAction(InputType.Reload, Reload);
+        PlayerInput.Instance.DelInputAction(InputType.ADS, ADS);
+        InGameManager.Instance.UpdateAction -= FireCalculation;
     }
 }
 

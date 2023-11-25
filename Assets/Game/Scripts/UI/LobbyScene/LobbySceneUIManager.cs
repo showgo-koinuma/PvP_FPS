@@ -70,14 +70,12 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsConnected) // 自分の接続状態で条件分岐
         {
-            if (PhotonNetwork.InLobby)
-            {
-                if (PhotonNetwork.InRoom) ChangeUIObj(_waitingStartGameObj);
-                else ChangeUIObj(_defaultButtonsObj);
-            }
+            if (PhotonNetwork.InRoom) ChangeUIObj(_waitingStartGameObj); // in room のとき
+            else if (PhotonNetwork.InLobby) ChangeUIObj(_defaultButtonsObj); // in lobby のとき
             else OnConnectedToMaster();
         }
         else PhotonNetwork.ConnectUsingSettings();
+        Debug.Log("接続処理");
     }
 
     /// <summary>指定したUIObjに遷移する</summary>
@@ -85,6 +83,14 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     {
         CloseAllUI();
         (_activeObj = toUIObj).SetActive(true);
+        if (_activeObj == _waitingStartGameObj)
+        {
+            _roomNameText.text = PhotonNetwork.CurrentRoom.Name + " Room"; // ルームの名前を反映
+            GeneratePlayerNameTextObj(); // player listのUI更新
+            // マスターか判定してボタン表示
+            if (PhotonNetwork.IsMasterClient) _gameStartButton.SetActive(true);
+            else _gameStartButton.SetActive(false);
+        }
     }
 
     /// <summary>全てのUIを非表示にする</summary>
@@ -179,7 +185,7 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.JoinLobby(); // ロビーに接続
         _loadingText.text = "Joining Room..."; // テキスト更新
-        PhotonNetwork.AutomaticallySyncScene = true; // Master Clientと同じレベルをロード なにこれ
+        PhotonNetwork.AutomaticallySyncScene = true; // Master Clientと同じレベルをロード
     }
     public override void OnJoinedLobby()
     {
@@ -188,11 +194,6 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         ChangeUIObj(_waitingStartGameObj);
-        _roomNameText.text = PhotonNetwork.CurrentRoom.Name + " Room"; // ルームの名前を反映
-        GeneratePlayerNameTextObj(); // player listのUI更新
-        // マスターか判定してボタン表示
-        if (PhotonNetwork.IsMasterClient) _gameStartButton.SetActive(true);
-        else _gameStartButton.SetActive(false);
     }
     public override void OnLeftRoom()
     {

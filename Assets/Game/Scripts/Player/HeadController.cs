@@ -75,7 +75,6 @@ public class HeadController : MonoBehaviourPun
         {
             DOTween.To(() => _currentFov, x => _currentFov = x, fov, adsSpeed * (_currentFov - fov) / (90 - fov));
             _sensMultiplier = _adsSensRate;
-            Debug.Log(_myVirtualCam.gameObject.name);
         }
         else
         {
@@ -94,5 +93,12 @@ public class HeadController : MonoBehaviourPun
         InGameManager.Instance.UpdateAction += Look;
         InGameManager.Instance.UpdateAction += ReflectsRecoil;
         InGameManager.Instance.UpdateAction += ReflectsADS;
+    }
+
+    private void OnDisable()
+    {
+        InGameManager.Instance.UpdateAction -= Look;
+        InGameManager.Instance.UpdateAction -= ReflectsRecoil;
+        InGameManager.Instance.UpdateAction -= ReflectsADS;
     }
 }

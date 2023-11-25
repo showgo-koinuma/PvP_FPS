@@ -261,8 +261,13 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void OnEnable()
     {
-        //PlayerInput.Instance.SetUpdateAction(Movement);
         InGameManager.Instance.UpdateAction += Movement;
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
+    }
+
+    private void OnDisable()
+    {
+        InGameManager.Instance.UpdateAction -= Movement;
+        PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
     }
 }

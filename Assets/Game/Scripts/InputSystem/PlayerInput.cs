@@ -71,6 +71,10 @@ public class PlayerInput : MonoBehaviour
     {
         _actionDic[inputType] += action;
     }
+    public void DelInputAction(InputType inputType, Action action)
+    {
+        _actionDic[inputType] -= action;
+    }
 
     #region inputによって直接コールバックされる
     void OnLookRotate(InputAction.CallbackContext context)
