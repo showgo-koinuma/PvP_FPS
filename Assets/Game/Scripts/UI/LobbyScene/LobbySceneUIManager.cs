@@ -68,12 +68,20 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     /// <summary>ロビーに接続、またはロビー接続時の処理を実行</summary>
     void ConnectNetwork()
     {
-        if (PhotonNetwork.IsConnected) OnConnectedToMaster();
+        if (PhotonNetwork.IsConnected) // 自分の接続状態で条件分岐
+        {
+            if (PhotonNetwork.InLobby)
+            {
+                if (PhotonNetwork.InRoom) ChangeUIObj(_waitingStartGameObj);
+                else ChangeUIObj(_defaultButtonsObj);
+            }
+            else OnConnectedToMaster();
+        }
         else PhotonNetwork.ConnectUsingSettings();
     }
 
     /// <summary>指定したUIObjに遷移する</summary>
-    public void ChangeUIObj(GameObject toUIObj)
+    void ChangeUIObj(GameObject toUIObj)
     {
         CloseAllUI();
         (_activeObj = toUIObj).SetActive(true);
@@ -119,6 +127,11 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomInfo.Name);
         ChangeUIObj(_loadingObj);
         _loadingText.text = "Joining Room...";
+    }
+
+    public void ReturnLobby()
+    {
+        ChangeUIObj(_waitingStartGameObj);
     }
 
     #region Button Action ===================================================================

@@ -4,6 +4,17 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
+    int _score = 0;
+
+    public void AddScore()
+    {
+        _score++;
+        if (_score >= 10) // ゲーム終了条件
+        {
+            InGameManager.Instance.FinishGame();
+        } 
+    }
+
     public void Respawn()
     {
         // 位置、向きの初期化
@@ -20,6 +31,6 @@ public class PlayerManager : MonoBehaviourPun
         }
         transform.position = position;
 
-        // TO:DO 内部データの初期化
+        // TO:DO 内部データの初期化 どこでやるか
     }
 }

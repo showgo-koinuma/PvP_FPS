@@ -9,6 +9,7 @@ public class PlayerHealthManager : Damageable
     [SerializeField] int _maxHp = 200;
     [SerializeField] Image _damagaeCanvasImage;
     PlayerManager _pManager;
+    PlayerManager _lastHitPlayer;
     int _currentHp;
     int CurrentHp
     {
@@ -29,6 +30,8 @@ public class PlayerHealthManager : Damageable
     [PunRPC]
     protected override void OnDamageTakenShare(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
     {
+        // 1v1‚È‚Ì‚Å1‰ñ‚¾‚¯‘Î–Ê‚ð“o˜^
+        if (!_lastHitPlayer) _lastHitPlayer = InGameManager.Instance.ViewGameObjects[playerID].GetComponent<PlayerManager>();
         CurrentHp -= damage;
         OnDamageTakenIsMine();
         // ’e“¹•\Ž¦
@@ -49,6 +52,7 @@ public class PlayerHealthManager : Damageable
     void OnDead()
     {
         Debug.Log("sinnda");
+        _lastHitPlayer.AddScore();
         _currentHp = _maxHp;
         _pManager.Respawn();
     }

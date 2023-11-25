@@ -36,6 +36,11 @@ public class InGameManager : MonoBehaviour
         PhotonNetwork.Instantiate("Player", position, forword);
     }
 
+    public void FinishGame()
+    {
+        if (PhotonNetwork.IsMasterClient) PhotonNetwork.LoadLevel(0);
+    }
+
     private void Update()
     {
         UpdateAction?.Invoke();
