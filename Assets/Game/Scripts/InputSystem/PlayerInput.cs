@@ -30,6 +30,8 @@ public class PlayerInput : MonoBehaviour
     public Vector2 LookRotation { get => _lookRotation; }
     Vector2 _inputMoveVector;
     public Vector2 InputMoveVector { get => _inputMoveVector; }
+    bool _isCrouching = false;
+    public bool IsCrouching { get => _isCrouching; }
     bool _inputOnFire = false;
     public bool InputOnFire { get => _inputOnFire; }
     bool _isADS = false;
@@ -58,6 +60,8 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Move.performed += OnMove;
         _gameInput.InGame.Move.canceled += OnMove;
         _gameInput.InGame.Jump.started += OnJump;
+        _gameInput.InGame.Crouch.started += OnCrouch;
+        _gameInput.InGame.Crouch.canceled += OnCrouch;
         _gameInput.InGame.Fire.started += OnFire;
         _gameInput.InGame.Fire.canceled += OnFire;
         _gameInput.InGame.Reload.started += OnReload;
@@ -89,6 +93,11 @@ public class PlayerInput : MonoBehaviour
     {
         _actionDic[InputType.Jump]?.Invoke();
     }
+    void OnCrouch(InputAction.CallbackContext context)
+    {
+        _isCrouching = context.phase == InputActionPhase.Started;
+        _actionDic[InputType.Crouch]?.Invoke();
+    }
     void OnFire(InputAction.CallbackContext context)
     {
         _inputOnFire = context.phase == InputActionPhase.Started;
@@ -109,6 +118,7 @@ public enum InputType
 {
     //Move, // dictionaryÇégÇÌÇ»Ç¢èÍçáóvÇÁÇ»Ç¢ÅH
     Jump,
+    Crouch,
     //Fire,
     Reload,
     ADS

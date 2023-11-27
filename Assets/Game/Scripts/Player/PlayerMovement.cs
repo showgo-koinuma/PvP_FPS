@@ -66,34 +66,15 @@ public class PlayerMovement : MonoBehaviourPun
         //_jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
     }
 
-    private void MyInput()
+    private void MyInput() // 使われることのなくなった残骸
     {
         //_moveInputX = Input.GetAxisRaw("Horizontal");
         //_moveInputY = Input.GetAxisRaw("Vertical");
         _jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
         _crouching = Input.GetKey(KeyCode.LeftControl);
 
-        if (Input.GetKeyDown(KeyCode.LeftControl)) StartCrouch();
-        if (Input.GetKeyUp(KeyCode.LeftControl)) StopCrouch();
-    }
-
-    private void StartCrouch()
-    {
-        transform.localScale = _crouchScale;
-        transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
-        if (_rb.velocity.magnitude > 0.5f)
-        {
-            if (_grounded)
-            {
-                _rb.AddForce(_orientation.transform.forward * _slideForce);
-            }
-        }
-    }
-
-    private void StopCrouch()
-    {
-        transform.localScale = _playerScale;
-        transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
+        //if (Input.GetKeyDown(KeyCode.LeftControl)) StartCrouch();
+        //if (Input.GetKeyUp(KeyCode.LeftControl)) StopCrouch();
     }
 
     private void Movement()
@@ -164,6 +145,28 @@ public class PlayerMovement : MonoBehaviourPun
     private void ResetJump()
     {
         _readyToJump = true;
+    }
+
+    /// <summary>しゃがみ状態を切り替える</summary>
+    void SwitchCrouch()
+    {
+        if (PlayerInput.Instance.IsCrouching) // しゃがみ開始処理
+        {
+            transform.localScale = _crouchScale;
+            transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
+            if (_rb.velocity.magnitude > 0.5f)
+            {
+                if (_grounded)
+                {
+                    _rb.AddForce(_orientation.transform.forward * _slideForce);
+                }
+            }
+            _crouching = true;
+            return;
+        } // returnしてしゃがみ解除の処理
+        transform.localScale = _playerScale;
+        transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
+        _crouching = false;
     }
 
     /// <summary>な　に　こ　れ</summary>
@@ -263,11 +266,13 @@ public class PlayerMovement : MonoBehaviourPun
     {
         InGameManager.Instance.UpdateAction += Movement;
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
+        PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
 
     private void OnDisable()
     {
         InGameManager.Instance.UpdateAction -= Movement;
         PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
+        PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }
 }

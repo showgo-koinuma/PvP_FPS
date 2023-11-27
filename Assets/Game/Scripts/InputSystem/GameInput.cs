@@ -55,6 +55,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Crouch"",
+                    ""type"": ""Button"",
+                    ""id"": ""c5ce61e3-9ff4-42d8-9e69-5d91f2161920"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Fire"",
                     ""type"": ""Button"",
                     ""id"": ""85850610-d5aa-43c1-8a42-ecae88fd46f5"",
@@ -192,6 +201,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""ADS"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""37d55c12-3361-429a-b864-2a991eb37606"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -203,6 +223,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_InGame_Look = m_InGame.FindAction("Look", throwIfNotFound: true);
         m_InGame_Move = m_InGame.FindAction("Move", throwIfNotFound: true);
         m_InGame_Jump = m_InGame.FindAction("Jump", throwIfNotFound: true);
+        m_InGame_Crouch = m_InGame.FindAction("Crouch", throwIfNotFound: true);
         m_InGame_Fire = m_InGame.FindAction("Fire", throwIfNotFound: true);
         m_InGame_Reload = m_InGame.FindAction("Reload", throwIfNotFound: true);
         m_InGame_ADS = m_InGame.FindAction("ADS", throwIfNotFound: true);
@@ -270,6 +291,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_Look;
     private readonly InputAction m_InGame_Move;
     private readonly InputAction m_InGame_Jump;
+    private readonly InputAction m_InGame_Crouch;
     private readonly InputAction m_InGame_Fire;
     private readonly InputAction m_InGame_Reload;
     private readonly InputAction m_InGame_ADS;
@@ -280,6 +302,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         public InputAction @Look => m_Wrapper.m_InGame_Look;
         public InputAction @Move => m_Wrapper.m_InGame_Move;
         public InputAction @Jump => m_Wrapper.m_InGame_Jump;
+        public InputAction @Crouch => m_Wrapper.m_InGame_Crouch;
         public InputAction @Fire => m_Wrapper.m_InGame_Fire;
         public InputAction @Reload => m_Wrapper.m_InGame_Reload;
         public InputAction @ADS => m_Wrapper.m_InGame_ADS;
@@ -301,6 +324,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @Crouch.started += instance.OnCrouch;
+            @Crouch.performed += instance.OnCrouch;
+            @Crouch.canceled += instance.OnCrouch;
             @Fire.started += instance.OnFire;
             @Fire.performed += instance.OnFire;
             @Fire.canceled += instance.OnFire;
@@ -323,6 +349,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @Crouch.started -= instance.OnCrouch;
+            @Crouch.performed -= instance.OnCrouch;
+            @Crouch.canceled -= instance.OnCrouch;
             @Fire.started -= instance.OnFire;
             @Fire.performed -= instance.OnFire;
             @Fire.canceled -= instance.OnFire;
@@ -354,6 +383,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnCrouch(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnADS(InputAction.CallbackContext context);
