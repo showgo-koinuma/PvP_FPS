@@ -22,14 +22,18 @@ public class PlayerMovement : MonoBehaviourPun
     // しゃがみ
     [Header("しゃがみ、ジャンプ")]
     [SerializeField] float _slideForce = 400;
+    [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
+    // 現在のスピード割合
+    float _currentMoveSpeedRate = 1f;
     [SerializeField] float _slideCounterMovement = 0.2f;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale = new Vector3(1, 0.5f, 1);
     private Vector3 _playerScale;
 
     // Jumping
     private bool _readyToJump = true;
-    [SerializeField] float _jumpCooldown = 0.25f;
+    [SerializeField] float _jumpCooldown = 0.1f;
     [SerializeField] float _jumpForce = 550f;
+    [SerializeField, Tooltip("空中でのターンスピード")] float _turnSpeed = 0.1f;
 
     // Input
     //float _moveInputX, _moveInputY;
@@ -53,7 +57,7 @@ public class PlayerMovement : MonoBehaviourPun
         Cursor.visible = false;
     }
 
-
+    #region 使われることのなくなった残骸　参考用
     private void FixedUpdate()
     {
         //Movement();
@@ -61,12 +65,13 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void Update()
     {
+        if (Input.mouseScrollDelta.y < 0) Jump();
         //MyInput();
         //if (_jumping) Jump();
         //_jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
     }
 
-    private void MyInput() // 使われることのなくなった残骸
+    private void MyInput() // 使われることのなくなった残骸　参考用
     {
         //_moveInputX = Input.GetAxisRaw("Horizontal");
         //_moveInputY = Input.GetAxisRaw("Vertical");
@@ -76,8 +81,57 @@ public class PlayerMovement : MonoBehaviourPun
         //if (Input.GetKeyDown(KeyCode.LeftControl)) StartCrouch();
         //if (Input.GetKeyUp(KeyCode.LeftControl)) StopCrouch();
     }
+    #endregion
 
-    private void Movement()
+    void Movement()
+    {
+        Vector3 dir = new Vector3(PlayerInput.Instance.InputMoveVector.x, 0, PlayerInput.Instance.InputMoveVector.y);
+        dir = transform.TransformDirection(dir); // 体の向きに合わせる
+        float maxXDiff = 5f; // 加速するveloの向きのずれの最大値
+        if (_grounded && _readyToJump) // 接地中
+        {
+            if (_rb.velocity.magnitude > _moveSpeed) // 加速していた場合、徐々に減速させる
+            {
+                float mag = _rb.velocity.magnitude - 10 * Time.deltaTime;
+                _rb.velocity = dir * mag * _currentMoveSpeedRate;
+            }
+            else _rb.velocity = dir * _moveSpeed * _currentMoveSpeedRate;
+        }
+        else // 空中
+        {
+            if (dir.magnitude == 0) return; // 入力がなければ終了
+            float acceleRate = 10;
+            Vector3 currentVelo = new Vector3(_rb.velocity.x, 0, _rb.velocity.z); // 現在の水平Velocity
+            float currentSpeed = Vector3.Dot(currentVelo, dir);
+            float speedDiff = _moveSpeed - currentSpeed;
+            if (speedDiff <= 0) return;
+            float acceleSpeed = _turnSpeed * Time.deltaTime;
+            if (acceleSpeed > speedDiff) acceleSpeed = speedDiff;
+            currentVelo += dir * acceleSpeed;
+            if (currentVelo.magnitude > _maxSpeed) currentVelo = currentVelo.normalized * 20;
+            currentVelo.y = _rb.velocity.y;
+            _rb.velocity = currentVelo;
+            return;
+
+            // 現在の水平directionと入力方向でSlerpして空中で方向転換(ストレイフ)する
+            Vector3 moveVelo = Vector3.Lerp(currentVelo, dir * _moveSpeed,
+                _turnSpeed * Time.deltaTime * (currentVelo - dir * _moveSpeed).magnitude);
+            //Debug.Log((Vector3.Dot(moveVelo, transform.forward) * transform.forward - moveVelo).magnitude);
+            if ((Vector3.Dot(moveVelo, transform.forward) * transform.forward - moveVelo).magnitude <= maxXDiff)
+            {
+                moveVelo = Vector3.Lerp(currentVelo.normalized, dir,
+                    _turnSpeed * Time.deltaTime * (currentVelo - dir * _moveSpeed).magnitude * 2) * currentVelo.magnitude * 1.2f;
+                if (moveVelo.magnitude > _moveSpeed * 1.2f)
+                {
+                    moveVelo = moveVelo.normalized * 1.2f;
+                }
+            }
+            moveVelo.y = _rb.velocity.y; // 垂直速度は保持する
+            _rb.velocity = moveVelo;
+        }
+    }
+
+    private void MovementAddForce()
     {
         Vector2 moveInput = PlayerInput.Instance.InputMoveVector;
         _rb.AddForce(Vector3.down * Time.deltaTime * 10); // 下方向にAddForce
@@ -163,7 +217,7 @@ public class PlayerMovement : MonoBehaviourPun
             }
             _crouching = true;
             return;
-        } // returnしてしゃがみ解除の処理
+        } // return切替してしゃがみ解除の処理
         transform.localScale = _playerScale;
         transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
         _crouching = false;
@@ -265,6 +319,7 @@ public class PlayerMovement : MonoBehaviourPun
     private void OnEnable()
     {
         InGameManager.Instance.UpdateAction += Movement;
+        //InGameManager.Instance.UpdateAction += MovementAddForce;
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
@@ -272,7 +327,126 @@ public class PlayerMovement : MonoBehaviourPun
     private void OnDisable()
     {
         InGameManager.Instance.UpdateAction -= Movement;
+        //InGameManager.Instance.UpdateAction -= MovementAddForce;
         PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }
+
+#if false
+    //-----------------------------------------------------------------------------
+    // Purpose: 
+    // Input  : wishdir - 
+    //			accel - 
+    //-----------------------------------------------------------------------------
+    void CGameMovement::AirAccelerate(Vector3 wishdir, float wishspeed, float accel)
+    {
+        int i;
+        float addspeed, accelspeed, currentspeed;
+        float wishspd;
+
+        wishspd = wishspeed;
+
+        if (player->pl.deadflag) // 死んでたら戻る
+            return;
+        if (player->m_flWaterJumpTime) // 水？ジャンプ？してたら戻る
+            return;
+
+        // Cap speed 帽子スピード？？？　最大量を決めてる何かで Cap = 固定最大値以上に行かないようにすること
+        if (wishspd > GetAirSpeedCap())
+            wishspd = GetAirSpeedCap();
+
+        // Determine veer amount　振れ幅の決定　magnitude?
+        currentspeed = mv->m_vecVelocity.Dot(wishdir);
+
+        // See how much to add　追加量を見る
+        addspeed = wishspd - currentspeed;
+
+        // If not adding any, done.
+        if (addspeed <= 0)
+            return;
+
+        // Determine acceleration speed after acceleration 加速後の加速速度を決定する
+        accelspeed = accel * wishspeed * gpGlobals->frametime * player->m_surfaceFriction;
+
+        // Cap it
+        if (accelspeed > addspeed)
+            accelspeed = addspeed;
+
+        // Adjust pmove vel.
+        for (i = 0; i < 3; i++)
+        {
+            mv->m_vecVelocity[i] += accelspeed * wishdir[i];
+            mv->m_outWishVel[i] += accelspeed * wishdir[i];
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+    // Purpose: 目的
+    //-----------------------------------------------------------------------------
+    void CGameMovement::AirMove()
+    {
+        int i;
+        Vector3 wishvel = new Vector3();
+        float fmove, smove;
+        Vector3 wishdir;
+        float wishspeed;
+        Vector3 forward, right, up;
+
+        AngleVectors(mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles 動作角度の決定
+
+        // Copy movement amounts コピー移動量
+        fmove = mv->m_flForwardMove;
+        smove = mv->m_flSideMove;
+
+        // Zero out z components of movement vectors 移動ベクトルのz成分をゼロにする 多分今のy軸じゃね
+        forward[2] = 0;
+        right[2] = 0;
+        VectorNormalize(forward);  // Normalize remainder of vectors ベクトルの余りを正規化する
+        VectorNormalize(right);    // 
+
+        for (i = 0; i < 2; i++)       // Determine x and y parts of velocity 速度のx部分とy部分を決定する
+            wishvel[i] = forward[i] * fmove + right[i] * smove;
+        wishvel[2] = 0;             // Zero out z part of velocity 速度のz部分をゼロにする
+
+        VectorCopy(wishvel, wishdir);   // Determine maginitude of speed of move 移動速度のマジニチュードを決定する
+        wishspeed = VectorNormalize(wishdir);
+
+        //
+        // clamp to server defined max speed サーバーが定義した最高速度にクランプ
+        //
+        if (wishspeed != 0 && (wishspeed > mv->m_flMaxSpeed))
+        {
+            VectorScale(wishvel, mv->m_flMaxSpeed / wishspeed, wishvel);
+            wishspeed = mv->m_flMaxSpeed;
+        }
+
+        AirAccelerate(wishdir, wishspeed, sv_airaccelerate.GetFloat());
+
+        // Add in any base velocity to the current velocity. 現在の速度に任意の基本速度を加える
+        VectorAdd(mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
+
+        TryPlayerMove();
+
+        // Now pull the base velocity back out.   Base velocity is set if you are on a moving object, like a conveyor (or maybe another monster?)
+        // 今度はベース速度を引き戻す 基本速度は、コンベアのような動く物体に乗っている場合に設定される(それとも別のモンスター？)
+        VectorSubtract(mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
+    }
+
+    void SV_Accelerate()
+    {
+        int i;
+        float addspeed, accelspeed, currentspeed;
+
+        currentspeed = DotProduct(velocity, wishdir);
+        addspeed = 20 - currentspeed;
+        if (addspeed <= 0)
+            return;
+        accelspeed = sv_accelerate.value * host_frametime * wishspeed;
+        if (accelspeed > addspeed)
+            accelspeed = addspeed;
+
+        for (i = 0; i < 3; i++)
+            velocity[i] += accelspeed * wishdir[i];
+    }
+#endif
 }

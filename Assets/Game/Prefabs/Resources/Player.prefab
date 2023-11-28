@@ -390,18 +390,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f87875c2316584f9fc02be2d7f55cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 1500
-  _maxSpeed: 20
+  _moveSpeed: 10
+  _maxSpeed: 12
   _whatIsGround:
     serializedVersion: 2
     m_Bits: 4294967295
   _counterMovement: 0.175
   _maxSlopeAngle: 35
   _slideForce: 400
+  _crouchMoveSpeedRate: 0
   _slideCounterMovement: 0.2
   _crouchScale: {x: 1, y: 0.5, z: 1}
   _jumpCooldown: 0.25
   _jumpForce: 300
+  _turnSpeed: 50
 --- !u!114 &3429649735527690838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -418,8 +420,8 @@ MonoBehaviour:
     type: 3}
   _head: {fileID: 8035219542874949091}
   _orientation: {fileID: 3014770872836373231}
-  _XSensitivity: 20
-  _YSensitivity: 20
+  _XSensitivity: 5
+  _YSensitivity: 5
   _adsSensRate: 0.5
 --- !u!114 &8254997034862268055
 MonoBehaviour:
@@ -457,7 +459,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4582819006075063224}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 1a10c179138497d42aa7145cd59ea12a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -480,7 +482,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4582819006075063224}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 1a10c179138497d42aa7145cd59ea12a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
