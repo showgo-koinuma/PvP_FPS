@@ -1,39 +1,46 @@
 using System;
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.InputSystem.XR;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviourPun
 {
     Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
-    private Rigidbody _rb;
+    Rigidbody _rb;
 
     // Movement
     [Header("移動")]
+    Vector3 _playerVelocity;
     [SerializeField] float _moveSpeed = 4500;
     [SerializeField] float _maxSpeed = 20;
-    bool _grounded;
-    [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
-    [SerializeField] float _counterMovement = 0.175f;
-    private float _threshold = 0.01f;
+    [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
+    [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
+    [SerializeField, Tooltip("ストレイフの加速度")] float _strafeAcceleration = 50f;
+    [SerializeField, Tooltip("ストレイフの最大速度")] float _maxStrafeSpeed = 1f;
+    [SerializeField, Tooltip("空中でどの程度制御できるか")] float _airControl;
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle = 35f;
-    private bool _cancellingGrounded;
+    [SerializeField, Tooltip("摩擦")] float _friction = 6f;
+    [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
+    bool _isGround;
+    bool _cancellingGrounded;
 
-    // しゃがみ
-    [Header("しゃがみ、ジャンプ")]
-    [SerializeField] float _slideForce = 400;
-    [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
-    // 現在のスピード割合
-    float _currentMoveSpeedRate = 1f;
-    [SerializeField] float _slideCounterMovement = 0.2f;
-    [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale = new Vector3(1, 0.5f, 1);
-    private Vector3 _playerScale;
+    [Header("ジャンプ、しゃがみ")]
 
     // Jumping
-    private bool _readyToJump = true;
+    bool _readyToJump = true;
     [SerializeField] float _jumpCooldown = 0.1f;
     [SerializeField] float _jumpForce = 550f;
-    [SerializeField, Tooltip("空中でのターンスピード")] float _turnSpeed = 0.1f;
+
+    // しゃがみ
+    [SerializeField] float _slideForce = 400;
+    [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
+    [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale = new Vector3(1, 0.5f, 1);
+    [SerializeField, Tooltip("スライディングのクールダウン")] float _slidingCooldown;
+    /// <summary>現在のスピード割合</summary>
+    float _currentMoveSpeedRate = 1f;
+    private Vector3 _playerScale;
+    bool _readyToSliding = true;
 
     // Input
     //float _moveInputX, _moveInputY;
@@ -57,128 +64,143 @@ public class PlayerMovement : MonoBehaviourPun
         Cursor.visible = false;
     }
 
-    #region 使われることのなくなった残骸　参考用
-    private void FixedUpdate()
+    private void ThisUpdate()
     {
-        //Movement();
+        if (Input.mouseScrollDelta.y < 0) Jump(); // マウスホイールをボタンみたいに使いたいんだけどな
+        Movement();
+        _jumping = false;
     }
-
-    private void Update()
-    {
-        if (Input.mouseScrollDelta.y < 0) Jump();
-        //MyInput();
-        //if (_jumping) Jump();
-        //_jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
-    }
-
-    private void MyInput() // 使われることのなくなった残骸　参考用
-    {
-        //_moveInputX = Input.GetAxisRaw("Horizontal");
-        //_moveInputY = Input.GetAxisRaw("Vertical");
-        _jumping = Input.GetButton("Jump") || Input.mouseScrollDelta.y < 0;
-        _crouching = Input.GetKey(KeyCode.LeftControl);
-
-        //if (Input.GetKeyDown(KeyCode.LeftControl)) StartCrouch();
-        //if (Input.GetKeyUp(KeyCode.LeftControl)) StopCrouch();
-    }
-    #endregion
 
     void Movement()
     {
-        Vector3 dir = new Vector3(PlayerInput.Instance.InputMoveVector.x, 0, PlayerInput.Instance.InputMoveVector.y);
-        dir = transform.TransformDirection(dir); // 体の向きに合わせる
-        float maxXDiff = 5f; // 加速するveloの向きのずれの最大値
-        if (_grounded && _readyToJump) // 接地中
-        {
-            if (_rb.velocity.magnitude > _moveSpeed) // 加速していた場合、徐々に減速させる
-            {
-                float mag = _rb.velocity.magnitude - 10 * Time.deltaTime;
-                _rb.velocity = dir * mag * _currentMoveSpeedRate;
-            }
-            else _rb.velocity = dir * _moveSpeed * _currentMoveSpeedRate;
-        }
-        else // 空中
-        {
-            if (dir.magnitude == 0) return; // 入力がなければ終了
-            float acceleRate = 10;
-            Vector3 currentVelo = new Vector3(_rb.velocity.x, 0, _rb.velocity.z); // 現在の水平Velocity
-            float currentSpeed = Vector3.Dot(currentVelo, dir);
-            float speedDiff = _moveSpeed - currentSpeed;
-            if (speedDiff <= 0) return;
-            float acceleSpeed = _turnSpeed * Time.deltaTime;
-            if (acceleSpeed > speedDiff) acceleSpeed = speedDiff;
-            currentVelo += dir * acceleSpeed;
-            if (currentVelo.magnitude > _maxSpeed) currentVelo = currentVelo.normalized * 20;
-            currentVelo.y = _rb.velocity.y;
-            _rb.velocity = currentVelo;
-            return;
+        if (_isGround) GroundMove();
+        else AirMove();
+        _playerVelocity.y = _rb.velocity.y;
+        _rb.velocity = _playerVelocity;
 
-            // 現在の水平directionと入力方向でSlerpして空中で方向転換(ストレイフ)する
-            Vector3 moveVelo = Vector3.Lerp(currentVelo, dir * _moveSpeed,
-                _turnSpeed * Time.deltaTime * (currentVelo - dir * _moveSpeed).magnitude);
-            //Debug.Log((Vector3.Dot(moveVelo, transform.forward) * transform.forward - moveVelo).magnitude);
-            if ((Vector3.Dot(moveVelo, transform.forward) * transform.forward - moveVelo).magnitude <= maxXDiff)
+        //Vector3 dir = new Vector3(PlayerInput.Instance.InputMoveVector.x, 0, PlayerInput.Instance.InputMoveVector.y);
+        //dir = transform.TransformDirection(dir); // 体の向きに合わせる
+        //float maxXDiff = 5f; // 加速するveloの向きのずれの最大値
+        //if (_isGround && _readyToJump) // 接地中
+        //{
+        //    if (_rb.velocity.magnitude > _moveSpeed) // 加速していた場合、徐々に減速させる
+        //    {
+        //        float mag = _rb.velocity.magnitude - 10 * Time.deltaTime;
+        //        _rb.velocity = dir * mag * _currentMoveSpeedRate;
+        //    }
+        //    else _rb.velocity = dir * _moveSpeed * _currentMoveSpeedRate;
+        //}
+        //else // 空中
+        //{
+        //    if (dir.magnitude == 0) return; // 入力がなければ終了
+        //    Vector3 currentVelo = new Vector3(_rb.velocity.x, 0, _rb.velocity.z); // 現在の水平Velocity
+        //    float currentSpeed = Vector3.Dot(dir, currentVelo);
+        //    float speedDiff = _moveSpeed - currentSpeed;
+        //    if (speedDiff <= 0) return;
+        //    float acceleSpeed = _turnSpeed * Time.deltaTime;
+        //    if (acceleSpeed > speedDiff) acceleSpeed = speedDiff;
+        //    currentVelo += dir * acceleSpeed;
+        //    if (currentVelo.magnitude > _maxSpeed) currentVelo = currentVelo.normalized * _maxSpeed;
+        //    currentVelo.y = _rb.velocity.y;
+        //    _rb.velocity = currentVelo;
+        //}
+    }
+
+    /// <summary>地上での動き</summary>
+    public void GroundMove()
+    {
+        Vector3 vec = _playerVelocity; // Equivalent to: VectorCopy();
+        vec.y = 0f;
+        float speed = vec.magnitude;
+
+        float control = speed < _groundAcceleration ? _groundAcceleration : speed;
+        float drop = control * _friction * Time.deltaTime;
+        if (_jumping) drop = 0f;
+
+        float newspeed = speed - drop;
+        if (newspeed < 0) newspeed = 0;
+        if (speed > 0) newspeed /= speed;
+
+        _playerVelocity.x *= newspeed;
+        _playerVelocity.z *= newspeed;
+
+        Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
+        wishdir = transform.TransformDirection(wishdir);
+        Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+    }
+
+    /// <summary>空中での動き</summary>
+    public void AirMove()
+    {
+        Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
+
+        float wishspeed = 7f;
+
+        // Aircontrol
+        float wishspeed2 = wishspeed;
+        float accel = _airAcceleration;
+
+        // 左右キーだけでストレイフしていた場合
+        if (wishdir.x == 0 && wishdir.z != 0)
+        {
+            if (wishspeed > _maxStrafeSpeed)
+                wishspeed = _maxStrafeSpeed;
+            accel = _strafeAcceleration;
+        }
+
+        wishdir = transform.TransformDirection(wishdir);
+        Accelerate(wishdir, wishspeed, accel);
+
+        if (wishspeed2 != 0) AirControl(wishdir, wishspeed2);
+
+        // Apply gravity
+        //_playerVelocity.y += gravity * Time.deltaTime;
+
+        // 左右キーだけのストレイフは速くなる的な
+        void AirControl(Vector3 wishdir, float wishspeed)
+        {
+            _playerVelocity.y = 0;
+            float speed = _playerVelocity.magnitude;
+            _playerVelocity.Normalize();
+
+            float dot = Vector3.Dot(_playerVelocity, wishdir);
+            float k = 32; // なんでこの数値になったのか分からん
+            k *= _airControl * dot * dot * Time.deltaTime;
+
+            // 減速しながら方向を変える
+            if (dot > 0)
             {
-                moveVelo = Vector3.Lerp(currentVelo.normalized, dir,
-                    _turnSpeed * Time.deltaTime * (currentVelo - dir * _moveSpeed).magnitude * 2) * currentVelo.magnitude * 1.2f;
-                if (moveVelo.magnitude > _moveSpeed * 1.2f)
-                {
-                    moveVelo = moveVelo.normalized * 1.2f;
-                }
+                _playerVelocity.x = _playerVelocity.x * speed + wishdir.x * k;
+                _playerVelocity.y = _playerVelocity.y * speed + wishdir.y * k;
+                _playerVelocity.z = _playerVelocity.z * speed + wishdir.z * k;
+
+                _playerVelocity.Normalize();
             }
-            moveVelo.y = _rb.velocity.y; // 垂直速度は保持する
-            _rb.velocity = moveVelo;
+
+            _playerVelocity.x *= speed;
+            _playerVelocity.z *= speed;
+
         }
     }
 
-    private void MovementAddForce()
+    /// <summary>ベクトルを計算する</summary>
+    public void Accelerate(Vector3 wishdir, float wishSpeed, float accel)
     {
-        Vector2 moveInput = PlayerInput.Instance.InputMoveVector;
-        _rb.AddForce(Vector3.down * Time.deltaTime * 10); // 下方向にAddForce
-
-        //Find actual velocity relative to where player is looking
-        Vector2 mag = FindVelRelativeToLook();
-        float xMag = mag.x, yMag = mag.y;
-
-        //Counteract sliding and sloppy movement
-        CounterMovement(moveInput.x, moveInput.y, mag); //一旦なしで
-        _jumping = false;
-
-        //If sliding down a ramp, add force down so player stays grounded and also builds speed
-        if (_crouching && _grounded && _readyToJump)
-        {
-            _rb.AddForce(Vector3.down * Time.deltaTime * 3000);
+        float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
+        float addspeed = wishSpeed - currentspeed;
+        if (addspeed <= 0)
             return;
-        }
+        float accelspeed = accel * Time.deltaTime * wishSpeed;
+        if (accelspeed > addspeed)
+            accelspeed = addspeed;
 
-        //If speed is larger than maxspeed, cancel out the input so you don't go over max speed
-        float maxSpeed = _maxSpeed;
-        if (moveInput.x > 0 && xMag > maxSpeed) moveInput.x = 0;
-        if (moveInput.x < 0 && xMag < -maxSpeed) moveInput.x = 0;
-        if (moveInput.y > 0 && yMag > maxSpeed) moveInput.y = 0;
-        if (moveInput.y < 0 && yMag < -maxSpeed) moveInput.y = 0;
-
-        //Some multipliers
-        float multiplier = 1f, multiplierV = 1f;
-
-        // Movement in air
-        if (!_grounded)
-        {
-            multiplier = 0.5f;
-            multiplierV = 0.5f;
-        }
-
-        // Movement while sliding
-        if (_grounded && _crouching) multiplierV = 0f;
-
-        //Apply forces to move player
-        _rb.AddForce(_orientation.transform.forward * moveInput.y * _moveSpeed * Time.deltaTime * multiplier * multiplierV);
-        _rb.AddForce(_orientation.transform.right * moveInput.x * _moveSpeed * Time.deltaTime * multiplier);
+        _playerVelocity.x += accelspeed * wishdir.x;
+        _playerVelocity.z += accelspeed * wishdir.z;
     }
 
     void Jump()
     {
-        if (_grounded && _readyToJump)
+        if (_isGround && _readyToJump)
         {
             _readyToJump = false;
             _jumping = true;
@@ -208,13 +230,7 @@ public class PlayerMovement : MonoBehaviourPun
         {
             transform.localScale = _crouchScale;
             transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
-            if (_rb.velocity.magnitude > 0.5f)
-            {
-                if (_grounded)
-                {
-                    _rb.AddForce(_orientation.transform.forward * _slideForce);
-                }
-            }
+            Sliding();
             _crouching = true;
             return;
         } // return切替してしゃがみ解除の処理
@@ -223,58 +239,16 @@ public class PlayerMovement : MonoBehaviourPun
         _crouching = false;
     }
 
-    /// <summary>な　に　こ　れ</summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="mag"></param>
-    private void CounterMovement(float x, float y, Vector2 mag)
+    void Sliding()
     {
-        if (!_grounded || !_readyToJump) return;
-
-        //Slow down sliding
-        if (_crouching)
-        {
-            _rb.AddForce(_moveSpeed * Time.deltaTime * -_rb.velocity.normalized * _slideCounterMovement);
-            return;
-        }
-
-        //Counter movement
-        if (Math.Abs(mag.x) > _threshold && Math.Abs(x) < 0.05f || (mag.x < -_threshold && x > 0) || (mag.x > _threshold && x < 0))
-        {
-            _rb.AddForce(_moveSpeed * _orientation.transform.right * Time.deltaTime * -mag.x * _counterMovement);
-        }
-        if (Math.Abs(mag.y) > _threshold && Math.Abs(y) < 0.05f || (mag.y < -_threshold && y > 0) || (mag.y > _threshold && y < 0))
-        {
-            _rb.AddForce(_moveSpeed * _orientation.transform.forward * Time.deltaTime * -mag.y * _counterMovement);
-        }
-
-        //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
-        if (Mathf.Sqrt((Mathf.Pow(_rb.velocity.x, 2) + Mathf.Pow(_rb.velocity.z, 2))) > _maxSpeed)
-        {
-            float fallspeed = _rb.velocity.y;
-            Vector3 n = _rb.velocity.normalized * _maxSpeed;
-            _rb.velocity = new Vector3(n.x, fallspeed, n.z);
-        }
+        if (!_readyToSliding) return;
+        _readyToSliding = false;
+        Invoke(nameof(ResetSliding), _slidingCooldown);
     }
 
-    /// <summary>
-    /// Find the velocity relative to where the player is looking
-    /// Useful for vectors calculations regarding movement and limiting movement
-    /// </summary>
-    /// <returns></returns>
-    public Vector2 FindVelRelativeToLook()
+    void ResetSliding()
     {
-        float lookAngle = _orientation.transform.eulerAngles.y;
-        float moveAngle = Mathf.Atan2(_rb.velocity.x, _rb.velocity.z) * Mathf.Rad2Deg;
-
-        float u = Mathf.DeltaAngle(lookAngle, moveAngle);
-        float v = 90 - u;
-
-        float magnitue = _rb.velocity.magnitude;
-        float yMag = magnitue * Mathf.Cos(u * Mathf.Deg2Rad);
-        float xMag = magnitue * Mathf.Cos(v * Mathf.Deg2Rad);
-
-        return new Vector2(xMag, yMag);
+        _readyToSliding = true;
     }
 
     /// <summary>その法線ベクトルの面は地面として扱えるか</summary>
@@ -295,7 +269,7 @@ public class PlayerMovement : MonoBehaviourPun
 
             if (IsFloor(normal))
             {
-                _grounded = true;
+                _isGround = true;
                 _cancellingGrounded = false;
                 _normalVector = normal;
                 CancelInvoke(nameof(StopGrounded));
@@ -313,21 +287,19 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void StopGrounded()
     {
-        _grounded = false;
+        _isGround = false;
     }
 
     private void OnEnable()
     {
-        InGameManager.Instance.UpdateAction += Movement;
-        //InGameManager.Instance.UpdateAction += MovementAddForce;
+        InGameManager.Instance.UpdateAction += ThisUpdate;
         PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
 
     private void OnDisable()
     {
-        InGameManager.Instance.UpdateAction -= Movement;
-        //InGameManager.Instance.UpdateAction -= MovementAddForce;
+        InGameManager.Instance.UpdateAction -= ThisUpdate;
         PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }

@@ -28,8 +28,8 @@ public class PlayerInput : MonoBehaviour
     // input‚Ìó‘Ô‚ð•Û‘¶‚µAðŒ‚ÅŽÀs‚·‚é‚½‚ß‚Ì‚à‚Ì
     Vector2 _lookRotation;
     public Vector2 LookRotation { get => _lookRotation; }
-    Vector2 _inputMoveVector;
-    public Vector2 InputMoveVector { get => _inputMoveVector; }
+    Vector3 _inputMoveVector;
+    public Vector3 InputMoveVector { get => _inputMoveVector; }
     bool _isCrouching = false;
     public bool IsCrouching { get => _isCrouching; }
     bool _inputOnFire = false;
@@ -87,7 +87,7 @@ public class PlayerInput : MonoBehaviour
     }
     void OnMove(InputAction.CallbackContext context)
     {
-        _inputMoveVector = context.ReadValue<Vector2>();
+        _inputMoveVector = new Vector3(context.ReadValue<Vector2>().x, 0, context.ReadValue<Vector2>().y);
     }
     void OnJump(InputAction.CallbackContext context)
     {
