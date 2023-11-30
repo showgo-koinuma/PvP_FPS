@@ -11,36 +11,41 @@ public class PlayerMovement : MonoBehaviourPun
 
     // Movement
     [Header("移動")]
-    Vector3 _playerVelocity;
-    [SerializeField] float _moveSpeed = 4500;
-    [SerializeField] float _maxSpeed = 20;
+    [SerializeField] float _moveSpeed;
     [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
+    [Space(5)]
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
-    [SerializeField, Tooltip("ストレイフの加速度")] float _strafeAcceleration = 50f;
-    [SerializeField, Tooltip("ストレイフの最大速度")] float _maxStrafeSpeed = 1f;
+    [SerializeField, Tooltip("ストレイフの加速度")] float _strafeAcceleration;
+    [SerializeField, Tooltip("ストレイフの最大速度")] float _maxStrafeSpeed;
     [SerializeField, Tooltip("空中でどの程度制御できるか")] float _airControl;
-    [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle = 35f;
-    [SerializeField, Tooltip("摩擦")] float _friction = 6f;
+    [Space(5)]
+    [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
+    [SerializeField, Tooltip("摩擦")] float _friction;
     [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
+    Vector3 _playerVelocity;
     bool _isGround;
     bool _cancellingGrounded;
 
-    [Header("ジャンプ、しゃがみ")]
-
+    [Header("ジャンプ、しゃがみ、スライディング")]
     // Jumping
+    [SerializeField] float _jumpCooldown;
+    [SerializeField] float _jumpForce;
     bool _readyToJump = true;
-    [SerializeField] float _jumpCooldown = 0.1f;
-    [SerializeField] float _jumpForce = 550f;
 
     // しゃがみ
-    [SerializeField] float _slideForce = 400;
+    [Space(5)]
     [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale = new Vector3(1, 0.5f, 1);
-    [SerializeField, Tooltip("スライディングのクールダウン")] float _slidingCooldown;
-    /// <summary>現在のスピード割合</summary>
-    float _currentMoveSpeedRate = 1f;
     private Vector3 _playerScale;
+
+    // スライディング
+    [Space(5)]
+    [SerializeField, Tooltip("スライディングの初速")] float _slidingSpeed;
+    [SerializeField, Tooltip("スライディング時の滑りやすさ(摩擦)")] float _slidingFriction;
+    [SerializeField, Tooltip("スライディイングがかかるスピードの最小値")] float _minCnaSlidingSpeed;
+    [SerializeField, Tooltip("スライディングのクールダウン")] float _slidingCooldown;
     bool _readyToSliding = true;
+    bool _slidingNow = false;
 
     // Input
     //float _moveInputX, _moveInputY;
@@ -77,6 +82,8 @@ public class PlayerMovement : MonoBehaviourPun
         else AirMove();
         _playerVelocity.y = _rb.velocity.y;
         _rb.velocity = _playerVelocity;
+        _playerVelocity.y = 0;
+        if (_slidingNow) Debug.Log("sliding now");
 
         //Vector3 dir = new Vector3(PlayerInput.Instance.InputMoveVector.x, 0, PlayerInput.Instance.InputMoveVector.y);
         //dir = transform.TransformDirection(dir); // 体の向きに合わせる
@@ -116,6 +123,7 @@ public class PlayerMovement : MonoBehaviourPun
         float control = speed < _groundAcceleration ? _groundAcceleration : speed;
         float drop = control * _friction * Time.deltaTime;
         if (_jumping) drop = 0f;
+        if (_slidingNow) drop *= _slidingFriction;
 
         float newspeed = speed - drop;
         if (newspeed < 0) newspeed = 0;
@@ -126,7 +134,18 @@ public class PlayerMovement : MonoBehaviourPun
 
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
-        Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+        if (_slidingNow)
+        {
+            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
+            //Debug.Log(_playerVelocity.magnitude);
+            if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _slidingNow = false;
+        }
+        else if (_crouching)
+        {
+            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
+            Sliding(_playerVelocity.magnitude);
+        }
+        else Accelerate(wishdir, _moveSpeed, _groundAcceleration);
     }
 
     /// <summary>空中での動き</summary>
@@ -141,7 +160,7 @@ public class PlayerMovement : MonoBehaviourPun
         float accel = _airAcceleration;
 
         // 左右キーだけでストレイフしていた場合
-        if (wishdir.x == 0 && wishdir.z != 0)
+        if (wishdir.x != 0 && wishdir.z == 0)
         {
             if (wishspeed > _maxStrafeSpeed)
                 wishspeed = _maxStrafeSpeed;
@@ -151,7 +170,7 @@ public class PlayerMovement : MonoBehaviourPun
         wishdir = transform.TransformDirection(wishdir);
         Accelerate(wishdir, wishspeed, accel);
 
-        if (wishspeed2 != 0) AirControl(wishdir, wishspeed2);
+        //if (wishspeed2 != 0) AirControl(wishdir, wishspeed2);
 
         // Apply gravity
         //_playerVelocity.y += gravity * Time.deltaTime;
@@ -170,10 +189,7 @@ public class PlayerMovement : MonoBehaviourPun
             // 減速しながら方向を変える
             if (dot > 0)
             {
-                _playerVelocity.x = _playerVelocity.x * speed + wishdir.x * k;
-                _playerVelocity.y = _playerVelocity.y * speed + wishdir.y * k;
-                _playerVelocity.z = _playerVelocity.z * speed + wishdir.z * k;
-
+                _playerVelocity = _playerVelocity * speed + wishdir * k;
                 _playerVelocity.Normalize();
             }
 
@@ -230,19 +246,23 @@ public class PlayerMovement : MonoBehaviourPun
         {
             transform.localScale = _crouchScale;
             transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
-            Sliding();
             _crouching = true;
             return;
         } // return切替してしゃがみ解除の処理
         transform.localScale = _playerScale;
         transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
         _crouching = false;
+        _slidingNow = false;
     }
 
-    void Sliding()
+    void Sliding(float speed)
     {
-        if (!_readyToSliding) return;
+        if (!_readyToSliding || speed < _minCnaSlidingSpeed || !_readyToJump) return;
+        Debug.Log("sliding");
+        _playerVelocity = _playerVelocity.normalized * _slidingSpeed;
+        _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;
+        _slidingNow = true;
         Invoke(nameof(ResetSliding), _slidingCooldown);
     }
 

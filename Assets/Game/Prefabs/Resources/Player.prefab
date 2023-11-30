@@ -391,10 +391,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveSpeed: 10
-  _maxSpeed: 12
   _groundAcceleration: 14
   _airAcceleration: 5
-  _strafeAcceleration: 60
+  _strafeAcceleration: 70
   _maxStrafeSpeed: 1
   _airControl: 0.3
   _maxSlopeAngle: 35
@@ -402,13 +401,14 @@ MonoBehaviour:
   _whatIsGround:
     serializedVersion: 2
     m_Bits: 4294967295
-  _slideForce: 400
-  _crouchMoveSpeedRate: 0
-  _slideCounterMovement: 0.2
-  _crouchScale: {x: 1, y: 0.5, z: 1}
   _jumpCooldown: 0.25
   _jumpForce: 300
-  _turnSpeed: 50
+  _crouchMoveSpeedRate: 0.5
+  _crouchScale: {x: 1, y: 0.5, z: 1}
+  _slidingSpeed: 20
+  _slidingFriction: 0.2
+  _minCnaSlidingSpeed: 9
+  _slidingCooldown: 1.2
 --- !u!114 &3429649735527690838
 MonoBehaviour:
   m_ObjectHideFlags: 0
