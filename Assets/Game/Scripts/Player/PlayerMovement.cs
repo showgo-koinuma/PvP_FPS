@@ -222,10 +222,17 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (!_onWall || _isGround) return; // ï«Ç…ê⁄ÇµÇƒÇ¢Ç»Ç¢ || ê⁄íníÜ
         Debug.Log("wall jump");
-        Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, _playerVelocity);
-        jumpVec.y = 0;
-        _playerVelocity = jumpVec.normalized;
-        _rb.AddForce(Vector2.up * _wallJumpPower * 1.5f);
+        Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, _rb.velocity);
+        Quaternion wallQ =
+            Quaternion.AngleAxis((Mathf.Atan2(jumpVec.x, jumpVec.z) - Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z))
+            * Mathf.Rad2Deg, Vector3.up);
+        Vector3 wallLookJumpVec = wallQ * Vector3.forward;
+        wallLookJumpVec = new Vector3(Mathf.Sign(wallLookJumpVec.x), 0, 1) * _wallJumpPower;
+        wallLookJumpVec = Quaternion.AngleAxis(Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z) * Mathf.Rad2Deg, Vector3.up) 
+            * wallLookJumpVec;
+        wallLookJumpVec.y = _wallJumpPower;
+        _playerVelocity = wallLookJumpVec;
+        _rb.velocity = wallLookJumpVec;
     }
 
     /// <summary>ÇµÇ·Ç™Ç›èÛë‘ÇêÿÇËë÷Ç¶ÇÈ</summary>

@@ -403,7 +403,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   _jumpCooldown: 0.25
   _jumpForce: 300
-  _wallJumpPower: 300
+  _wallJumpPower: 8
   _maxWallAngle: 40
   _crouchMoveSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
