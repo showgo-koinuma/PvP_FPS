@@ -1,45 +1,57 @@
-using System;
 using UnityEngine;
 using Photon.Pun;
-using UnityEngine.InputSystem.XR;
 
+/// <summary>
+/// Playerを動かすコンポーネント
+/// </summary>
+// コンポーネント分けられるか
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviourPun
 {
     Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
     Rigidbody _rb;
 
-    // Movement
     [Header("移動")]
+    // 接地中
     [SerializeField] float _moveSpeed;
     [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
     [Space(5)]
+    // 空中
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
     [SerializeField, Tooltip("ストレイフの加速度")] float _strafeAcceleration;
     [SerializeField, Tooltip("ストレイフの最大速度")] float _maxStrafeSpeed;
     [SerializeField, Tooltip("空中でどの程度制御できるか")] float _airControl;
     [Space(5)]
+    // その他
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
     [SerializeField, Tooltip("摩擦")] float _friction;
     [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
+    /// <summary>rbに直接代入するplayerのvelocity</summary>
     Vector3 _playerVelocity;
     bool _isGround;
+    /// <summary>接地中の面のnomalVector</summary>
+    Vector3 _groundNormalVector = Vector3.up;
     bool _cancellingGrounded;
 
-    [Header("ジャンプ、しゃがみ、スライディング")]
-    // Jumping
+    [Header("ジャンプ")]
     [SerializeField] float _jumpCooldown;
     [SerializeField] float _jumpForce;
     bool _readyToJump = true;
+    [Space(10)]
+    // 壁ジャン
+    [SerializeField, Tooltip("壁ジャンの強さ")] float _wallJumpPower;
+    [SerializeField, Tooltip("壁ジャン出来る壁として扱える最大の角度")] float _maxWallAngle; // 現時点上下の角度を考慮出来てない
+    bool _onWall;
+    /// <summary>最も正面にある壁のnomalVector</summary>
+    Vector3 _wallNormalVector;
+    bool _cancellingOnWall;
 
-    // しゃがみ
-    [Space(5)]
+    [Header("しゃがみ")]
     [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
-    [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale = new Vector3(1, 0.5f, 1);
+    [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale;
     private Vector3 _playerScale;
 
-    // スライディング
-    [Space(5)]
+    [Header("スライディング")]
     [SerializeField, Tooltip("スライディングの初速")] float _slidingSpeed;
     [SerializeField, Tooltip("スライディング時の滑りやすさ(摩擦)")] float _slidingFriction;
     [SerializeField, Tooltip("スライディイングがかかるスピードの最小値")] float _minCnaSlidingSpeed;
@@ -47,13 +59,8 @@ public class PlayerMovement : MonoBehaviourPun
     bool _readyToSliding = true;
     bool _slidingNow = false;
 
-    // Input
-    //float _moveInputX, _moveInputY;
-    bool _jumping, _sprinting, _crouching;
-
-    // Sliding
-    private Vector3 _normalVector = Vector3.up;
-    private Vector3 _wallNormalVector; // 何に使う？ 壁ジャンプか
+    // 現在の状態を管理　enumでやる必要がでてくるかも
+    bool _jumping, _crouching;
 
     void Awake()
     {
@@ -71,7 +78,7 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void ThisUpdate()
     {
-        if (Input.mouseScrollDelta.y < 0) Jump(); // マウスホイールをボタンみたいに使いたいんだけどな
+        if (Input.mouseScrollDelta.y < 0) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         Movement();
         _jumping = false;
     }
@@ -84,33 +91,6 @@ public class PlayerMovement : MonoBehaviourPun
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
         if (_slidingNow) Debug.Log("sliding now");
-
-        //Vector3 dir = new Vector3(PlayerInput.Instance.InputMoveVector.x, 0, PlayerInput.Instance.InputMoveVector.y);
-        //dir = transform.TransformDirection(dir); // 体の向きに合わせる
-        //float maxXDiff = 5f; // 加速するveloの向きのずれの最大値
-        //if (_isGround && _readyToJump) // 接地中
-        //{
-        //    if (_rb.velocity.magnitude > _moveSpeed) // 加速していた場合、徐々に減速させる
-        //    {
-        //        float mag = _rb.velocity.magnitude - 10 * Time.deltaTime;
-        //        _rb.velocity = dir * mag * _currentMoveSpeedRate;
-        //    }
-        //    else _rb.velocity = dir * _moveSpeed * _currentMoveSpeedRate;
-        //}
-        //else // 空中
-        //{
-        //    if (dir.magnitude == 0) return; // 入力がなければ終了
-        //    Vector3 currentVelo = new Vector3(_rb.velocity.x, 0, _rb.velocity.z); // 現在の水平Velocity
-        //    float currentSpeed = Vector3.Dot(dir, currentVelo);
-        //    float speedDiff = _moveSpeed - currentSpeed;
-        //    if (speedDiff <= 0) return;
-        //    float acceleSpeed = _turnSpeed * Time.deltaTime;
-        //    if (acceleSpeed > speedDiff) acceleSpeed = speedDiff;
-        //    currentVelo += dir * acceleSpeed;
-        //    if (currentVelo.magnitude > _maxSpeed) currentVelo = currentVelo.normalized * _maxSpeed;
-        //    currentVelo.y = _rb.velocity.y;
-        //    _rb.velocity = currentVelo;
-        //}
     }
 
     /// <summary>地上での動き</summary>
@@ -137,7 +117,6 @@ public class PlayerMovement : MonoBehaviourPun
         if (_slidingNow)
         {
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
-            //Debug.Log(_playerVelocity.magnitude);
             if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _slidingNow = false;
         }
         else if (_crouching)
@@ -234,9 +213,19 @@ public class PlayerMovement : MonoBehaviourPun
         }
     }
 
-    private void ResetJump()
+    void ResetJump()
     {
         _readyToJump = true;
+    }
+
+    void WallJump()
+    {
+        if (!_onWall || _isGround) return; // 壁に接していない || 接地中
+        Debug.Log("wall jump");
+        Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, _playerVelocity);
+        jumpVec.y = 0;
+        _playerVelocity = jumpVec.normalized;
+        _rb.AddForce(Vector2.up * _wallJumpPower * 1.5f);
     }
 
     /// <summary>しゃがみ状態を切り替える</summary>
@@ -282,32 +271,54 @@ public class PlayerMovement : MonoBehaviourPun
     {
         int layer = other.gameObject.layer;
         if (_whatIsGround != (_whatIsGround | (1 << layer))) return; // 地面のレイヤーでなければ当たっていても地面だと判定しない
+        float minAngle = 180;
 
         for (int i = 0; i < other.contactCount; i++) // すべての接触点においてIsFloorをかける
         {
             Vector3 normal = other.contacts[i].normal; // 接している面の法線ベクトル
 
-            if (IsFloor(normal))
+            if (IsFloor(normal)) // 地面として扱えるか
             {
                 _isGround = true;
                 _cancellingGrounded = false;
-                _normalVector = normal;
+                _groundNormalVector = normal;
                 CancelInvoke(nameof(StopGrounded));
+            }
+            else
+            {
+                float angle = Vector3.Angle(transform.forward, normal);
+
+                if (angle > 180 - _maxWallAngle && minAngle > angle) // 壁ジャン可能か && 最も正面か
+                {
+                    minAngle = angle;
+                    _wallNormalVector = normal;
+                    _onWall = true;
+                    _cancellingOnWall = false;
+                    CancelInvoke(nameof(StopOnWall));
+                }
             }
         }
 
-        //Invoke ground/wall cancel, since we can't check normals with CollisionExit
-        float delay = 3f;
+        // CollisionExitで法線をチェックできないため、地面／壁のキャンセルを呼び出す
+        float delay = 3f; // それぞれfalseにするフレーム数
         if (!_cancellingGrounded)
         {
             _cancellingGrounded = true;
             Invoke(nameof(StopGrounded), Time.deltaTime * delay);
         }
+        if (!_cancellingOnWall)
+        {
+            _cancellingOnWall = true;
+            Invoke(nameof(StopOnWall), Time.deltaTime * delay);
+        }
     }
-
-    private void StopGrounded()
+    void StopGrounded()
     {
         _isGround = false;
+    }
+    void StopOnWall()
+    {
+        _onWall = false;
     }
 
     private void OnEnable()
