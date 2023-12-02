@@ -222,17 +222,23 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (!_onWall || _isGround) return; // 壁に接していない || 接地中
         Debug.Log("wall jump");
-        Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, _rb.velocity);
-        Quaternion wallQ =
+
+        // 角度の計算
+        Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, transform.forward); // 反射角
+        Quaternion wallQ = // 壁から見たforwardからジャンプベクトルへの角度
             Quaternion.AngleAxis((Mathf.Atan2(jumpVec.x, jumpVec.z) - Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z))
             * Mathf.Rad2Deg, Vector3.up);
-        Vector3 wallLookJumpVec = wallQ * Vector3.forward;
-        wallLookJumpVec = new Vector3(Mathf.Sign(wallLookJumpVec.x), 0, 1) * _wallJumpPower;
+        Vector3 wallLookJumpVec = wallQ * Vector3.forward; // 壁から見たジャンプベクトル
+        wallLookJumpVec = new Vector3(wallLookJumpVec.x, 1, 1) * _wallJumpPower; // * 速度
+        Debug.Log(wallLookJumpVec.x);
         wallLookJumpVec = Quaternion.AngleAxis(Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z) * Mathf.Rad2Deg, Vector3.up) 
-            * wallLookJumpVec;
-        wallLookJumpVec.y = _wallJumpPower;
-        _playerVelocity = wallLookJumpVec;
-        _rb.velocity = wallLookJumpVec;
+            * wallLookJumpVec; // world vectorに直す
+        //wallLookJumpVec.y = _wallJumpPower;
+
+        // vectorの代入
+        _playerVelocity = wallLookJumpVec; // 計算用変数に代入
+        _rb.velocity = wallLookJumpVec; // velocityに直接代入 y軸は直接入れないと面倒
+        // cool timeは必要だろうか
     }
 
     /// <summary>しゃがみ状態を切り替える</summary>
