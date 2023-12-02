@@ -101,6 +101,14 @@ public class GunController : MonoBehaviourPun
         _ballisticLine.SetPosition(1, pos);
     }
 
+    /// <summary>弾が当たるレイヤーをセットする 自分には当たらないようにする</summary>
+    public void SetHitlayer(bool isMaster)
+    {
+        if (isMaster) _hitLayer = ~(1 << 6);
+        else _hitLayer = ~(1 << 7);
+        Debug.Log("koko");
+    }
+
     private void OnEnable()
     {
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
@@ -109,21 +117,11 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
-        if (PhotonNetwork.LocalPlayer.IsMasterClient) // hit layerを初期化
-        {
-            gameObject.layer = 6;
-            _hitLayer = ~(1 << 6);
-        }
-        else
-        {
-            gameObject.layer = 7;
-            _hitLayer = ~(1 << 7);
-        }
     }
 
     private void OnDisable()
     {
-        if (!_setedAction) return;
+        if (!_setedAction) return; // Actionをセットしていなければ実行しない
         PlayerInput.Instance.DelInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.DelInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction -= FireCalculation;

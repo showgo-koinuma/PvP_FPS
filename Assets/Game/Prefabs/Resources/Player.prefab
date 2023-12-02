@@ -378,6 +378,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37778346907f3f445ac2ad0f7c13aa91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _bodyObjects:
+  - {fileID: 4582819006075063224}
+  - {fileID: 7380744215933237831}
+  - {fileID: 784146708225388539}
+  _playerLayer: 0600000007000000
 --- !u!114 &6263369833483919837
 MonoBehaviour:
   m_ObjectHideFlags: 0

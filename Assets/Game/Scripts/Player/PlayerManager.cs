@@ -4,8 +4,32 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
+    [SerializeField] GameObject[] _bodyObjects;
+    [SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
+
     int _score = 0;
     int _clearScore = 1;
+
+    private void Awake()
+    {
+        if (!photonView.IsMine)
+        {
+            this.enabled = false;
+            return;
+        }
+
+        // 銃のレイヤーとオブジェクトレイヤーの設定
+        if (PhotonNetwork.IsMasterClient) Initialization(true, _playerLayer[0]);
+        else Initialization(false, _playerLayer[1]);
+    }
+
+    /// <summary>IsMaster別の初期設定</summary>
+    void Initialization(bool isMaster, int layer)
+    {
+        GetComponent<GunController>().SetHitlayer(isMaster);
+        foreach (GameObject body in _bodyObjects) body.layer = layer;
+        Camera.main.GetComponent<Camera>().cullingMask = ~(1 << layer);
+    }
 
     public void AddScore()
     {
