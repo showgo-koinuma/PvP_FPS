@@ -71,7 +71,7 @@ public class HeadController : MonoBehaviourPun
     /// <summary>ADS時のカメラ関連の処理</summary>
     public void OnADSCamera(bool on, float fov, float adsSpeed)
     {
-        if (on)
+        if (on) // fovの遷移と感度の変更
         {
             DOTween.To(() => _currentFov, x => _currentFov = x, fov, adsSpeed * (_currentFov - fov) / (90 - fov));
             _sensMultiplier = _adsSensRate;
@@ -83,6 +83,7 @@ public class HeadController : MonoBehaviourPun
         }
     }
 
+    /// <summary>fovを遷移させる</summary>
     void ReflectsADS()
     {
         _myVirtualCam.m_Lens.FieldOfView = _currentFov;

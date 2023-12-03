@@ -47,6 +47,8 @@ public class PlayerMovement : MonoBehaviourPun
     bool _cancellingOnWall;
 
     [Header("しゃがみ")]
+    [SerializeField, Tooltip("キャラコン用colliderのscale変更のため")] GameObject _moveBodyObject;
+    [SerializeField, Tooltip("しゃがみ時の視点移動のため")] GameObject _headObjct;
     [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale;
     float _crouchTransitionTime = 0.2f;
@@ -265,10 +267,27 @@ public class PlayerMovement : MonoBehaviourPun
     /// <summary>updateでしゃがみの遷移をする</summary>
     void CrouchTransition()
     {
-        if ((_crouchDir == 1 && transform.localScale.y <= 1) || (_crouchDir == -1 && transform.localScale.y >= _crouchScale.y))
+        if ((_crouchDir == 1 && _moveBodyObject.transform.localScale.y < 1) || 
+            (_crouchDir == -1 && _moveBodyObject.transform.localScale.y > _crouchScale.y))
         {
-            transform.localScale += new Vector3(0, (1 - _crouchScale.y) * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
-            transform.position += new Vector3(0, 0.25f * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+            _moveBodyObject.transform.localScale += new Vector3(0, (1 - _crouchScale.y) * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+            _moveBodyObject.transform.position += new Vector3(0, 0.5f * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+            _headObjct.transform.position += new Vector3(0, 0.8f * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+        }
+        else // 遷移が終了したら代入
+        {
+            if (_crouchDir == 1)
+            {
+                _moveBodyObject.transform.localScale = new Vector3(_moveBodyObject.transform.localScale.x, 1
+                    , _moveBodyObject.transform.localScale.z);
+                _headObjct.transform.localPosition = new Vector3(0, 1.6f, 0);
+            }
+            else
+            {
+                _moveBodyObject.transform.localScale = new Vector3(_moveBodyObject.transform.localScale.x, _crouchScale.y
+                    , _moveBodyObject.transform.localScale.z);
+                _headObjct.transform.localPosition = new Vector3(0, 0.8f, 0);
+            }
         }
     }
 

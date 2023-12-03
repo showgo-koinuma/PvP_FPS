@@ -18,7 +18,7 @@ public class ChangeColorCntlr : Damageable
     {
         ChangeMaterial();
         // idから撃ったobjを参照し、ラグがあっても処理通りの弾道を表示する
-        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<GunController>().DrawBallistic(transform.position + objVectorDiff));
+        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<PlayerManager>().ActiveGun.DrawBallistic(transform.position + objVectorDiff));
     }
 
     void ChangeMaterial()

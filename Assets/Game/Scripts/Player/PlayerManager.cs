@@ -4,14 +4,20 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
-    [SerializeField] GameObject[] _bodyObjects;
+    [SerializeField, Tooltip("弾の当たるオブジェクトたち")] GameObject[] _hitBodyObjects;
     [SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
 
+    /// <summary>現在ActiveのGunController</summary>
+    GunController _activeGun;
+    public GunController ActiveGun { get => _activeGun;  set => _activeGun = value; }
+
     int _score = 0;
-    int _clearScore = 1;
+    int _clearScore = 1; // inGameManagerが無難か
 
     private void Awake()
     {
+        InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
+
         if (!photonView.IsMine)
         {
             this.enabled = false;
@@ -26,9 +32,20 @@ public class PlayerManager : MonoBehaviourPun
     /// <summary>IsMaster別の初期設定</summary>
     void Initialization(bool isMaster, int layer)
     {
-        GetComponent<GunController>().SetHitlayer(isMaster);
-        foreach (GameObject body in _bodyObjects) body.layer = layer;
+        GetComponentInChildren<GunController>().SetHitlayer(isMaster);
+        foreach (GameObject body in _hitBodyObjects) body.layer = layer;
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << layer);
+    }
+
+    public void FireActionCall(Vector3 pos)
+    {
+        photonView.RPC(nameof(FireAction), RpcTarget.All, pos);
+    }
+    /// <summary>photonViewを1つにするためGunのActionをManagerで呼び出す</summary>
+    [PunRPC]
+    void FireAction(Vector3 pos)
+    {
+        _activeGun.FireAction(pos);
     }
 
     public void AddScore()
@@ -56,6 +73,6 @@ public class PlayerManager : MonoBehaviourPun
         }
         transform.position = position;
 
-        // TO:DO 内部データの初期化 どこでやるか
+        // TO:DO 内部データの初期化
     }
 }

@@ -35,7 +35,7 @@ public class PlayerHealthManager : Damageable
         CurrentHp -= damage;
         OnDamageTakenIsMine();
         // ’e“¹•\Ž¦
-        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<GunController>().DrawBallistic(transform.position + objVectorDiff));
+        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<PlayerManager>().ActiveGun.DrawBallistic(transform.position + objVectorDiff));
     }
 
     private void OnDamageTakenIsMine()
