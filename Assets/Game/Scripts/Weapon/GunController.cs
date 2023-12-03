@@ -1,10 +1,10 @@
-using Photon.Pun;
 using System;
 using System.Collections;
 using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
+    [SerializeField] GameObject[] _gunModelObjs;
     [SerializeField] GunStatus _gunStatus;
     [SerializeField] Transform _muzzlePos;
     [SerializeField, Tooltip("’e“¹‚ÌLine")] LineRenderer _ballisticLine;
@@ -26,6 +26,7 @@ public class GunController : MonoBehaviour
         _playerManager = transform.root.GetComponent<PlayerManager>();
         _headCntler = transform.root.GetComponent<HeadController>();
         _currentMagazine = _gunStatus.FullMagazineSize;
+        if (!_playerManager.photonView.IsMine) foreach(var obj in _gunModelObjs) obj.layer = 8; // ‘Šè‚Ìeƒ‚ƒfƒ‹‚ğŒ©‚¦‚È‚¢‚æ‚¤‚É
     }
 
     /// <summary>ËŒ‚‚É‚Ç‚Ì‚æ‚¤‚Èˆ—‚ğ‚·‚é‚©ŒvZ‚·‚é</summary>

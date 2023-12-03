@@ -46,6 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f497c52f24d394f9d764d2679046b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gunModelObjs:
+  - {fileID: 6662845673435781397}
+  - {fileID: 110520654189383415}
   _gunStatus: {fileID: 11400000, guid: 36833d37db61c634ea4927baf2ae9fa0, type: 2}
   _muzzlePos: {fileID: 5885845949888438407}
   _ballisticLine: {fileID: 6465516288145496383}
@@ -282,9 +285,21 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a533c212b980b5a4fb9e5674fb4e85c9, type: 3}
+--- !u!1 &110520654189383415 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1507767883509144192, guid: a533c212b980b5a4fb9e5674fb4e85c9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1541373558574503031}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1364228298149606300 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a533c212b980b5a4fb9e5674fb4e85c9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1541373558574503031}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6662845673435781397 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -3957782524123411102, guid: a533c212b980b5a4fb9e5674fb4e85c9,
     type: 3}
   m_PrefabInstance: {fileID: 1541373558574503031}
   m_PrefabAsset: {fileID: 0}

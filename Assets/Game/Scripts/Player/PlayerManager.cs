@@ -34,7 +34,7 @@ public class PlayerManager : MonoBehaviourPun
     {
         GetComponentInChildren<GunController>().SetHitlayer(isMaster);
         foreach (GameObject body in _hitBodyObjects) body.layer = layer;
-        Camera.main.GetComponent<Camera>().cullingMask = ~(1 << layer);
+        Camera.main.GetComponent<Camera>().cullingMask = ~(1 << layer | 1 << 8);
     }
 
     public void FireActionCall(Vector3 pos)
