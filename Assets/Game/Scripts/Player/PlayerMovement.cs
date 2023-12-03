@@ -49,7 +49,9 @@ public class PlayerMovement : MonoBehaviourPun
     [Header("しゃがみ")]
     [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale;
-    private Vector3 _playerScale;
+    float _crouchTransitionTime = 0.2f;
+    Vector3 _playerScale;
+    int _crouchDir = 1;
 
     [Header("スライディング")]
     [SerializeField, Tooltip("スライディングの初速")] float _slidingSpeed;
@@ -80,6 +82,7 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (Input.mouseScrollDelta.y < 0) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         Movement();
+        CrouchTransition();
         _jumping = false;
     }
 
@@ -119,7 +122,7 @@ public class PlayerMovement : MonoBehaviourPun
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _slidingNow = false;
         }
-        else if (_crouching)
+        else if (PlayerInput.Instance.IsCrouching)
         {
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             Sliding(_playerVelocity.magnitude);
@@ -246,15 +249,27 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (PlayerInput.Instance.IsCrouching) // しゃがみ開始処理
         {
-            transform.localScale = _crouchScale;
-            transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
+            _crouchDir = -1;
+            //transform.localScale = _crouchScale;
+            //transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
             _crouching = true;
             return;
         } // return切替してしゃがみ解除の処理
-        transform.localScale = _playerScale;
-        transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
+        _crouchDir = 1;
+        //transform.localScale = _playerScale;
+        //transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
         _crouching = false;
         _slidingNow = false;
+    }
+
+    /// <summary>updateでしゃがみの遷移をする</summary>
+    void CrouchTransition()
+    {
+        if ((_crouchDir == 1 && transform.localScale.y <= 1) || (_crouchDir == -1 && transform.localScale.y >= _crouchScale.y))
+        {
+            transform.localScale += new Vector3(0, (1 - _crouchScale.y) * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+            transform.position += new Vector3(0, 0.25f * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
+        }
     }
 
     void Sliding(float speed)
