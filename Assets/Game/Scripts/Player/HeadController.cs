@@ -23,6 +23,7 @@ public class HeadController : MonoBehaviourPun
     // リコイル
     Vector3 _targetRotation;
     Vector3 _currentRotation;
+    Vector3 _returnTarget;
     float _returnSpeed = 1;
     float _snappiness = 3;
 
@@ -40,6 +41,8 @@ public class HeadController : MonoBehaviourPun
     {
         Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.fixedDeltaTime * _sensMultiplier,
             PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.fixedDeltaTime * _sensMultiplier);
+
+        if (lookRotation.magnitude != 0) _returnTarget = transform.localRotation.eulerAngles;
 
         //Find current look rotation
         Vector3 rot = _orientation.localRotation.eulerAngles;
@@ -63,7 +66,7 @@ public class HeadController : MonoBehaviourPun
     /// <summary>リコイルを反映させる</summary>
     void ReflectsRecoil()
     {
-        _targetRotation = Vector3.Lerp(_targetRotation, Vector3.zero, _returnSpeed * Time.deltaTime);
+        _targetRotation = Vector3.Lerp(_targetRotation, _returnTarget, _returnSpeed * Time.deltaTime);
         _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * Time.deltaTime);
         _head.transform.localRotation = Quaternion.Euler(_currentRotation + _head.transform.localRotation.eulerAngles);
     }
