@@ -6,6 +6,7 @@ public class GunController : MonoBehaviour
 {
     [SerializeField] GameObject[] _gunModelObjs;
     [SerializeField] GunStatus _gunStatus;
+    [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
     [SerializeField] Transform _muzzlePos;
     [SerializeField, Tooltip("弾道のLine")] LineRenderer _ballisticLine;
     /// <summary>isMineでコールバックを登録しているか</summary>
@@ -91,6 +92,8 @@ public class GunController : MonoBehaviour
     void ADS()
     {
         _headCntler.OnADSCamera(PlayerInput.Instance.IsADS, _gunStatus.ADSFov, _gunStatus.ADSSpeed);
+        if (PlayerInput.Instance.IsADS) transform.localPosition = _ADSPos;
+        else transform.localPosition = Vector3.zero;
     }
 
     /// <summary>gun stateをnomalに戻す</summary>

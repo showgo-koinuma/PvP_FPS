@@ -50,6 +50,7 @@ MonoBehaviour:
   - {fileID: 6662845673435781397}
   - {fileID: 110520654189383415}
   _gunStatus: {fileID: 11400000, guid: 36833d37db61c634ea4927baf2ae9fa0, type: 2}
+  _ADSPos: {x: 0, y: 0, z: 0}
   _muzzlePos: {fileID: 5885845949888438407}
   _ballisticLine: {fileID: 6465516288145496383}
 --- !u!1 &7182387662801349900
@@ -137,9 +138,9 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.2416687
+        value: 0.05833435
         inSlope: 0.31334618
-        outSlope: 0.31666464
+        outSlope: 0.499999
         tangentMode: 69
         weightedMode: 0
         inWeight: 0.33333334
@@ -147,7 +148,7 @@ LineRenderer:
       - serializedVersion: 3
         time: 1
         value: 0.55833334
-        inSlope: 0.31666464
+        inSlope: 0.499999
         outSlope: 0
         tangentMode: 69
         weightedMode: 0
@@ -158,8 +159,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 0.46666667}
-      key1: {r: 1, g: 1, b: 1, a: 0.39607844}
+      key0: {r: 0, g: 0, b: 0, a: 0.38039216}
+      key1: {r: 0, g: 0, b: 0, a: 0.5529412}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
