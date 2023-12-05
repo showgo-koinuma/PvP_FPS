@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GunController : MonoBehaviour
@@ -7,8 +8,7 @@ public class GunController : MonoBehaviour
     [SerializeField] GameObject[] _gunModelObjs;
     [SerializeField] GunStatus _gunStatus;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
-    [SerializeField] Transform _muzzlePos;
-    [SerializeField, Tooltip("弾道のLine")] LineRenderer _ballisticLine;
+    [SerializeField] KeyAndValuePair<Transform, LineRenderer>[] _muzzleAndLineDict; // マズルとそのLineRendererのDic
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
     GunState _currentGunState = GunState.nomal;
@@ -105,11 +105,20 @@ public class GunController : MonoBehaviour
     /// <summary>FadeOutする弾道を描画する</summary>
     public IEnumerator DrawBallistic(Vector3 target)
     {
-        _ballisticLine.SetPosition(0, _muzzlePos.position);
-        _ballisticLine.SetPosition(1, target);
-        Vector3 pos = _muzzlePos.position;
+        // 異なるLineRendererに対応したマズルからの弾道を引く
+        foreach(var posLinePair in _muzzleAndLineDict)
+        {
+            posLinePair.Value.SetPosition(0, posLinePair.Key.position);
+            posLinePair.Value.SetPosition(1, target);
+        }
+
         yield return new WaitForSeconds(_ballisticFadeOutTime);
-        _ballisticLine.SetPosition(1, pos);
+
+        // 原点に戻して弾道を消す
+        foreach (var posLinePair in _muzzleAndLineDict)
+        {
+            posLinePair.Value.SetPosition(1, posLinePair.Value.GetPosition(0));
+        }
     }
 
     /// <summary>弾が当たるレイヤーをセットする 自分には当たらないようにする</summary>
@@ -145,4 +154,17 @@ enum GunState
     nomal,
     interval,
     reloading
+}
+
+/// <summary>Dictionaryをinspecterで使える</summary>
+/// <typeparam name="TKey"></typeparam>
+/// <typeparam name="TValue"></typeparam>
+[Serializable]
+public class KeyAndValuePair<TKey, TValue>
+{
+    [SerializeField] private TKey key;
+    [SerializeField] private TValue value;
+
+    public TKey Key => key;
+    public TValue Value => value;
 }

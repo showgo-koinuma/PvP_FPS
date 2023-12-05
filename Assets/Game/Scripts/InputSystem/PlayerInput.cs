@@ -30,6 +30,8 @@ public class PlayerInput : MonoBehaviour
     public Vector2 LookRotation { get => _lookRotation; }
     Vector3 _inputMoveVector;
     public Vector3 InputMoveVector { get => _inputMoveVector; }
+    bool _onJump;
+    public bool OnJumpButton { get => _onJump; }
     bool _isCrouching = false;
     public bool IsCrouching { get => _isCrouching; }
     bool _inputOnFire = false;
@@ -60,6 +62,7 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Move.performed += OnMove;
         _gameInput.InGame.Move.canceled += OnMove;
         _gameInput.InGame.Jump.started += OnJump;
+        _gameInput.InGame.Jump.canceled += OnJump;
         _gameInput.InGame.Crouch.started += OnCrouch;
         _gameInput.InGame.Crouch.canceled += OnCrouch;
         _gameInput.InGame.Fire.started += OnFire;
@@ -91,7 +94,8 @@ public class PlayerInput : MonoBehaviour
     }
     void OnJump(InputAction.CallbackContext context)
     {
-        _actionDic[InputType.Jump]?.Invoke();
+        //_actionDic[InputType.Jump]?.Invoke();
+        _onJump = context.phase == InputActionPhase.Started;
     }
     void OnCrouch(InputAction.CallbackContext context)
     {

@@ -42,8 +42,6 @@ public class HeadController : MonoBehaviourPun
         Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.fixedDeltaTime * _sensMultiplier,
             PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.fixedDeltaTime * _sensMultiplier);
 
-        if (lookRotation.magnitude != 0) _returnTarget = transform.localRotation.eulerAngles;
-
         //Find current look rotation
         Vector3 rot = _orientation.localRotation.eulerAngles;
         float desiredX = rot.y + lookRotation.x;
@@ -61,6 +59,7 @@ public class HeadController : MonoBehaviourPun
     public void Recoil(float recoilY, float recoilX)
     {
         _targetRotation += new Vector3(recoilY, recoilX, 0);
+        _returnTarget = Vector3.zero;
     }
 
     /// <summary>ƒŠƒRƒCƒ‹‚ð”½‰f‚³‚¹‚é</summary>

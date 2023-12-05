@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using System;
 
 /// <summary>
 /// Playerを動かすコンポーネント
@@ -61,10 +62,15 @@ public class PlayerMovement : MonoBehaviourPun
     [SerializeField, Tooltip("スライディイングがかかるスピードの最小値")] float _minCnaSlidingSpeed;
     [SerializeField, Tooltip("スライディングのクールダウン")] float _slidingCooldown;
     bool _readyToSliding = true;
-    bool _slidingNow = false;
 
     // 現在の状態を管理　enumでやる必要がでてくるかも
-    bool _jumping, _crouching;
+    bool _jumping, _crouching, _isSliding;
+
+    // AnimationManagerのためのプロパティ
+    public bool IsGround { get => _isGround; }
+    public bool IsJumping { get => _jumping; }
+    public bool IsCrouching { get => _crouching; }
+    public bool IsSliding { get => _isSliding; }
 
     void Awake()
     {
@@ -82,10 +88,10 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void ThisUpdate()
     {
-        if (Input.mouseScrollDelta.y < 0) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
+        _jumping = false;
+        if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         Movement();
         CrouchTransition();
-        _jumping = false;
     }
 
     void Movement()
@@ -95,7 +101,7 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.y = _rb.velocity.y;
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
-        if (_slidingNow) Debug.Log("sliding now");
+        if (_isSliding) Debug.Log("sliding now");
     }
 
     /// <summary>地上での動き</summary>
@@ -108,7 +114,7 @@ public class PlayerMovement : MonoBehaviourPun
         float control = speed < _groundAcceleration ? _groundAcceleration : speed;
         float drop = control * _friction * Time.deltaTime;
         if (_jumping) drop = 0f;
-        if (_slidingNow) drop *= _slidingFriction;
+        if (_isSliding) drop *= _slidingFriction;
 
         float newspeed = speed - drop;
         if (newspeed < 0) newspeed = 0;
@@ -119,10 +125,10 @@ public class PlayerMovement : MonoBehaviourPun
 
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
-        if (_slidingNow)
+        if (_isSliding)
         {
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
-            if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _slidingNow = false;
+            if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _isSliding = false;
         }
         else if (PlayerInput.Instance.IsCrouching)
         {
@@ -204,6 +210,7 @@ public class PlayerMovement : MonoBehaviourPun
         {
             _readyToJump = false;
             _jumping = true;
+            _isSliding = false;
 
             _rb.AddForce(Vector2.up * _jumpForce * 1.5f);
             //_rb.AddForce(_normalVector * _jumpForce * 0.5f); // 坂道の影響を少し受ける
@@ -228,6 +235,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (!_onWall || _isGround) return; // 壁に接していない || 接地中
         Debug.Log("wall jump");
 
+        _jumping = true;
         // 角度の計算
         Vector3 jumpVec = Vector3.Reflect(_wallNormalVector, transform.forward); // 反射角
         Quaternion wallQ = // 壁から見たforwardからジャンプベクトルへの角度
@@ -261,7 +269,7 @@ public class PlayerMovement : MonoBehaviourPun
         //transform.localScale = _playerScale;
         //transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
         _crouching = false;
-        _slidingNow = false;
+        _isSliding = false;
     }
 
     /// <summary>updateでしゃがみの遷移をする</summary>
@@ -298,7 +306,7 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity = _playerVelocity.normalized * _slidingSpeed;
         _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;
-        _slidingNow = true;
+        _isSliding = true;
         Invoke(nameof(ResetSliding), _slidingCooldown);
     }
 
@@ -371,14 +379,14 @@ public class PlayerMovement : MonoBehaviourPun
     private void OnEnable()
     {
         InGameManager.Instance.UpdateAction += ThisUpdate;
-        PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
+        //PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
 
     private void OnDisable()
     {
         InGameManager.Instance.UpdateAction -= ThisUpdate;
-        PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
+        //PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }
 
