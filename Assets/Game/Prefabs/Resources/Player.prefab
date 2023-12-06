@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 3596279132540715783}
   - component: {fileID: -4789466914007416541}
   - component: {fileID: -2645814789614206522}
-  - component: {fileID: 6843025127002315629}
+  - component: {fileID: 6861246200768558327}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -241,7 +241,7 @@ Animator:
   m_GameObject: {fileID: 4582819006075063224}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 66d3e41fcb0ba1f47ba9849799165528, type: 3}
-  m_Controller: {fileID: 9100000, guid: 413bac5633ab97b4d8c0c5f5b6772b53, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2d63b7aae2d785b498ce664b154919df, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: -2645814789614206522}
-  - {fileID: 6843025127002315629}
+  - {fileID: 6861246200768558327}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -398,7 +398,7 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 0
   m_TeleportIfDistanceGreaterThan: 3
---- !u!114 &6843025127002315629
+--- !u!114 &6861246200768558327
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -414,31 +414,35 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: IsADS
   - Type: 1
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Speed
+  - Type: 1
+    SynchronizeType: 0
+    Name: DirX
+  - Type: 1
+    SynchronizeType: 0
+    Name: DirY
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: IsGround
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: IsJump
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: IsCrouching
   - Type: 4
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: IsSliding
   - Type: 1
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Blend
   m_SynchronizeLayers:
-  - SynchronizeType: 1
+  - SynchronizeType: 0
     LayerIndex: 0
-  - SynchronizeType: 1
-    LayerIndex: 1
 --- !u!1 &4655892555211914992
 GameObject:
   m_ObjectHideFlags: 0
@@ -1424,37 +1428,37 @@ PrefabInstance:
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.016697694
+      value: -0.016801171
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.9623344
+      value: 0.96233696
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.013416719
+      value: -0.013292037
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9248784
+      value: 0.9234127
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.0077468925
+      value: -0.0077449977
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.3797053
+      value: 0.38325852
       objectReference: {fileID: 0}
     - target: {fileID: 1763947740847904306, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.019073308
+      value: -0.01902913
       objectReference: {fileID: 0}
     - target: {fileID: 1814185380358680081, guid: 4249ada95f42e954e846ec9c5284f976,
         type: 3}

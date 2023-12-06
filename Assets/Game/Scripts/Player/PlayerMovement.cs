@@ -67,6 +67,7 @@ public class PlayerMovement : MonoBehaviourPun
     bool _jumping, _crouching, _isSliding;
 
     // AnimationManagerのためのプロパティ
+    public Vector3 PlayerVelocity { get => _playerVelocity; }
     public bool IsGround { get => _isGround; }
     public bool IsJumping { get => _jumping; }
     public bool IsCrouching { get => _crouching; }

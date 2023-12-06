@@ -20,6 +20,7 @@ public class PlayerAnimationManager : MonoBehaviour
     void Adoption()
     {
         _animator.SetBool("IsADS", PlayerInput.Instance.IsADS);
+        _animator.SetFloat("Speed", _playerMove.PlayerVelocity.magnitude);
         _animator.SetBool("IsGround", _playerMove.IsGround);
         if (!_lastFrameOnJump && _playerMove.IsJumping)
         {
