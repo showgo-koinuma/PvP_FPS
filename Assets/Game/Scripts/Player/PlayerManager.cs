@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
-    [SerializeField, Tooltip("弾の当たるオブジェクトたち")] GameObject[] _hitBodyObjects;
+    [SerializeField, Tooltip("弾の当たる、自分で見えなくなる")] GameObject[] _hitBodyObjects;
     [SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
 
     /// <summary>現在ActiveのGunController</summary>
