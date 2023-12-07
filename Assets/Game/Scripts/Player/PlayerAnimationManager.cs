@@ -70,7 +70,7 @@ public class PlayerAnimationManager : MonoBehaviour
         _animator.SetLookAtWeight(_weight, _bodyWeight, _headWeight, _eyesWeight, _clampWeight);
         _animator.SetLookAtPosition(_lookTarget.position);
 
-        //return;
+        return;
         //hand
         // ‰Eè‚É‘Î‚µ‚Ä IK ‚ğİ’è‚·‚é
         _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, _positionWeight);
