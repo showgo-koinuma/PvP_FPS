@@ -40,6 +40,11 @@ public class PlayerAnimationManager : MonoBehaviour
         _lastFrameOnJump = _playerMove.IsJumping;
     }
 
+    private void OnAnimatorIK(int layerIndex)
+    {
+        
+    }
+
     private void OnEnable()
     {
         InGameManager.Instance.UpdateAction += Adoption;
