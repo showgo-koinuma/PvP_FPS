@@ -10,6 +10,7 @@ public class HeadController : MonoBehaviourPun
     CinemachineVirtualCamera _myVirtualCam;
     [SerializeField, Tooltip("動く頭")] Transform _head;
     [SerializeField, Tooltip("body 体の向きを取得するため")] Transform _orientation;
+    [SerializeField, Tooltip("持たせる武器を置くところ")] Transform _holdWeapon;
     private float _xRotation;
     [SerializeField] float _XSensitivity = 50f;
     [SerializeField] float _YSensitivity = 50f;
@@ -53,6 +54,7 @@ public class HeadController : MonoBehaviourPun
         //Perform the rotations
         _orientation.transform.localRotation = Quaternion.Euler(0, desiredX, 0);
         _head.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+        _holdWeapon.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
     }
 
     /// <summary>指定したリコイルを設定する</summary>
@@ -68,6 +70,7 @@ public class HeadController : MonoBehaviourPun
         _targetRotation = Vector3.Lerp(_targetRotation, _returnTarget, _returnSpeed * Time.deltaTime);
         _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * Time.deltaTime);
         _head.transform.localRotation = Quaternion.Euler(_currentRotation + _head.transform.localRotation.eulerAngles);
+        _holdWeapon.transform.localRotation = Quaternion.Euler(_currentRotation + _holdWeapon.transform.localRotation.eulerAngles);
     }
 
     /// <summary>ADS時のカメラ関連の処理</summary>
