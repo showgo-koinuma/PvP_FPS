@@ -1,5 +1,7 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerMovement))]
 /// <summary>プレイヤーのアニメーションを管理する</summary>
 public class PlayerAnimationManager : MonoBehaviour
 {
@@ -20,7 +22,11 @@ public class PlayerAnimationManager : MonoBehaviour
     void Adoption()
     {
         _animator.SetBool("IsADS", PlayerInput.Instance.IsADS);
-        _animator.SetFloat("Speed", _playerMove.PlayerVelocity.magnitude);
+        Vector3 localVelo = transform.InverseTransformDirection(_playerMove.PlayerVelocity);
+        _animator.SetFloat("Speed", localVelo.magnitude);
+        localVelo.Normalize();
+        _animator.SetFloat("DirX", localVelo.x);
+        _animator.SetFloat("DirY", localVelo.z);
         _animator.SetBool("IsGround", _playerMove.IsGround);
         if (!_lastFrameOnJump && _playerMove.IsJumping)
         {
