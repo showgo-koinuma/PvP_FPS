@@ -10,11 +10,13 @@ public class HeadController : MonoBehaviourPun
     CinemachineVirtualCamera _myVirtualCam;
     [SerializeField, Tooltip("動く頭")] Transform _head;
     [SerializeField, Tooltip("body 体の向きを取得するため")] Transform _orientation;
-    [SerializeField, Tooltip("持たせる武器を置くところ")] Transform _holdWeapon;
-    private float _xRotation;
+    [SerializeField, Tooltip("LookTargetを回転させるもの")] Transform _rotationLookTarget;
+    float _desiredX, _xRotation;
     [SerializeField] float _XSensitivity = 50f;
     [SerializeField] float _YSensitivity = 50f;
     [SerializeField] float _adsSensRate = 0.8f;
+
+    PlayerAnimationManager _animManager;
 
     // ADS
     /// <summary>ADS Sens Rate</summary>
@@ -30,7 +32,9 @@ public class HeadController : MonoBehaviourPun
 
     private void Awake()
     {
-        if (!photonView.IsMine) this.enabled = false;
+        _animManager = GetComponent<PlayerAnimationManager>();
+
+        if (!photonView.IsMine) ;// this.enabled = false;
         else
         {
             _myVirtualCam = Instantiate(_myCinemachine, transform).GetComponent<CinemachineVirtualCamera>();
@@ -45,16 +49,16 @@ public class HeadController : MonoBehaviourPun
 
         //Find current look rotation
         Vector3 rot = _orientation.localRotation.eulerAngles;
-        float desiredX = rot.y + lookRotation.x;
+        _desiredX = rot.y + lookRotation.x;
 
         //Rotate, and also make sure we dont over- or under-rotate.
         _xRotation -= lookRotation.y;
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
         //Perform the rotations
-        _orientation.transform.localRotation = Quaternion.Euler(0, desiredX, 0);
+        //_orientation.transform.localRotation = Quaternion.Euler(0, _desiredX, 0);
         _head.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
-        _holdWeapon.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+        //_rotationLookTarget.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
     }
 
     /// <summary>指定したリコイルを設定する</summary>
@@ -70,7 +74,22 @@ public class HeadController : MonoBehaviourPun
         _targetRotation = Vector3.Lerp(_targetRotation, _returnTarget, _returnSpeed * Time.deltaTime);
         _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * Time.deltaTime);
         _head.transform.localRotation = Quaternion.Euler(_currentRotation + _head.transform.localRotation.eulerAngles);
-        _holdWeapon.transform.localRotation = Quaternion.Euler(_currentRotation + _holdWeapon.transform.localRotation.eulerAngles);
+        //_rotationLookTarget.transform.localRotation = Quaternion.Euler(_currentRotation + _rotationLookTarget.transform.localRotation.eulerAngles);
+    }
+
+    /// <summary>同期を呼び出すもの</summary>
+    void ReflectsLookRotate()
+    {
+        photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _desiredX, _xRotation, _currentRotation);
+    }
+
+    /// <summary>LookTargetを同期する</summary>
+    [PunRPC]
+    void RotationLookTarget(float desiredX, float xRotatino, Vector3 currentRotation)
+    {
+        _orientation.transform.localRotation = Quaternion.Euler(0, desiredX, 0);
+        _rotationLookTarget.transform.localRotation = Quaternion.Euler(xRotatino, 0, 0);
+        _rotationLookTarget.transform.localRotation = Quaternion.Euler(currentRotation + _rotationLookTarget.transform.localRotation.eulerAngles);
     }
 
     /// <summary>ADS時のカメラ関連の処理</summary>
@@ -96,15 +115,19 @@ public class HeadController : MonoBehaviourPun
 
     private void OnEnable()
     {
+        if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += Look;
         InGameManager.Instance.UpdateAction += ReflectsRecoil;
+        InGameManager.Instance.UpdateAction += ReflectsLookRotate;
         InGameManager.Instance.UpdateAction += ReflectsADS;
     }
 
     private void OnDisable()
     {
+        if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= Look;
         InGameManager.Instance.UpdateAction -= ReflectsRecoil;
+        InGameManager.Instance.UpdateAction -= ReflectsLookRotate;
         InGameManager.Instance.UpdateAction -= ReflectsADS;
     }
 }

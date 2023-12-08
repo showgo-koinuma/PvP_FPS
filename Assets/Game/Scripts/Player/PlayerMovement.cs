@@ -276,7 +276,7 @@ public class PlayerMovement : MonoBehaviourPun
     /// <summary>update‚Å‚µ‚á‚ª‚Ý‚Ì‘JˆÚ‚ð‚·‚é</summary>
     void CrouchTransition()
     {
-        if ((_crouchDir == 1 && _moveBodyObject.transform.localScale.y < 1) || 
+        if ((_crouchDir == 1 && _moveBodyObject.transform.localScale.y < 0.9f) || 
             (_crouchDir == -1 && _moveBodyObject.transform.localScale.y > _crouchScale.y))
         {
             _moveBodyObject.transform.localScale += new Vector3(0, (1 - _crouchScale.y) * _crouchDir * Time.deltaTime / _crouchTransitionTime, 0);
@@ -287,8 +287,9 @@ public class PlayerMovement : MonoBehaviourPun
         {
             if (_crouchDir == 1)
             {
-                _moveBodyObject.transform.localScale = new Vector3(_moveBodyObject.transform.localScale.x, 1
+                _moveBodyObject.transform.localScale = new Vector3(_moveBodyObject.transform.localScale.x, 0.9f
                     , _moveBodyObject.transform.localScale.z);
+                _moveBodyObject.transform.localPosition = new Vector3(0, 0.9f, 0);
                 _headObjct.transform.localPosition = new Vector3(0, 1.6f, 0);
             }
             else

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -40,6 +41,7 @@ public class PlayerAnimationManager : MonoBehaviour
         // コンポーネントの取得
         _animator = GetComponent<Animator>();
         _playerMove = GetComponent<PlayerMovement>();
+
     }
 
     /// <summary>Animatorパラメータに適用させる</summary>
@@ -66,30 +68,25 @@ public class PlayerAnimationManager : MonoBehaviour
 
     private void OnAnimatorIK(int layerIndex)
     {
-        // look
+        // look IKを同期
         _animator.SetLookAtWeight(_weight, _bodyWeight, _headWeight, _eyesWeight, _clampWeight);
-        _animator.SetLookAtPosition(_lookTarget.position);
+        _playerMove.photonView.RPC(nameof(SetLookAtPosition), RpcTarget.All);
+    }
 
-        return;
-        //hand
-        // 右手に対して IK を設定する
-        _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, _positionWeight);
-        _animator.SetIKRotationWeight(AvatarIKGoal.RightHand, _rotationWeight);
-        _animator.SetIKPosition(AvatarIKGoal.RightHand, _rightTarget.position);
-        _animator.SetIKRotation(AvatarIKGoal.RightHand, _rightTarget.rotation);
-        // 左手に対して IK を設定する
-        _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, _positionWeight);
-        _animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, _rotationWeight);
-        _animator.SetIKPosition(AvatarIKGoal.LeftHand, _leftTarget.position);
-        _animator.SetIKRotation(AvatarIKGoal.LeftHand, _leftTarget.rotation);
+    [PunRPC]
+    void SetLookAtPosition()
+    {
+        _animator.SetLookAtPosition(_lookTarget.position);
     }
 
     private void OnEnable()
     {
+        if (!_playerMove.photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += Adoption;
     }
     private void OnDisable()
     {
+        if (!_playerMove.photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= Adoption;
     }
 }
