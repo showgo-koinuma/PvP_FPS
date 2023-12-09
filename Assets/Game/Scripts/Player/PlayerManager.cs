@@ -4,7 +4,8 @@ using UnityEngine;
 /// <summary>Player‘S‚Ä‚ğŠÇ—‚·‚é</summary>
 public class PlayerManager : MonoBehaviourPun
 {
-    [SerializeField, Tooltip("’e‚Ì“–‚½‚éA©•ª‚ÅŒ©‚¦‚È‚­‚È‚é")] GameObject[] _hitBodyObjects;
+    [SerializeField, Tooltip("©•ª‚ÅŒ©‚¦‚È‚­‚È‚é")] GameObject[] _invisibleToMyselfObj;
+    [SerializeField, Tooltip("‘Šè‚©‚çŒ©‚¦‚È‚­‚È‚é")] GameObject[] _invisibleToEnemeyObj;
     [SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
 
     /// <summary>Œ»İActive‚ÌGunController</summary>
@@ -33,7 +34,7 @@ public class PlayerManager : MonoBehaviourPun
     void Initialization(bool isMaster, int layer)
     {
         GetComponentInChildren<GunController>().SetHitlayer(isMaster);
-        foreach (GameObject body in _hitBodyObjects) body.layer = layer;
+        foreach (GameObject body in _invisibleToMyselfObj) body.layer = layer;
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << layer | 1 << 8);
     }
 
