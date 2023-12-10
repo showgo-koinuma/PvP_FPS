@@ -64,8 +64,8 @@ public class HeadController : MonoBehaviourPun
     /// <summary>指定したリコイルを設定する</summary>
     public void Recoil(float recoilY, float recoilX)
     {
+        _returnTarget = _targetRotation;
         _targetRotation += new Vector3(recoilY, recoilX, 0);
-        _returnTarget = Vector3.zero;
     }
 
     /// <summary>リコイルを反映させる</summary>

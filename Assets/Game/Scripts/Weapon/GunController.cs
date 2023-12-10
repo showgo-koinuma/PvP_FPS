@@ -5,10 +5,10 @@ using UnityEngine;
 public class GunController : MonoBehaviour
 {
     [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
-    [SerializeField, Tooltip("相手には見えないオブジェクト")] GameObject[] _gunModelObjs;
+    //[SerializeField, Tooltip("相手には見えないオブジェクト")] GameObject[] _gunModelObjs;
     [SerializeField] GunStatus _gunStatus;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
-    [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト")] GameObject[] _muzzles;
+    [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
     [SerializeField, Tooltip("弾道LineRendererプレハブ")] GameObject _bllisticPrefab;
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
@@ -17,7 +17,7 @@ public class GunController : MonoBehaviour
     PlayerManager _playerManager;
     HeadController _headCntler;
 
-    static int _hitLayer;
+    static int _hitLayer = ~(1 << 7);
     int _currentMagazine;
     /// <summary>弾道が消えるまでの時間</summary>
     float _ballisticFadeOutTime = 0.01f;
@@ -34,7 +34,7 @@ public class GunController : MonoBehaviour
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
         BallisticInitialization(); // 弾道初期化
 
-        if (!_playerManager.photonView.IsMine) foreach(var obj in _gunModelObjs) obj.layer = 8; // 相手の銃モデルを見えないように
+        //if (!_playerManager.photonView.IsMine) foreach(var obj in _gunModelObjs) obj.layer = 8; // 相手の銃モデルを見えないように
     }
 
     /// <summary>弾道LineRendererの初期設定をする</summary>
@@ -49,7 +49,10 @@ public class GunController : MonoBehaviour
 
             for (int j = 0; j < _gunStatus.OneShotNum; j++)
             {
-                _ballisticLines[i][j] = Instantiate(_bllisticPrefab, _muzzles[i].transform).GetComponent<LineRenderer>();
+                GameObject Line = Instantiate(_bllisticPrefab, _muzzles[i].transform);
+                _ballisticLines[i][j] = Line.GetComponent<LineRenderer>();
+
+                if (_playerManager.photonView.IsMine ^ i == 0) Line.layer = 7; // invisible layer
             }
         }
     }
@@ -170,14 +173,6 @@ public class GunController : MonoBehaviour
         {
             _ballisticLines[i][index].SetPosition(1, _ballisticLines[i][index].GetPosition(0));
         }
-    }
-
-    /// <summary>弾が当たるレイヤーをセットする 自分には当たらないようにする</summary>
-    public void SetHitlayer(bool isMaster)
-    {
-        if (isMaster) _hitLayer = ~(1 << 6);
-        else _hitLayer = ~(1 << 7);
-        Debug.Log("setHitLayer");
     }
 
     private void OnEnable()

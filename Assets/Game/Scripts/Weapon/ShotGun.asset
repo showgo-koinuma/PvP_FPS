@@ -19,8 +19,8 @@ MonoBehaviour:
   _reloadTime: 2
   _randomRecoilY: 10
   _randomRecoilX: 3
-  _defaultDiffusion: 3
-  _adsDefaultDiffusion: 3
+  _defaultDiffusion: 6
+  _adsDefaultDiffusion: 5
   _diffusionValue: 0.3
   _adsDiffusionValue: 0.3
   _adsFov: 70
