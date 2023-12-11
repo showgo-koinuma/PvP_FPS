@@ -244,7 +244,6 @@ public class PlayerMovement : MonoBehaviourPun
             * Mathf.Rad2Deg, Vector3.up);
         Vector3 wallLookJumpVec = wallQ * Vector3.forward; // 壁から見たジャンプベクトル
         wallLookJumpVec = new Vector3(wallLookJumpVec.x, 1, 1) * _wallJumpPower; // * 速度
-        Debug.Log(wallLookJumpVec.x);
         wallLookJumpVec = Quaternion.AngleAxis(Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z) * Mathf.Rad2Deg, Vector3.up) 
             * wallLookJumpVec; // world vectorに直す
         //wallLookJumpVec.y = _wallJumpPower;
