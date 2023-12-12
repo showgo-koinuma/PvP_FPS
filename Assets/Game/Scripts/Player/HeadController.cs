@@ -70,14 +70,13 @@ public class HeadController : MonoBehaviourPun
         //Perform the rotations
         //_orientation.transform.localRotation = Quaternion.Euler(0, _desiredX, 0);
         _head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, currentRot.y, 0);
-        Debug.Log(_currentRotation);
         //_rotationLookTarget.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
     }
 
     /// <summary>指定したリコイルを設定する</summary>
-    public void Recoil(float recoilY, float recoilX)
+    public void Recoil(Vector2 recoil)
     {
-        _targetRotation += new Vector3(recoilY, recoilX, 0);
+        _targetRotation += new Vector3(-recoil.y, recoil.x, 0);
     }
 
     /// <summary>リコイルを反映させる</summary>

@@ -10,6 +10,7 @@ public class GunStatus : ScriptableObject
     [SerializeField] float _fireInterval;
     [SerializeField] float _reloadTime;
     [Header("リコイル")]
+    [SerializeField, Tooltip("決まったリコイルパターン")] Vector2[] _RecoilPattern;
     [SerializeField] float _randomRecoilY;
     [SerializeField] float _randomRecoilX;
     [Header("拡散")]
@@ -26,6 +27,7 @@ public class GunStatus : ScriptableObject
     public int FullMagazineSize { get => _fullMagazineSize; }
     public float FireInterval { get => _fireInterval; }
     public float ReloadTime { get => _reloadTime; }
+    public Vector2[] RecoilPattern { get => _RecoilPattern; }
     public float RecoilY {  get => _randomRecoilY; }
     public float RecoilX { get => _randomRecoilX; }
     public float DefaultDiffusion { get => _defaultDiffusion; }

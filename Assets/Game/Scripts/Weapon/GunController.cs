@@ -24,6 +24,8 @@ public class GunController : MonoBehaviour
     /// <summary>現在の弾の拡散</summary>
     float _currentDiffusion = 0;
     LineRenderer[][] _ballisticLines;
+    /// <summary>現在のリコイルインデックス</summary>
+    int _recoilIndex;
     int _bulletIndex;
 
     private void Awake()
@@ -62,6 +64,8 @@ public class GunController : MonoBehaviour
     {
         if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
         {
+            if (!PlayerInput.Instance.InputOnFire) _recoilIndex = 0;
+
             // 非射撃時に拡散をもとに戻す
             if (PlayerInput.Instance.IsADS)
             {
@@ -78,6 +82,7 @@ public class GunController : MonoBehaviour
 
         if (_currentMagazine <= 0) // 弾がなければreload
         {
+            _recoilIndex = 0;
             Reload();
             return;
         }
@@ -85,7 +90,8 @@ public class GunController : MonoBehaviour
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
         {
             _bulletIndex = i;
-            // ランダムな弾道を生成
+
+            // ランダムな拡散弾道を生成
             Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion),
                 UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 0) * Camera.main.transform.forward;
 
@@ -109,8 +115,16 @@ public class GunController : MonoBehaviour
         if (!PlayerInput.Instance.IsADS) _currentDiffusion += _gunStatus.Diffusion;
         else _currentDiffusion += _gunStatus.ADSDiffusion;
 
-        _headCntler.Recoil(UnityEngine.Random.Range(0, -_gunStatus.RecoilY), UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX)); // 反動を画面に反映
+        // リコイル
+        if (_recoilIndex >= _gunStatus.RecoilPattern.Length) // ランダムな反動
+        {
+            _headCntler.Recoil(new Vector2(UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX),
+                UnityEngine.Random.Range(0, _gunStatus.RecoilY)));
+        }
+        else _headCntler.Recoil(_gunStatus.RecoilPattern[_recoilIndex]); // パターンの反動
+        
         _currentMagazine--;
+        _recoilIndex++;
         _currentGunState = GunState.interval; // インターバルに入れて
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
     }
