@@ -71,6 +71,8 @@ public class HeadController : MonoBehaviourPun
         //_orientation.transform.localRotation = Quaternion.Euler(0, _desiredX, 0);
         _head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, currentRot.y, 0);
         //_rotationLookTarget.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+
+        photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _yRotation, new Vector3(_xRotation + currentRot.x, currentRot.y, 0));
     }
 
     /// <summary>指定したリコイルを設定する</summary>
@@ -95,12 +97,11 @@ public class HeadController : MonoBehaviourPun
 
     /// <summary>LookTargetを同期する</summary>
     [PunRPC]
-    void RotationLookTarget(float yRotation, float xRotatino, Vector3 currentRotation)
+    void RotationLookTarget(float yRotation, Vector3 currentRotation)
     {
         // y軸回転とIKを同期する
         _orientation.transform.localRotation = Quaternion.Euler(0, yRotation, 0);
-        _rotationLookTarget.transform.localRotation = Quaternion.Euler(xRotatino, 0, 0);
-        _rotationLookTarget.transform.localRotation = Quaternion.Euler(currentRotation + _rotationLookTarget.transform.localRotation.eulerAngles);
+        _rotationLookTarget.transform.localRotation = Quaternion.Euler(currentRotation);
     }
 
     /// <summary>ADS時のカメラ関連の処理</summary>
@@ -129,7 +130,7 @@ public class HeadController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += Look;
         InGameManager.Instance.UpdateAction += ReflectsRecoil;
-        InGameManager.Instance.UpdateAction += ReflectsLookRotate;
+        //InGameManager.Instance.UpdateAction += ReflectsLookRotate;
         InGameManager.Instance.UpdateAction += ReflectsADS;
     }
 
@@ -138,7 +139,7 @@ public class HeadController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= Look;
         InGameManager.Instance.UpdateAction -= ReflectsRecoil;
-        InGameManager.Instance.UpdateAction -= ReflectsLookRotate;
+        //InGameManager.Instance.UpdateAction -= ReflectsLookRotate;
         InGameManager.Instance.UpdateAction -= ReflectsADS;
     }
 }

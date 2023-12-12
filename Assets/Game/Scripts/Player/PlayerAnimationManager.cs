@@ -62,8 +62,15 @@ public class PlayerAnimationManager : MonoBehaviour
         _animator.SetBool("IsCrouching", _playerMove.IsCrouching);
         if (!_onJump) _animator.SetBool("IsSliding", _playerMove.IsSliding);
 
+        if (Input.GetKeyDown(KeyCode.Q)) _animator.SetTrigger("SwitchGun");
+
         _onJump = false;
         _lastFrameOnJump = _playerMove.IsJumping;
+    }
+
+    public void SetFireTrigger()
+    {
+        _animator.SetTrigger("Fire");
     }
 
     private void OnAnimatorIK(int layerIndex)

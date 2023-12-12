@@ -16,6 +16,7 @@ public class GunController : MonoBehaviour
 
     PlayerManager _playerManager;
     HeadController _headCntler;
+    PlayerAnimationManager _playerAnimManager;
 
     static int _hitLayer = ~(1 << 7);
     int _currentMagazine;
@@ -32,6 +33,7 @@ public class GunController : MonoBehaviour
     {
         _playerManager = transform.root.GetComponent<PlayerManager>();
         _headCntler = transform.root.GetComponent<HeadController>();
+        _playerAnimManager = transform.root.GetComponent<PlayerAnimationManager>();
 
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
         BallisticInitialization(); // 弾道初期化
@@ -125,6 +127,9 @@ public class GunController : MonoBehaviour
         
         _currentMagazine--;
         _recoilIndex++;
+
+        _playerAnimManager.SetFireTrigger();
+
         _currentGunState = GunState.interval; // インターバルに入れて
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
     }
