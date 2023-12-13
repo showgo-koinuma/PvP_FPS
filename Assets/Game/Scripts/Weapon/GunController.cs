@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
-    [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
-    //[SerializeField, Tooltip("相手には見えないオブジェクト")] GameObject[] _gunModelObjs;
     [SerializeField] GunStatus _gunStatus;
+    [Header("外観関連")]
+    [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
     [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
     [SerializeField, Tooltip("弾道LineRendererプレハブ")] GameObject _bllisticPrefab;
+    [Header("Crosshair")]
+    [SerializeField] CrosshairCntlr _crosshairCntlr;
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
     GunState _currentGunState = GunState.nomal;
@@ -64,6 +66,9 @@ public class GunController : MonoBehaviour
     /// <summary>射撃時にどのような処理をするか計算する</summary>
     void FireCalculation()
     {
+        Debug.Log(_currentDiffusion);
+        _crosshairCntlr.SetSize(_currentDiffusion);
+
         if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
         {
             if (!PlayerInput.Instance.InputOnFire) _recoilIndex = 0;
@@ -152,6 +157,8 @@ public class GunController : MonoBehaviour
     void ADS()
     {
         _headCntler.OnADSCamera(PlayerInput.Instance.IsADS, _gunStatus.ADSFov, _gunStatus.ADSSpeed);
+        _crosshairCntlr.SwitchDisplay(!PlayerInput.Instance.IsADS);
+
         if (PlayerInput.Instance.IsADS) transform.localPosition = _ADSPos;
         else transform.localPosition = Vector3.zero;
     }
