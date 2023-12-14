@@ -59,17 +59,6 @@ public class PlayerManager : MonoBehaviourPun
         }
     }
 
-    public void FireActionCall(Vector3 pos)
-    {
-        photonView.RPC(nameof(FireAction), RpcTarget.All, pos);
-    }
-    /// <summary>photonView‚ğ1‚Â‚É‚·‚é‚½‚ßGun‚ÌAction‚ğManager‚ÅŒÄ‚Ño‚·</summary>
-    [PunRPC]
-    void FireAction(Vector3 pos)
-    {
-        _activeGun.FireAction(pos);
-    }
-
     public void AddScore()
     {
         _score++;

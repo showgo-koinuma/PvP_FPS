@@ -38,8 +38,8 @@ MonoBehaviour:
   - {x: -2, y: 2}
   - {x: -2, y: 2}
   - {x: 1, y: 2}
-  _randomRecoilY: 3
-  _randomRecoilX: 1
+  _randomRecoilY: 2
+  _randomRecoilX: 2
   _defaultDiffusion: 0
   _adsDefaultDiffusion: 0
   _diffusionValue: 0.3

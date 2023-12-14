@@ -1,10 +1,9 @@
-using Photon.Pun.Demo.SlotRacer.Utils;
+using Photon.Pun;
 using System;
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 
-public class GunController : MonoBehaviour
+public class GunController : MonoBehaviourPun
 {
     [SerializeField] GunStatus _gunStatus;
     [Header("外観関連")]
@@ -12,6 +11,8 @@ public class GunController : MonoBehaviour
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
     [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
     [SerializeField, Tooltip("弾道TrailRendererプレハブ")] TrailRenderer _ballisticTrailPrefab;
+    [SerializeField, Tooltip("マズルフラッシュparticle")] ParticleSystem _muzzleFlash;
+    [SerializeField] ParticleSystem _hitParticleEffect;
     [Header("Crosshair")]
     [SerializeField] CrosshairCntlr _crosshairCntlr;
     /// <summary>isMineでコールバックを登録しているか</summary>
@@ -37,6 +38,7 @@ public class GunController : MonoBehaviour
         _headCntler = transform.root.GetComponent<HeadController>();
         _playerAnimManager = transform.root.GetComponent<PlayerAnimationManager>();
 
+        if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // 自分でないなら消す
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
     }
 
@@ -70,6 +72,7 @@ public class GunController : MonoBehaviour
             return;
         }
 
+        // Hit計算
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
         {
             // ランダムな拡散弾道を生成
@@ -79,6 +82,7 @@ public class GunController : MonoBehaviour
             if (Physics.Raycast(Camera.main.transform.position, dir, out RaycastHit hit, float.MaxValue, _hitLayer))
             {
                 Debug.Log(hit.collider.name);
+                photonView.RPC(nameof(ShareFireAction), RpcTarget.All, hit.point);
 
                 // 親オブジェクトにTryGetComponent
                 if (hit.collider.gameObject.transform.root.gameObject.TryGetComponent(out Damageable damageable))
@@ -87,7 +91,7 @@ public class GunController : MonoBehaviour
                 }
                 else
                 {
-                    _playerManager.FireActionCall(hit.point); // 動くobjでなければ単純な処理となる
+                    PlayHitEffect(hit);
                 }
             }
         }
@@ -100,23 +104,26 @@ public class GunController : MonoBehaviour
         if (_recoilIndex >= _gunStatus.RecoilPattern.Length) // ランダムな反動
         {
             _headCntler.Recoil(new Vector2(UnityEngine.Random.Range(_gunStatus.RecoilX, -_gunStatus.RecoilX),
-                UnityEngine.Random.Range(0, _gunStatus.RecoilY)));
+               _gunStatus.RecoilY));
         }
         else _headCntler.Recoil(_gunStatus.RecoilPattern[_recoilIndex]); // パターンの反動
         
         _currentMagazine--;
         _recoilIndex++;
 
-        _playerAnimManager.SetFireTrigger();
+        _playerAnimManager.SetFireTrigger(); // play model animation
+        _muzzleFlash.Emit(1); // play muzzle flash
+
 
         _currentGunState = GunState.interval; // インターバルに入れて
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
     }
 
-    /// <summary>計算結果の処理を反映する(no Action)</summary>
-    public void FireAction(Vector3 hitPos)
+    /// <summary>共通の射撃アクション</summary>
+    [PunRPC]
+    void ShareFireAction(Vector3 hitPoint)
     {
-        StartCoroutine(DrawBallistic(hitPos));
+        DrawBallistic(hitPoint);
     }
 
     void Reload()
@@ -144,18 +151,24 @@ public class GunController : MonoBehaviour
     }
 
     /// <summary>FadeOutする弾道を描画する</summary>
-    public IEnumerator DrawBallistic(Vector3 target)
+    void DrawBallistic(Vector3 target)
     {
         for (int i= 0; i < _muzzles.Length; i++)
         {
             var ballisticTrail = Instantiate(_ballisticTrailPrefab, _muzzles[i].transform.position, Quaternion.identity);
-            if (_playerManager.photonView.IsMine ^ i == 0) ballisticTrail.gameObject.layer = 7; // invisible layer
+            if (_playerManager.photonView.IsMine ^ i == 0) ballisticTrail.gameObject.layer = 7; // setting invisible layer
             ballisticTrail.AddPosition(_muzzles[i].transform.position); // 初期pos
             ballisticTrail.transform.position = target; // 着弾pos
             Destroy(ballisticTrail.gameObject, 0.1f); // 着弾したら消す(0.1s)
         }
+    }
 
-        yield break;
+    /// <summary>objに当たったときのエフェクト再生</summary>
+    void PlayHitEffect(RaycastHit hit)
+    {
+        var effect = Instantiate(_hitParticleEffect, hit.point, Quaternion.identity);
+        effect.transform.forward = hit.normal;
+        effect.Emit(1);
     }
 
     private void OnEnable()

@@ -34,15 +34,15 @@ public class PlayerHealthManager : Damageable
         if (!_lastHitPlayer) _lastHitPlayer = InGameManager.Instance.ViewGameObjects[playerID].GetComponent<PlayerManager>();
         CurrentHp -= damage;
         OnDamageTakenIsMine();
-        // 弾道表示
-        StartCoroutine(InGameManager.Instance.ViewGameObjects[playerID].GetComponent<PlayerManager>().ActiveGun.DrawBallistic(transform.position + objVectorDiff));
     }
 
+    /// <summary>ダメージを受けたときの処理</summary>
     private void OnDamageTakenIsMine()
     {
         if (!photonView.IsMine) return;
         Debug.Log("dame-ji");
-        // dame-ji gamen akaku
+
+        // 画面を赤くする処理
         Color color = _damagaeCanvasImage.color;
         color.a = 0.3f;
         _damagaeCanvasImage.color = color;

@@ -102,7 +102,6 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.y = _rb.velocity.y;
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
-        if (_isSliding) Debug.Log("sliding now");
     }
 
     /// <summary>’nã‚Å‚Ì“®‚«</summary>
