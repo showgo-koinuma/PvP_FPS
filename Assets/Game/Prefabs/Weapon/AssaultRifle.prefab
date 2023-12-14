@@ -24,13 +24,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1904671599062329558}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0579, y: 0.0304, z: 0.106}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -4.4000006, y: 3.704, z: 0.020999908}
+  m_LocalScale: {x: 10, y: 10, z: 25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8280659070451631408}
-  m_Father: {fileID: 7583666639008764335}
+  m_Father: {fileID: 8830172376224431739}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4446188378960651585
 GameObject:
@@ -42,7 +42,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7583666639008764335}
   - component: {fileID: 3774583263337846288}
-  - component: {fileID: 2622565675442448904}
   - component: {fileID: 5464518846791208745}
   m_Layer: 0
   m_Name: AssaultRifle
@@ -65,7 +64,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8830172376224431739}
-  - {fileID: 1887950546145583119}
   - {fileID: 8365838906290977736}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -82,6 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gunStatus: {fileID: 11400000, guid: 36833d37db61c634ea4927baf2ae9fa0, type: 2}
+  _viewGunModel: {fileID: 8196764976923452609}
   _holdGunModel: {fileID: 0}
   _ADSPos: {x: -0.06, y: -0.001, z: -0.05}
   _muzzles:
@@ -92,28 +91,7 @@ MonoBehaviour:
   _muzzleFlash: {fileID: 8081091417106969726}
   _hitParticleEffect: {fileID: 7206682665783282827, guid: a5f3af0ae9a25fb44b8369be1bcdef22,
     type: 3}
-  _crosshairCntlr: {fileID: 0}
---- !u!95 &2622565675442448904
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4446188378960651585}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c69533c6022078440a424b49351971e2, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  _crosshairCntlr: {fileID: 8679983048055295077}
 --- !u!114 &5464518846791208745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,7 +126,7 @@ GameObject:
   - component: {fileID: 5917544336659685683}
   - component: {fileID: 9146519592095531253}
   - component: {fileID: 8795366358674271569}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -329,9 +307,19 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 6757160409748015398, guid: bafc85477ea5f3e4098f91b09e4c3969, type: 3}
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5890879175029578921, guid: bafc85477ea5f3e4098f91b09e4c3969,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1887950546145583119}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bafc85477ea5f3e4098f91b09e4c3969, type: 3}
+--- !u!1 &8196764976923452609 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6524391818695673363, guid: bafc85477ea5f3e4098f91b09e4c3969,
+    type: 3}
+  m_PrefabInstance: {fileID: 3119738469659747026}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8830172376224431739 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5890879175029578921, guid: bafc85477ea5f3e4098f91b09e4c3969,
@@ -389,17 +377,17 @@ PrefabInstance:
     - target: {fileID: 1072160947758821229, guid: 27167cc64a0643344a31e6b9ab4bd68b,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1072160947758821229, guid: 27167cc64a0643344a31e6b9ab4bd68b,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1072160947758821229, guid: 27167cc64a0643344a31e6b9ab4bd68b,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1072160947758821229, guid: 27167cc64a0643344a31e6b9ab4bd68b,
         type: 3}
@@ -477,6 +465,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 3503370773683521203}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8679983048055295077 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5254301910572976854, guid: 27167cc64a0643344a31e6b9ab4bd68b,
+    type: 3}
+  m_PrefabInstance: {fileID: 3503370773683521203}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cf236caf82bda4ea664f61b1660119, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8279173859448842532
 PrefabInstance:
   m_ObjectHideFlags: 0

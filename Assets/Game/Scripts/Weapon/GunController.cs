@@ -1,20 +1,27 @@
 using Photon.Pun;
 using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 
 public class GunController : MonoBehaviourPun
 {
+    [Header("ステータス")]
     [SerializeField] GunStatus _gunStatus;
-    [Header("外観関連")]
+
+    [Header("モデル")]
+    [SerializeField, Tooltip("画面の武器モデル")] GameObject _viewGunModel; // view modelのrecoil用
     [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
+
+    [Header("エフェクト")]
     [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
     [SerializeField, Tooltip("弾道TrailRendererプレハブ")] TrailRenderer _ballisticTrailPrefab;
     [SerializeField, Tooltip("マズルフラッシュparticle")] ParticleSystem _muzzleFlash;
     [SerializeField] ParticleSystem _hitParticleEffect;
-    [Header("Crosshair")]
+
+    [Header("クロスヘア")]
     [SerializeField] CrosshairCntlr _crosshairCntlr;
+
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
     GunState _currentGunState = GunState.nomal;
@@ -32,6 +39,14 @@ public class GunController : MonoBehaviourPun
     /// <summary>現在のリコイルインデックス</summary>
     int _recoilIndex;
 
+    // モデルのリコイル アサルトの場合
+    Vector3 _defaultPos;
+    float _currentZpos = -0.07f;
+    float _targetZpos;
+    float _modelRecoilSize = -0.03f;
+    float _reflectSpeed = 0.1f;
+    float _returnSpeed = 0.3f;
+
     private void Awake()
     {
         _playerManager = transform.root.GetComponent<PlayerManager>();
@@ -40,6 +55,7 @@ public class GunController : MonoBehaviourPun
 
         if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // 自分でないなら消す
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
+        _defaultPos = _viewGunModel.transform.localPosition;
     }
 
     /// <summary>射撃時にどのような処理をするか計算する</summary>
@@ -111,9 +127,9 @@ public class GunController : MonoBehaviourPun
         _currentMagazine--;
         _recoilIndex++;
 
+        StartRecoil(); // view model recoil animation
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
-
 
         _currentGunState = GunState.interval; // インターバルに入れて
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
@@ -135,22 +151,31 @@ public class GunController : MonoBehaviourPun
         Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // 強引すぎるか
     }
 
-    void ADS()
-    {
-        _headCntler.OnADSCamera(PlayerInput.Instance.IsADS, _gunStatus.ADSFov, _gunStatus.ADSSpeed);
-        _crosshairCntlr.SwitchDisplay(!PlayerInput.Instance.IsADS);
-
-        if (PlayerInput.Instance.IsADS) transform.localPosition = _ADSPos;
-        else transform.localPosition = Vector3.zero;
-    }
-
     /// <summary>gun stateをnomalに戻す</summary>
     void ReturnGunState()
     {
         _currentGunState = GunState.nomal;
     }
 
-    /// <summary>FadeOutする弾道を描画する</summary>
+    /// <summary>inputのisADSを参照して反映</summary>
+    void ADS()
+    {
+        _headCntler.OnADSCamera(PlayerInput.Instance.IsADS, _gunStatus.ADSFov, _gunStatus.ADSSpeed);
+        _crosshairCntlr.SwitchDisplay(!PlayerInput.Instance.IsADS);
+
+        if (PlayerInput.Instance.IsADS)
+        {
+            transform.localPosition = _ADSPos;
+            _modelRecoilSize = -0.01f;
+        }
+        else
+        {
+            transform.localPosition = Vector3.zero;
+            _modelRecoilSize = -0.03f;
+        }
+    }
+
+    /// <summary>弾道を描画する</summary>
     void DrawBallistic(Vector3 target)
     {
         for (int i= 0; i < _muzzles.Length; i++)
@@ -171,6 +196,28 @@ public class GunController : MonoBehaviourPun
         effect.Emit(1);
     }
 
+    /// <summary>view modelのrecoil animation</summary>
+    void StartRecoil()
+    {
+        _targetZpos = _defaultPos.z + _modelRecoilSize;
+    }
+
+    void ReflectRecoil()
+    {
+        _currentZpos += (_targetZpos - _currentZpos) * Time.deltaTime / _reflectSpeed;
+
+        if (_defaultPos.z > _targetZpos)
+        {
+            _targetZpos -= _modelRecoilSize * Time.deltaTime / _returnSpeed;
+        }
+        else
+        {
+            _targetZpos = _defaultPos.z;
+        }
+
+        _viewGunModel.transform.localPosition = new Vector3(_defaultPos.x, _defaultPos.y, _currentZpos);
+    }
+
     private void OnEnable()
     {
         _holdGunModel.SetActive(true); // モデル可視化
@@ -181,6 +228,7 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
+        InGameManager.Instance.UpdateAction += ReflectRecoil;
     }
 
     private void OnDisable()
@@ -191,6 +239,7 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.DelInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.DelInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction -= FireCalculation;
+        InGameManager.Instance.UpdateAction -= ReflectRecoil;
     }
 }
 
