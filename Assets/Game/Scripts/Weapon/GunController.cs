@@ -1,5 +1,7 @@
+using Photon.Pun.Demo.SlotRacer.Utils;
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GunController : MonoBehaviour
@@ -9,7 +11,7 @@ public class GunController : MonoBehaviour
     [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
     [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
-    [SerializeField, Tooltip("弾道LineRendererプレハブ")] GameObject _bllisticPrefab;
+    [SerializeField, Tooltip("弾道TrailRendererプレハブ")] TrailRenderer _ballisticTrailPrefab;
     [Header("Crosshair")]
     [SerializeField] CrosshairCntlr _crosshairCntlr;
     /// <summary>isMineでコールバックを登録しているか</summary>
@@ -26,10 +28,8 @@ public class GunController : MonoBehaviour
     float _ballisticFadeOutTime = 0.01f;
     /// <summary>現在の弾の拡散</summary>
     float _currentDiffusion = 0;
-    LineRenderer[][] _ballisticLines;
     /// <summary>現在のリコイルインデックス</summary>
     int _recoilIndex;
-    int _bulletIndex;
 
     private void Awake()
     {
@@ -38,35 +38,11 @@ public class GunController : MonoBehaviour
         _playerAnimManager = transform.root.GetComponent<PlayerAnimationManager>();
 
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
-        BallisticInitialization(); // 弾道初期化
-
-        //if (!_playerManager.photonView.IsMine) foreach(var obj in _gunModelObjs) obj.layer = 8; // 相手の銃モデルを見えないように
-    }
-
-    /// <summary>弾道LineRendererの初期設定をする</summary>
-    void BallisticInitialization()
-    {
-        _ballisticLines = new LineRenderer[_muzzles.Length][];
-
-        // 弾道を表示するmuzzleそれぞれに1発に出る弾の数だけ弾道オブジェクトを生成する
-        for (int i = 0; i < _muzzles.Length; i++)
-        {
-            _ballisticLines[i] = new LineRenderer[_gunStatus.OneShotNum];
-
-            for (int j = 0; j < _gunStatus.OneShotNum; j++)
-            {
-                GameObject Line = Instantiate(_bllisticPrefab, _muzzles[i].transform);
-                _ballisticLines[i][j] = Line.GetComponent<LineRenderer>();
-
-                if (_playerManager.photonView.IsMine ^ i == 0) Line.layer = 7; // invisible layer
-            }
-        }
     }
 
     /// <summary>射撃時にどのような処理をするか計算する</summary>
     void FireCalculation()
     {
-        Debug.Log(_currentDiffusion);
         _crosshairCntlr.SetSize(_currentDiffusion);
 
         if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
@@ -96,8 +72,6 @@ public class GunController : MonoBehaviour
 
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
         {
-            _bulletIndex = i;
-
             // ランダムな拡散弾道を生成
             Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion),
                 UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 0) * Camera.main.transform.forward;
@@ -172,33 +146,16 @@ public class GunController : MonoBehaviour
     /// <summary>FadeOutする弾道を描画する</summary>
     public IEnumerator DrawBallistic(Vector3 target)
     {
-        // 異なるLineRendererに対応したマズルからの弾道を引く
-        //foreach(var posLinePair in _muzzleAndLineDict)
-        //{
-        //    posLinePair.Value.SetPosition(0, posLinePair.Key.position);
-        //    posLinePair.Value.SetPosition(1, target);
-
-        //}
-        int index = _bulletIndex;
-
-        for (int i = 0; i < _muzzles.Length; i++)
+        for (int i= 0; i < _muzzles.Length; i++)
         {
-            _ballisticLines[i][index].SetPosition(0, _muzzles[i].transform.position);
-            _ballisticLines[i][index].SetPosition(1, target);
+            var ballisticTrail = Instantiate(_ballisticTrailPrefab, _muzzles[i].transform.position, Quaternion.identity);
+            if (_playerManager.photonView.IsMine ^ i == 0) ballisticTrail.gameObject.layer = 7; // invisible layer
+            ballisticTrail.AddPosition(_muzzles[i].transform.position); // 初期pos
+            ballisticTrail.transform.position = target; // 着弾pos
+            Destroy(ballisticTrail.gameObject, 0.1f); // 着弾したら消す(0.1s)
         }
 
-        yield return new WaitForSeconds(_ballisticFadeOutTime);
-
-        // 原点に戻して弾道を消す
-        //foreach (var posLinePair in _muzzleAndLineDict)
-        //{
-        //    posLinePair.Value.SetPosition(1, posLinePair.Value.GetPosition(0));
-        //}
-
-        for (int i = 0; i < _muzzles.Length; i++)
-        {
-            _ballisticLines[i][index].SetPosition(1, _ballisticLines[i][index].GetPosition(0));
-        }
+        yield break;
     }
 
     private void OnEnable()

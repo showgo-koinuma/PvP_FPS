@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2871343113093122909}
   - component: {fileID: 3507262363284280683}
   m_Layer: 0
-  m_Name: Ballistic
+  m_Name: BallisticLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

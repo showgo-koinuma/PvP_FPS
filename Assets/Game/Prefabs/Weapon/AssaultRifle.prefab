@@ -89,6 +89,8 @@ MonoBehaviour:
   - {fileID: 0}
   _bllisticPrefab: {fileID: 8777469110119891634, guid: df7863849c5a9e24181696ece17a9ce1,
     type: 3}
+  _ballisticTrailPrefab: {fileID: 927243630254970440, guid: e5be0352ee2b7ac4c946fd958ddcdfa7,
+    type: 3}
   _crosshairCntlr: {fileID: 0}
 --- !u!95 &2622565675442448904
 Animator:
