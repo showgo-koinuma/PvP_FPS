@@ -17,10 +17,11 @@ MonoBehaviour:
   _fullMagazineSize: 8
   _fireInterval: 0.5
   _reloadTime: 2
+  _RecoilPattern: []
   _randomRecoilY: 10
   _randomRecoilX: 3
-  _defaultDiffusion: 6
-  _adsDefaultDiffusion: 5
+  _defaultDiffusion: 4
+  _adsDefaultDiffusion: 2
   _diffusionValue: 0.3
   _adsDiffusionValue: 0.3
   _adsFov: 70

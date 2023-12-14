@@ -35,7 +35,7 @@ public class CrosshairCntlr : MonoBehaviour
     /// <summary>サイズをセットする</summary>
     public void SetSize(float size)
     {
-        _targetSize = _initialSize + size * 10;
+        _targetSize = _initialSize + size * 6;
     }
 
     /// <summary>画面表示を切り替える</summary>

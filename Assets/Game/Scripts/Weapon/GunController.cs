@@ -76,8 +76,8 @@ public class GunController : MonoBehaviourPun
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
         {
             // ƒ‰ƒ“ƒ_ƒ€‚ÈŠgŽU’e“¹‚ð¶¬
-            Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion),
-                UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 0) * Camera.main.transform.forward;
+            Vector3 dir = Quaternion.Euler(UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion), 
+                UnityEngine.Random.Range(_currentDiffusion, -_currentDiffusion)) * Camera.main.transform.forward;
 
             if (Physics.Raycast(Camera.main.transform.position, dir, out RaycastHit hit, float.MaxValue, _hitLayer))
             {
