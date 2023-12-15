@@ -4,10 +4,13 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
+    [Header("look")]
     [SerializeField, Tooltip("当たり判定オブジェクト")] GameObject[] _hitObjects;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)")] GameObject[] _invisibleToMyselfObj;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)の親")] GameObject[] _invisibleToMyselfObjs;
     [SerializeField, Tooltip("相手から見えなくなる(自分の画面に映る自分のモデル)の親")] GameObject[] _invisibleToEnemeyObjs;
+    [Header("weapon")]
+    [SerializeField] GameObject[] _weapons;
     //[SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
 
     /// <summary>現在ActiveのGunController</summary>
@@ -19,6 +22,8 @@ public class PlayerManager : MonoBehaviourPun
 
     int _score = 0;
     int _clearScore = 1; // inGameManagerが無難か
+
+    int _weaponIndex = 0;
 
     private void Awake()
     {
@@ -85,5 +90,23 @@ public class PlayerManager : MonoBehaviourPun
         transform.position = position;
 
         // TO:DO 内部データの初期化
+    }
+
+    void SwitchWeapon()
+    {
+        _weapons[_weaponIndex].SetActive(false);
+        _weaponIndex++;
+        _weaponIndex %= _weapons.Length;
+        _weapons[_weaponIndex].SetActive(true);
+    }
+
+    private void OnEnable()
+    {
+        PlayerInput.Instance.SetInputAction(InputType.SwitchWeapon, SwitchWeapon);
+    }
+
+    private void OnDisable()
+    {
+        PlayerInput.Instance.DelInputAction(InputType.SwitchWeapon, SwitchWeapon);
     }
 }

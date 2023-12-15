@@ -89,6 +89,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""bef16694-4d3d-4ea6-8851-e67b2a803224"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -212,6 +221,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""Crouch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""de5bde9c-896a-4e84-a65d-2cab2975a151"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -227,6 +247,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_InGame_Fire = m_InGame.FindAction("Fire", throwIfNotFound: true);
         m_InGame_Reload = m_InGame.FindAction("Reload", throwIfNotFound: true);
         m_InGame_ADS = m_InGame.FindAction("ADS", throwIfNotFound: true);
+        m_InGame_SwitchWeapon = m_InGame.FindAction("SwitchWeapon", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -295,6 +316,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_Fire;
     private readonly InputAction m_InGame_Reload;
     private readonly InputAction m_InGame_ADS;
+    private readonly InputAction m_InGame_SwitchWeapon;
     public struct InGameActions
     {
         private @GameInput m_Wrapper;
@@ -306,6 +328,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         public InputAction @Fire => m_Wrapper.m_InGame_Fire;
         public InputAction @Reload => m_Wrapper.m_InGame_Reload;
         public InputAction @ADS => m_Wrapper.m_InGame_ADS;
+        public InputAction @SwitchWeapon => m_Wrapper.m_InGame_SwitchWeapon;
         public InputActionMap Get() { return m_Wrapper.m_InGame; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -336,6 +359,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ADS.started += instance.OnADS;
             @ADS.performed += instance.OnADS;
             @ADS.canceled += instance.OnADS;
+            @SwitchWeapon.started += instance.OnSwitchWeapon;
+            @SwitchWeapon.performed += instance.OnSwitchWeapon;
+            @SwitchWeapon.canceled += instance.OnSwitchWeapon;
         }
 
         private void UnregisterCallbacks(IInGameActions instance)
@@ -361,6 +387,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ADS.started -= instance.OnADS;
             @ADS.performed -= instance.OnADS;
             @ADS.canceled -= instance.OnADS;
+            @SwitchWeapon.started -= instance.OnSwitchWeapon;
+            @SwitchWeapon.performed -= instance.OnSwitchWeapon;
+            @SwitchWeapon.canceled -= instance.OnSwitchWeapon;
         }
 
         public void RemoveCallbacks(IInGameActions instance)
@@ -387,5 +416,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnFire(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnADS(InputAction.CallbackContext context);
+        void OnSwitchWeapon(InputAction.CallbackContext context);
     }
 }

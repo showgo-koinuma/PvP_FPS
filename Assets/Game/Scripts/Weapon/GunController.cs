@@ -6,10 +6,11 @@ using UnityEngine;
 public class GunController : MonoBehaviourPun
 {
     [Header("ステータス")]
-    [SerializeField] GunStatus _gunStatus;
+    [SerializeField] protected GunStatus _gunStatus;
+    [SerializeField, Tooltip("武器モデル用のAnimator")] protected Animator _weaponModelAnimator;
 
     [Header("モデル")]
-    [SerializeField, Tooltip("画面の武器モデル")] GameObject _viewGunModel; // view modelのrecoil用
+    [SerializeField, Tooltip("Ricoil用オブジェクト")] GameObject _recoilObj; // view modelのrecoil用
     [SerializeField, Tooltip("PlayerModelが持っている武器Model")] GameObject _holdGunModel;
     [SerializeField, Tooltip("ADSしたときのモデルのlocalPosition")] Vector3 _ADSPos;
 
@@ -24,14 +25,14 @@ public class GunController : MonoBehaviourPun
 
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
-    GunState _currentGunState = GunState.nomal;
+    protected GunState _gunState = GunState.nomal;
 
     PlayerManager _playerManager;
     HeadController _headCntler;
     PlayerAnimationManager _playerAnimManager;
 
     static int _hitLayer = ~(1 << 7);
-    int _currentMagazine;
+    protected int _currentMagazine;
     /// <summary>弾道が消えるまでの時間</summary>
     float _ballisticFadeOutTime = 0.01f;
     /// <summary>現在の弾の拡散</summary>
@@ -44,10 +45,16 @@ public class GunController : MonoBehaviourPun
     float _currentZpos = -0.07f;
     float _targetZpos;
     float _modelRecoilSize = -0.03f;
-    float _reflectSpeed = 0.1f;
+    float _reflectSpeed = 0.05f;
     float _returnSpeed = 0.3f;
 
-    private void Awake()
+    // weapon switch
+    GunState _lastState; // switch前の最後のstate
+    float _switchTimer = 0;
+    Vector3 _startPos = new Vector3(0.065f, 0.284f, -0.303f);
+    float _startRotX = -90;
+
+    protected virtual void Awake()
     {
         _playerManager = transform.root.GetComponent<PlayerManager>();
         _headCntler = transform.root.GetComponent<HeadController>();
@@ -55,15 +62,15 @@ public class GunController : MonoBehaviourPun
 
         if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // 自分でないなら消す
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
-        _defaultPos = _viewGunModel.transform.localPosition;
+        _defaultPos = _recoilObj.transform.localPosition;
     }
 
     /// <summary>射撃時にどのような処理をするか計算する</summary>
-    void FireCalculation()
+    protected virtual void FireCalculation()
     {
         _crosshairCntlr.SetSize(_currentDiffusion);
 
-        if (!(_currentGunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
+        if (!(_gunState == GunState.nomal && PlayerInput.Instance.InputOnFire))
         {
             if (!PlayerInput.Instance.InputOnFire) _recoilIndex = 0;
 
@@ -114,7 +121,7 @@ public class GunController : MonoBehaviourPun
 
         // 拡散しないを増加させる
         if (!PlayerInput.Instance.IsADS) _currentDiffusion += _gunStatus.Diffusion;
-        else _currentDiffusion += _gunStatus.ADSDiffusion;
+        else _currentDiffusion = _gunStatus.ADSDefaultDiffusion;
 
         // リコイル
         if (_recoilIndex >= _gunStatus.RecoilPattern.Length) // ランダムな反動
@@ -131,7 +138,12 @@ public class GunController : MonoBehaviourPun
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
 
-        _currentGunState = GunState.interval; // インターバルに入れて
+        _gunState = GunState.interval; // インターバルに入れて
+        ShootInterval();
+    }
+
+    protected virtual void ShootInterval()
+    {
         Invoke(nameof(ReturnGunState), _gunStatus.FireInterval); // 指定時間で戻す
     }
 
@@ -142,19 +154,20 @@ public class GunController : MonoBehaviourPun
         DrawBallistic(hitPoint);
     }
 
-    void Reload()
+    protected virtual void Reload()
     {
-        if (_currentGunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize) return;
+        if ((_gunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize) && _lastState != GunState.reloading) return;
         Debug.Log("reload");
-        _currentGunState = GunState.reloading;
+        _gunState = GunState.reloading;
+        _weaponModelAnimator.SetTrigger("Reload");
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
         Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // 強引すぎるか
     }
 
     /// <summary>gun stateをnomalに戻す</summary>
-    void ReturnGunState()
+    protected void ReturnGunState()
     {
-        _currentGunState = GunState.nomal;
+        _gunState = GunState.nomal;
     }
 
     /// <summary>inputのisADSを参照して反映</summary>
@@ -215,13 +228,37 @@ public class GunController : MonoBehaviourPun
             _targetZpos = _defaultPos.z;
         }
 
-        _viewGunModel.transform.localPosition = new Vector3(_defaultPos.x, _defaultPos.y, _currentZpos);
+        _recoilObj.transform.localPosition = new Vector3(_defaultPos.x, _defaultPos.y, _currentZpos);
     }
 
-    private void OnEnable()
+    IEnumerator SwitchWeaponAnimation()
+    {
+        transform.localPosition = _startPos;
+        transform.localRotation = Quaternion.Euler(_startRotX, 0, 0);
+
+        while (_gunState == GunState.switching)
+        {
+            transform.localPosition = _startPos * (0.4f - _switchTimer) / 0.4f;
+            transform.localRotation = Quaternion.Euler(_startRotX * (0.4f - _switchTimer) / 0.4f, 0, 0);
+
+            _switchTimer += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.Euler(0, 0, 0);
+        yield break;
+    }
+
+    void ReturnLastState()
+    {
+        _gunState = _lastState;
+        if (_gunState == GunState.reloading) Reload();
+    }
+
+    protected virtual void OnEnable()
     {
         _holdGunModel.SetActive(true); // モデル可視化
-        _playerManager.ActiveGun = this; // 現在のActiveをPlayerに設定
 
         if (!_playerManager.photonView.IsMine) return;
         _setedAction = true;
@@ -229,9 +266,15 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
         InGameManager.Instance.UpdateAction += ReflectRecoil;
+
+        // weapon switch
+        _gunState = GunState.switching;
+        Invoke(nameof(ReturnLastState), 0.4f);
+        _switchTimer = 0;
+        StartCoroutine(SwitchWeaponAnimation());
     }
 
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
         _holdGunModel.SetActive(false); // モデル不可視化
 
@@ -240,25 +283,15 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.DelInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction -= FireCalculation;
         InGameManager.Instance.UpdateAction -= ReflectRecoil;
+
+        _lastState = _gunState;
     }
 }
 
-enum GunState
+public enum GunState
 {
     nomal,
     interval,
-    reloading
-}
-
-/// <summary>Dictionaryをinspecterで使える</summary>
-/// <typeparam name="TKey"></typeparam>
-/// <typeparam name="TValue"></typeparam>
-[Serializable]
-public class KeyAndValuePair<TKey, TValue>
-{
-    [SerializeField] private TKey key;
-    [SerializeField] private TValue value;
-
-    public TKey Key => key;
-    public TValue Value => value;
+    reloading,
+    switching
 }

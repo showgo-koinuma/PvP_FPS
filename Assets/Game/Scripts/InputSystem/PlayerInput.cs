@@ -70,6 +70,7 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Reload.started += OnReload;
         _gameInput.InGame.ADS.started += OnADS;
         _gameInput.InGame.ADS.canceled += OnADS;
+        _gameInput.InGame.SwitchWeapon.started += OnSwitchWeapon;
     }
 
     /// <summary>コールバックに登録するActionをセット出来る</summary>
@@ -115,6 +116,10 @@ public class PlayerInput : MonoBehaviour
         _isADS = context.phase == InputActionPhase.Started;
         _actionDic[InputType.ADS]?.Invoke();
     }
+    void OnSwitchWeapon(InputAction.CallbackContext context)
+    {
+        _actionDic[InputType.SwitchWeapon]?.Invoke();
+    }
     #endregion
 }
 
@@ -125,5 +130,6 @@ public enum InputType
     Crouch,
     //Fire,
     Reload,
-    ADS
+    ADS,
+    SwitchWeapon
 }
