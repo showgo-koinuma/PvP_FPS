@@ -149,7 +149,7 @@ public class GunController : MonoBehaviourPun
 
     /// <summary>‹¤’Ê‚ÌŽËŒ‚ƒAƒNƒVƒ‡ƒ“</summary>
     [PunRPC]
-    void ShareFireAction(Vector3 hitPoint)
+    protected virtual void ShareFireAction(Vector3 hitPoint)
     {
         DrawBallistic(hitPoint);
     }

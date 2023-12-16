@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 
 // ショットガンとアサルトの差分はリロードとコッキング
@@ -6,6 +7,8 @@ public class ShotGunCntlr : GunController
 {
     [Header("only shotgun")]
     [SerializeField] ShotGunAnimCntlr _animCntlr;
+
+    bool _reloading;
 
     protected override void Awake()
     {
@@ -16,6 +19,7 @@ public class ShotGunCntlr : GunController
 
     protected override void ShootInterval()
     {
+        _weaponModelAnimator.SetBool("Reloading", _reloading = false);
         _weaponModelAnimator.SetTrigger("Shot");
     }
 
@@ -28,22 +32,32 @@ public class ShotGunCntlr : GunController
     protected override void FireCalculation()
     {
         base.FireCalculation();
-        _weaponModelAnimator.SetBool("Reloading", false);
+    }
+
+
+    /// <summary>継承するとphotonが反応しない ****</summary>
+    [PunRPC]
+    protected override void ShareFireAction(Vector3 hitPoint)
+    {
+        base.ShareFireAction(hitPoint);
     }
 
     protected override void Reload()
     {
-        _weaponModelAnimator.SetBool("Reloading", true);
+        if (_gunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize || _reloading) return;
+        _weaponModelAnimator.SetBool("Reloading", _reloading = true);
+        Debug.Log("reload");
     }
 
     // shellが入ったときにanimCntlrから呼び出す
     void InsertShellAction()
     {
-        if (_currentMagazine < _gunStatus.FullMagazineSize) _currentMagazine++;
-        else
+        Debug.Log("insert shell");
+        _currentMagazine++;
+        if (_currentMagazine >= _gunStatus.FullMagazineSize)
         {
             _weaponModelAnimator.SetTrigger("FinishReload");
-            _weaponModelAnimator.SetBool("Reloading", false);
+            _weaponModelAnimator.SetBool("Reloading", _reloading = false);
         }
     }
 
