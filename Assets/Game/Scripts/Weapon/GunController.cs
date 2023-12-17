@@ -29,7 +29,7 @@ public class GunController : MonoBehaviourPun
 
     PlayerManager _playerManager;
     HeadController _headCntler;
-    PlayerAnimationManager _playerAnimManager;
+    protected PlayerAnimationManager _playerAnimManager;
 
     static int _hitLayer = ~(1 << 7);
     protected int _currentMagazine;
@@ -160,7 +160,7 @@ public class GunController : MonoBehaviourPun
         Debug.Log("reload");
         _gunState = GunState.reloading;
         _weaponModelAnimator.SetTrigger("Reload");
-        _playerAnimManager.SetRiloadTrigger();
+        _playerAnimManager.SetReloadTrigger();
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
         Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // ‹­ˆø‚·‚¬‚é‚©
     }

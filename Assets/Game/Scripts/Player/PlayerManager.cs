@@ -4,18 +4,18 @@ using UnityEngine;
 /// <summary>Player全てを管理する</summary>
 public class PlayerManager : MonoBehaviourPun
 {
-    [Header("look")]
+    [Header("looks")]
     [SerializeField, Tooltip("当たり判定オブジェクト")] GameObject[] _hitObjects;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)")] GameObject[] _invisibleToMyselfObj;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)の親")] GameObject[] _invisibleToMyselfObjs;
     [SerializeField, Tooltip("相手から見えなくなる(自分の画面に映る自分のモデル)の親")] GameObject[] _invisibleToEnemeyObjs;
     [Header("weapon")]
-    [SerializeField] GameObject[] _weapons;
-    //[SerializeField, Tooltip("[0]:IsMaster, [1]:NotMaster")] int[] _playerLayer;
+    [SerializeField, Tooltip("[0] : AR, [1] : SG")] GameObject[] _weapons;
 
     /// <summary>現在ActiveのGunController</summary>
-    GunController _activeGun;
-    public GunController ActiveGun { get => _activeGun;  set => _activeGun = value; }
+    //GunController _activeGun;
+    //public GunController ActiveGun { get => _activeGun;  set => _activeGun = value; }
+    PlayerAnimationManager _pAnimMg;
 
     int _hitLayer = 6;
     int _invisibleLayer = 7;
@@ -30,16 +30,8 @@ public class PlayerManager : MonoBehaviourPun
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
         InitializationLayer();
 
-        //if (!photonView.IsMine)
-        //{
-        //    this.enabled = false;
-        //    return;
-        //}
-
-        Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer);
-        // 銃のレイヤーとオブジェクトレイヤーの設定
-        //if (PhotonNetwork.IsMasterClient) Initialization(true, _playerLayer[0]);
-        //else Initialization(false, _playerLayer[1]);
+        Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer); // 見えないレイヤー設定
+        _pAnimMg = GetComponent<PlayerAnimationManager>();
     }
 
     /// <summary>IsMaster別のLayer設定</summary>
@@ -98,6 +90,7 @@ public class PlayerManager : MonoBehaviourPun
         _weaponIndex++;
         _weaponIndex %= _weapons.Length;
         _weapons[_weaponIndex].SetActive(true);
+        _pAnimMg.SetWeaponIndex(_weaponIndex == 1);
     }
 
     private void OnEnable()

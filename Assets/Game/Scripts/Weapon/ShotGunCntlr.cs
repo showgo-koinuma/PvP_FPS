@@ -46,19 +46,23 @@ public class ShotGunCntlr : GunController
     {
         if (_gunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize || _reloading) return;
         _weaponModelAnimator.SetBool("Reloading", _reloading = true);
+        _playerAnimManager.SetReloadTrigger();
         Debug.Log("reload");
     }
 
     // shell‚ª“ü‚Á‚½‚Æ‚«‚ÉanimCntlr‚©‚çŒÄ‚Ño‚·
     void InsertShellAction()
     {
-        Debug.Log("insert shell");
         _currentMagazine++;
-        Debug.Log("shotgun magazine : " + _currentMagazine);
+        //Debug.Log("shotgun magazine : " + _currentMagazine);
         if (_currentMagazine >= _gunStatus.FullMagazineSize)
         {
             _weaponModelAnimator.SetTrigger("FinishReload");
             _weaponModelAnimator.SetBool("Reloading", _reloading = false);
+        }
+        else
+        {
+            _playerAnimManager.SetContInsertTrig();
         }
     }
 

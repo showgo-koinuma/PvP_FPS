@@ -73,9 +73,19 @@ public class PlayerAnimationManager : MonoBehaviour
         _animator.SetTrigger("Fire");
     }
 
-    public void SetRiloadTrigger()
+    public void SetReloadTrigger()
     {
         _animator.SetTrigger("Reload");
+    }
+
+    public void SetContInsertTrig()
+    {
+        _animator.SetTrigger("ContInsert");
+    }
+
+    public void SetWeaponIndex(bool toSG)
+    {
+        _animator.SetBool("SwitchToSG", toSG);
     }
 
     private void OnAnimatorIK(int layerIndex)
