@@ -49,7 +49,7 @@ public class GunController : MonoBehaviourPun
     float _returnSpeed = 0.3f;
 
     // weapon switch
-    GunState _lastState; // switchëOÇÃç≈å„ÇÃstate
+    GunState _lastState = GunState.nomal; // switchëOÇÃç≈å„ÇÃstate
     float _switchTimer = 0;
     Vector3 _startPos = new Vector3(0.065f, 0.284f, -0.303f);
     float _startRotX = -90;
@@ -160,6 +160,7 @@ public class GunController : MonoBehaviourPun
         Debug.Log("reload");
         _gunState = GunState.reloading;
         _weaponModelAnimator.SetTrigger("Reload");
+        _playerAnimManager.SetRiloadTrigger();
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
         Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // ã≠à¯Ç∑Ç¨ÇÈÇ©
     }
@@ -253,7 +254,7 @@ public class GunController : MonoBehaviourPun
     void ReturnLastState()
     {
         _gunState = _lastState;
-        if (_gunState == GunState.reloading) Reload();
+        if (_lastState == GunState.reloading) Reload();
     }
 
     protected virtual void OnEnable()

@@ -54,6 +54,7 @@ public class ShotGunCntlr : GunController
     {
         Debug.Log("insert shell");
         _currentMagazine++;
+        Debug.Log("shotgun magazine : " + _currentMagazine);
         if (_currentMagazine >= _gunStatus.FullMagazineSize)
         {
             _weaponModelAnimator.SetTrigger("FinishReload");

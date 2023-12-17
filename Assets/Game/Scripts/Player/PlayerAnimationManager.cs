@@ -73,6 +73,11 @@ public class PlayerAnimationManager : MonoBehaviour
         _animator.SetTrigger("Fire");
     }
 
+    public void SetRiloadTrigger()
+    {
+        _animator.SetTrigger("Reload");
+    }
+
     private void OnAnimatorIK(int layerIndex)
     {
         // look IK‚ð“¯Šú
