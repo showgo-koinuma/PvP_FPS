@@ -31,7 +31,7 @@ public class GunController : MonoBehaviourPun
     HeadController _headCntler;
     protected PlayerAnimationManager _playerAnimManager;
 
-    static int _hitLayer = ~(1 << 7);
+    static int _hitLayer = ~(1 << 7 | 1 << 3);
     protected int _currentMagazine;
     /// <summary>’e“¹‚ªÁ‚¦‚é‚Ü‚Å‚ÌŠÔ</summary>
     float _ballisticFadeOutTime = 0.01f;
