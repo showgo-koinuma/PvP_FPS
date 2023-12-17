@@ -24,6 +24,8 @@ public class PlayerManager : MonoBehaviourPun
     int _clearScore = 1; // inGameManager‚ª–³“ï‚©
 
     int _weaponIndex = 0;
+    bool _canSwitch = true;
+    float _switchInterval = 0.5f;
 
     private void Awake()
     {
@@ -86,11 +88,21 @@ public class PlayerManager : MonoBehaviourPun
 
     void SwitchWeapon()
     {
+        if (!_canSwitch) return;
+        // Switch
         _weapons[_weaponIndex].SetActive(false);
         _weaponIndex++;
         _weaponIndex %= _weapons.Length;
         _weapons[_weaponIndex].SetActive(true);
         _pAnimMg.SetWeaponIndex(_weaponIndex == 1);
+        // Interval
+        _canSwitch = false;
+        Invoke(nameof(SwitchInterval), _switchInterval);
+    }
+
+    void SwitchInterval()
+    {
+        _canSwitch = true;
     }
 
     private void OnEnable()

@@ -500,6 +500,15 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 1
     Name: SwitchGun
+  - Type: 9
+    SynchronizeType: 1
+    Name: Reload
+  - Type: 4
+    SynchronizeType: 1
+    Name: SwitchToSG
+  - Type: 9
+    SynchronizeType: 1
+    Name: ContInsert
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0

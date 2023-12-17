@@ -29,11 +29,10 @@ public class ShotGunCntlr : GunController
         ReturnGunState();
     }
 
-    protected override void FireCalculation()
-    {
-        base.FireCalculation();
-    }
-
+    //protected override void FireCalculation()
+    //{
+    //    base.FireCalculation();
+    //}
 
     /// <summary>åpè≥Ç∑ÇÈÇ∆photonÇ™îΩâûÇµÇ»Ç¢ ****</summary>
     [PunRPC]
@@ -63,6 +62,17 @@ public class ShotGunCntlr : GunController
         else
         {
             _playerAnimManager.SetContInsertTrig();
+        }
+    }
+
+    protected override void ReturnLastState()
+    {
+        base.ReturnLastState();
+
+        if (_gunState == GunState.interval)
+        {
+            _gunState = GunState.interval;
+            ShootInterval();
         }
     }
 

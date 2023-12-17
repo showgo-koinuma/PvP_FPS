@@ -251,10 +251,12 @@ public class GunController : MonoBehaviourPun
         yield break;
     }
 
-    void ReturnLastState()
+    protected virtual void ReturnLastState()
     {
         _gunState = _lastState;
         if (_lastState == GunState.reloading) Reload();
+        else if (_lastState == GunState.interval) _gunState = GunState.nomal;
+        _lastState = GunState.nomal;
     }
 
     protected virtual void OnEnable()
@@ -273,6 +275,12 @@ public class GunController : MonoBehaviourPun
         Invoke(nameof(ReturnLastState), 0.4f);
         _switchTimer = 0;
         StartCoroutine(SwitchWeaponAnimation());
+    }
+
+    /// <summary>for only debug</summary>
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E)) Debug.Log(_gunState);
     }
 
     protected virtual void OnDisable()
