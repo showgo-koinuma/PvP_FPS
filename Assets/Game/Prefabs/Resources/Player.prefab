@@ -1082,15 +1082,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8423085627826312215}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7448c5ef1f2405343a46524baedb9a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _textObjs: []
+  _changeTextTime: 0
+  _fadeTime: 0
   _target: {fileID: 5829530102506162138}
-  _offset: {x: 0, y: 0, z: 0}
-  _maxDis: 0
-  _minDis: 0
+  _worldOffsetY: 0
+  _screenOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3144287286348161409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1111,7 +1113,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 100
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

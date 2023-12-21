@@ -1,6 +1,9 @@
+using UnityEngine;
 
 public class Dummy : Damageable
 {
+    [SerializeField] DamageCounter _damageCounter;
+
     // collider
     // 0 mixamorig:LeftUpLeg, 1 mixamorig:LeftLeg, 2 mixamorig:RightUpLeg, 3 mixamorig:RightLeg, 4 mixamorig:Spine, 5 mixamorig:LeftArm,
     // 6 mixamorig:LeftForeArm, 7 mixamorig:Head, 8 mixamorig:RightArm, 9 mixamorig:RightForeArm, 
@@ -39,6 +42,7 @@ public class Dummy : Damageable
             if (_hp < 0) _hp = 0; // ‰ºŒÀclamp
         }
 
+        _damageCounter.DamageUpdate(calcDmg);
         CancelInvoke(nameof(ResetHP));
         Invoke(nameof(ResetHP), _resetHpTime);
     }
