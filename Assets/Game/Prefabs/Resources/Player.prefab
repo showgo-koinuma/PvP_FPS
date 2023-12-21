@@ -1089,6 +1089,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _target: {fileID: 5829530102506162138}
   _offset: {x: 0, y: 0, z: 0}
+  _maxDis: 0
+  _minDis: 0
 --- !u!114 &3144287286348161409
 MonoBehaviour:
   m_ObjectHideFlags: 0

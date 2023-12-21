@@ -14,7 +14,7 @@ public class ChangeColorCntlr : Damageable
     }
 
     [PunRPC]
-    protected override void OnDamageTakenShare(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
+    protected override void OnDamageTakenShare(int damage, int collierIndex)
     {
         ChangeMaterial();
     }

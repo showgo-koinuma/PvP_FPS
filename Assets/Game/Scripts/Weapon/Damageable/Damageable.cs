@@ -1,24 +1,34 @@
 using Photon.Pun;
+using System;
 using UnityEngine;
 
 /// <summary>撃たれたときにActionがある</summary>
-public abstract class Damageable : MonoBehaviourPunCallbacks
+public abstract class Damageable : MonoBehaviourPun
 {
-    Collider[] _colliders;
-    public Collider[] Colliders { get => _colliders; }
+    protected Collider[] _colliders;
 
     private void Start()
     {
-        _colliders = GetComponents<Collider>();
+        _colliders = GetComponentsInChildren<Collider>();
+
+        //string s = string.Empty;
+        //foreach (Collider collider in _colliders)
+        //{
+        //    s += collider.name + ", ";
+        //}
+        //Debug.Log(s);
     }
 
     /// <summary>自身の被ダメ時処理を呼び出し、共有する</summary>
-    public void OnDamageTakenInvoker(int damage, int collierIndex, Vector3 objVectorDiff, int playerID)
+    public void OnDamageTakenInvoker(int dmg, Collider collider)
     {
-        photonView.RPC(nameof(OnDamageTakenShare), RpcTarget.All, damage, collierIndex, objVectorDiff, playerID);
+        photonView.RPC(nameof(OnDamageTakenShare), RpcTarget.All, dmg, Array.IndexOf(_colliders, collider));
+        OnDamageTaken(dmg, Array.IndexOf(_colliders, collider));
     }
 
-    /// <summary>共有するダメージ処理、弾道表示</summary>
+    /// <summary>共有する被弾処理(must PunRPC)</summary>
     [PunRPC]
-    protected abstract void OnDamageTakenShare(int damage, int collierIndex, Vector3 objVectorDiff, int playerID);
+    protected abstract void OnDamageTakenShare(int dmg, int collierIndex);
+    /// <summary>共有しない被弾処理</summary>
+    protected virtual void OnDamageTaken(int dmg, int colliderIndex) { }
 }

@@ -110,7 +110,7 @@ public class GunController : MonoBehaviourPun
                 // 親オブジェクトにTryGetComponent
                 if (hit.collider.gameObject.transform.root.gameObject.TryGetComponent(out Damageable damageable))
                 {
-                    damageable.OnDamageTakenInvoker(_gunStatus.Damage, Array.IndexOf(damageable.Colliders, hit.collider), hit.point - hit.transform.position, _playerManager.photonView.ViewID);
+                    damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider);
                 }
                 else
                 {
