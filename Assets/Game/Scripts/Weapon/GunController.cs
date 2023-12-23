@@ -33,8 +33,6 @@ public class GunController : MonoBehaviourPun
 
     static int _hitLayer = ~(1 << 7 | 1 << 3);
     protected int _currentMagazine;
-    /// <summary>弾道が消えるまでの時間</summary>
-    float _ballisticFadeOutTime = 0.01f;
     /// <summary>現在の弾の拡散</summary>
     float _currentDiffusion = 0;
     /// <summary>現在のリコイルインデックス</summary>

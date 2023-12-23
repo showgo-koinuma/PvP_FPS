@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ShotGun
   m_EditorClassIdentifier: 
   _oneShotNum: 8
-  _damage: 20
+  _damage: 10
   _fullMagazineSize: 8
   _fireInterval: 0.5
   _reloadTime: 2

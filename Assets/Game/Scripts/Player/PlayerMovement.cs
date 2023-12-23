@@ -1,6 +1,5 @@
 using UnityEngine;
 using Photon.Pun;
-using System;
 
 /// <summary>
 /// Playerを動かすコンポーネント
@@ -159,34 +158,6 @@ public class PlayerMovement : MonoBehaviourPun
 
         wishdir = transform.TransformDirection(wishdir);
         Accelerate(wishdir, wishspeed, accel);
-
-        //if (wishspeed2 != 0) AirControl(wishdir, wishspeed2);
-
-        // Apply gravity
-        //_playerVelocity.y += gravity * Time.deltaTime;
-
-        // 左右キーだけのストレイフは速くなる的な
-        void AirControl(Vector3 wishdir, float wishspeed)
-        {
-            _playerVelocity.y = 0;
-            float speed = _playerVelocity.magnitude;
-            _playerVelocity.Normalize();
-
-            float dot = Vector3.Dot(_playerVelocity, wishdir);
-            float k = 32; // なんでこの数値になったのか分からん
-            k *= _airControl * dot * dot * Time.deltaTime;
-
-            // 減速しながら方向を変える
-            if (dot > 0)
-            {
-                _playerVelocity = _playerVelocity * speed + wishdir * k;
-                _playerVelocity.Normalize();
-            }
-
-            _playerVelocity.x *= speed;
-            _playerVelocity.z *= speed;
-
-        }
     }
 
     /// <summary>ベクトルを計算する</summary>

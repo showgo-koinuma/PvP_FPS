@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f87875c2316584f9fc02be2d7f55cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 10
+  _moveSpeed: 8
   _groundAcceleration: 14
   _airAcceleration: 5
   _strafeAcceleration: 90
@@ -451,9 +451,9 @@ MonoBehaviour:
   _headObjct: {fileID: 784146708225388539}
   _crouchMoveSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
-  _slidingSpeed: 20
+  _slidingSpeed: 16
   _slidingFriction: 0.2
-  _minCnaSlidingSpeed: 9
+  _minCnaSlidingSpeed: 7.5
   _slidingCooldown: 1.5
 --- !u!114 &3429649735527690838
 MonoBehaviour:
@@ -502,8 +502,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _lookTarget: {fileID: 7377215540849900366}
-  _rightTarget: {fileID: 412576764873083763}
-  _leftTarget: {fileID: 4454191506976345796}
 --- !u!114 &-4789466914007416541
 MonoBehaviour:
   m_ObjectHideFlags: 0

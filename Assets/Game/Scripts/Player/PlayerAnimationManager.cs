@@ -20,16 +20,6 @@ public class PlayerAnimationManager : MonoBehaviour
     /// <summary>関節の動きをどれくらい制限するか</summary>
     float _clampWeight = 0;
 
-    [Header("Hand")]
-    /// <summary>右手のターゲット</summary>
-    [SerializeField] Transform _rightTarget = default;
-    /// <summary>左手のターゲット</summary>
-    [SerializeField] Transform _leftTarget = default;
-    /// <summary>Position に対するウェイト</summary>
-    float _positionWeight = 1;
-    /// <summary>Rotation に対するウェイト</summary>
-    float _rotationWeight = 1;
-
     Animator _animator;
     PlayerMovement _playerMove;
 
