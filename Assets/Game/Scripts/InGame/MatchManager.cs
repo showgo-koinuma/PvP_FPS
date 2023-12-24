@@ -5,11 +5,13 @@ using System;
 
 public class MatchManager : MonoBehaviour
 {
-    [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
-    public Vector3[] PlayerSpawnPoints { get => _playerSpawnPoints; }
     static MatchManager _instance;
     public static MatchManager Instance { get => _instance; }
-    public event Action UpdateAction;
+
+    [SerializeField] PointAreaManager _masterArea;
+    [SerializeField] PointAreaManager _otherArea;
+
+    bool _masterIsMine = false;
 
     private void Awake()
     {
@@ -17,30 +19,11 @@ public class MatchManager : MonoBehaviour
         else _instance = this;
     }
 
-    private void Start()
+    public void SetPlayerToArea(Transform player, bool isMine, bool isMaster)
     {
-        Vector3 position;
-        Quaternion forword;
-        if (PhotonNetwork.LocalPlayer.IsMasterClient)
-        {
-            position = InGameManager.Instance.PlayerSpawnPoints[0];
-            forword = Quaternion.Euler(Vector3.forward);
-        }
-        else
-        {
-            position = InGameManager.Instance.PlayerSpawnPoints[1];
-            forword = Quaternion.AngleAxis(180, Vector3.up);
-        }
-        PhotonNetwork.Instantiate("Player", position, forword);
-    }
-
-    public void FinishGame()
-    {
-        if (PhotonNetwork.IsMasterClient) PhotonNetwork.LoadLevel(0);
-    }
-
-    private void Update()
-    {
-        UpdateAction?.Invoke();
+        if (_masterArea != null) _masterArea.SetPlayerTransform(player, isMaster);
+        if (_otherArea != null) _otherArea.SetPlayerTransform(player, isMaster);
+        
+        if (isMine && isMaster) _masterIsMine = true;
     }
 }
