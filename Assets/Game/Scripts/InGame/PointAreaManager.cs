@@ -37,7 +37,6 @@ public class PointAreaManager : MonoBehaviour
     {
         AreaStateUpdate();
         UIUpdate();
-
     }
 
     /// <summary>playerがエリア内にいるか判定し、perValueとstateを更新する</summary>
@@ -53,7 +52,7 @@ public class PointAreaManager : MonoBehaviour
             else
             {
                 _otherTakePer = 0;
-                if (_masterTakePer <= 1)
+                if (_masterTakePer < 1)
                 {
                     _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
                     _areaState = AreaState.masterTaking;
@@ -71,7 +70,7 @@ public class PointAreaManager : MonoBehaviour
             else
             {
                 _masterTakePer = 0;
-                if (_otherTakePer <= 1)
+                if (_otherTakePer < 1)
                 {
                     _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
                     _areaState = AreaState.otherTaking;
@@ -93,6 +92,8 @@ public class PointAreaManager : MonoBehaviour
 
             _areaState = AreaState.nomal;
         } // どっちもエリアにいた場合は不変
+
+        Debug.Log(_areaState);
     }
 
     /// <summary>内部データ更新をUIに反映させる</summary>
