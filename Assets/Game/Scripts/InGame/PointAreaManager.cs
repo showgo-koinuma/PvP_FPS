@@ -12,7 +12,8 @@ public class PointAreaManager : MonoBehaviour
     [SerializeField] float _lostAreaPerSpeed;
 
     [Header("UI")]
-    [SerializeField] Image _areaPerImage;
+    [SerializeField] Image _takingPerImage;
+    [SerializeField] Image _areaOwnerImage;
     [SerializeField] Color[] _teamColor;
  
     [Header("Gizmos")]
@@ -20,8 +21,12 @@ public class PointAreaManager : MonoBehaviour
     [SerializeField] Color _color = Color.yellow;
 
     Transform _master, _other;
+
     AreaState _areaState = AreaState.nomal;
     public AreaState AreaState { get => _areaState; }
+    AreaOwner _areaOwner = AreaOwner.anyone;
+    public AreaOwner AreaOwner { get => _areaOwner; }
+    WhoTaking _whoTaking = WhoTaking.master;
 
     // area value
     float _masterTakePer;
@@ -48,50 +53,32 @@ public class PointAreaManager : MonoBehaviour
 
         if (masterTaking && !otherTaking) // masterだけ
         {
-            if (_otherTakePer > 0) _otherTakePer -= _lostAreaPerSpeed;
+            if (_masterTakePer < 1)
+            {
+                _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                _whoTaking = WhoTaking.master;
+            }
             else
             {
-                _otherTakePer = 0;
-                if (_masterTakePer < 1)
-                {
-                    _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
-                    _areaState = AreaState.masterTaking;
-                }
-                else
-                {
-                    _masterTakePer = 1;
-                    _areaState = AreaState.masterGet;
-                }
+                _masterTakePer = 1;
+                _areaOwner = AreaOwner.master; // 所有者変更
             }
+
+            
         }
         else if (!masterTaking && otherTaking) // otherだけ
         {
-            if (_masterTakePer > 0) _masterTakePer -= _lostAreaPerSpeed;
+            if (_otherTakePer < 1)
+            {
+                _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                _whoTaking = WhoTaking.other;
+            }
             else
             {
-                _masterTakePer = 0;
-                if (_otherTakePer < 1)
-                {
-                    _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
-                    _areaState = AreaState.otherTaking;
-                }
-                else
-                {
-                    _otherTakePer = 1;
-                    _areaState = AreaState.otherGet;
-                }
+                _otherTakePer = 1;
+                _areaOwner = AreaOwner.other; // 所有者変更
             }
         }
-        else if (!masterTaking && !otherTaking && !(_areaState == AreaState.masterGet || _areaState == AreaState.otherGet)) // 誰もいない & どちらのエリアでもない
-        {
-            if (_masterTakePer > 0) _masterTakePer -= _lostAreaPerSpeed * Time.deltaTime;
-            else _masterTakePer = 0;
-
-            if (_otherTakePer > 0) _otherTakePer -= _lostAreaPerSpeed * Time.deltaTime;
-            else _otherTakePer = 0;
-
-            _areaState = AreaState.nomal;
-        } // どっちもエリアにいた場合は不変
 
         Debug.Log(_areaState);
     }
@@ -99,11 +86,14 @@ public class PointAreaManager : MonoBehaviour
     /// <summary>内部データ更新をUIに反映させる</summary>
     void UIUpdate()
     {
-        _areaPerImage.fillAmount = Mathf.Max(_masterTakePer, _otherTakePer);
+        _takingPerImage.fillAmount = Mathf.Max(_masterTakePer, _otherTakePer);
 
-        if (_areaState == AreaState.masterGet || _areaState == AreaState.masterTaking) _areaPerImage.color = _teamColor[0];
-        else if (_areaState == AreaState.otherGet || _areaState == AreaState.otherTaking) _areaPerImage.color = _teamColor[1];
-        else _areaPerImage.color = _teamColor[2];
+        if (_whoTaking == WhoTaking.master) _takingPerImage.color = _teamColor[0];
+        else _takingPerImage.color = _teamColor[1];
+
+        //if (_areaOwner == AreaOwner.master) _takingPerImage.color = _teamColor[0];
+        //else if (_areaOwner == AreaOwner.other) _takingPerImage.color = _teamColor[1];
+        //else _takingPerImage.color = _teamColor[2];
     }
 
     bool CheckArea(Transform player)
@@ -143,4 +133,17 @@ public enum AreaState
     otherTaking,
     masterGet,
     otherGet
+}
+
+public enum AreaOwner
+{
+    anyone,
+    master,
+    other
+}
+
+public enum WhoTaking
+{
+    master,
+    other
 }
