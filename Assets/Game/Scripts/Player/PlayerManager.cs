@@ -30,7 +30,7 @@ public class PlayerManager : MonoBehaviourPun
     private void Awake()
     {
         InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
-        MatchManager.Instance.SetPlayerToArea(transform, photonView.IsMine, PhotonNetwork.IsMasterClient);
+        if (photonView.IsMine) MatchManager.Instance.SetPlayerToArea(transform, PhotonNetwork.IsMasterClient);
 
         InitializationLayer();
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer); // 見えないレイヤー設定
