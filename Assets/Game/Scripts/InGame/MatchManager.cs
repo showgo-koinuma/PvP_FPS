@@ -23,7 +23,8 @@ public class MatchManager : MonoBehaviourPun
 
     float _masterAreaCount = 0;
     float _otherAreaCount = 0;
-    int _nextSynchroCount = 1;
+    int _masterUICount = 0;
+    int _otherUICount = 0;
 
     private void Awake()
     {
@@ -33,6 +34,7 @@ public class MatchManager : MonoBehaviourPun
         _thisIsMaster = PhotonNetwork.IsMasterClient;
     }
 
+    /// <summary>エリアにプレイヤーを登録する</summary>
     public void SetPlayerToArea(Transform player, bool isMaster)
     {
         if (_masterArea != null) _masterArea.SetPlayerTransform(player, isMaster);
@@ -41,26 +43,30 @@ public class MatchManager : MonoBehaviourPun
         if (isMaster) _masterIsMine = true;
     }
 
+    /// <summary>AreaOwnerからカウントを更新する</summary>
     void AreaCountUpdate()
     {
-        if (_masterArea.AreaOwner == AreaOwner.master && _thisIsMaster)
+        if (PhotonNetwork.IsMasterClient)
         {
-            _masterAreaCount += _areaCountUpSpeed * Time.deltaTime;
-
-            if (_masterAreaCount >= _nextSynchroCount)
+            if (_masterArea.AreaOwner == AreaOwner.master)
             {
-                photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
-                _nextSynchroCount++;
+                _masterAreaCount += _areaCountUpSpeed * Time.deltaTime;
+
+                if (_masterAreaCount >= _masterUICount + 1)
+                {
+                    _masterUICount++;
+                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
+                }
             }
-        }
-        else if (_masterArea.AreaOwner == AreaOwner.other && !_thisIsMaster)
-        {
-            _otherAreaCount += _areaCountUpSpeed * Time.deltaTime;
-
-            if (_otherAreaCount >= _nextSynchroCount)
+            else if (_masterArea.AreaOwner == AreaOwner.other)
             {
-                photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
-                _nextSynchroCount++;
+                _otherAreaCount += _areaCountUpSpeed * Time.deltaTime;
+
+                if (_otherAreaCount >= _otherUICount + 1) 
+                {
+                    _otherUICount++;
+                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
+                }
             }
         }
     }
@@ -68,14 +74,8 @@ public class MatchManager : MonoBehaviourPun
     [PunRPC]
     void SynchroAreaCountText()
     {
-        if (_thisIsMaster)
-        {
-            _masterCountText.text = _nextSynchroCount.ToString("D2");
-        }
-        else
-        {
-            _otherCountText.text = _nextSynchroCount.ToString("D2");
-        }
+        _masterCountText.text = _masterUICount.ToString("D2");
+        _otherCountText.text = _otherUICount.ToString("D2");
     }
 
     private void Update()

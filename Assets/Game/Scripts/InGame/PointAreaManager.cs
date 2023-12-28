@@ -125,8 +125,22 @@ public class PointAreaManager : MonoBehaviourPun
             }
             else
             {
-                _masterTakePer = 0;
-                _otherTakePer = 0;
+                if (_masterTakePer > 0)
+                {
+                    _masterTakePer -= _lostAreaPerSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    _masterTakePer = 0;
+                }
+                if (_otherTakePer > 0)
+                {
+                    _otherTakePer -= _lostAreaPerSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    _otherTakePer = 0;
+                }
             }
         }
     }
