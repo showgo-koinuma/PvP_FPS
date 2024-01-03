@@ -1,4 +1,5 @@
 using UnityEngine;
+using Photon.Pun;
 
 public class Dummy : Damageable
 {
@@ -42,7 +43,7 @@ public class Dummy : Damageable
             if (_hp < 0) _hp = 0; // ‰ºŒÀclamp
         }
 
-        _damageCounter.DamageUpdate(calcDmg);
+        _damageCounter.DamageUpdate(calcDmg, true);
         CancelInvoke(nameof(ResetHP));
         Invoke(nameof(ResetHP), _resetHpTime);
     }
@@ -53,6 +54,7 @@ public class Dummy : Damageable
         _hp = _maxHp;
     }
 
+    [PunRPC]
     protected override void OnDamageTakenShare(int damage, int collierIndex) { } // ‰½‚Æ‚©‚È‚ç‚ñ‚©@–°‚¢
 
     private void Awake()

@@ -6,8 +6,11 @@ using DG.Tweening;
 /// <summary>playerのHPを管理する</summary>
 public class PlayerHealthManager : Damageable
 {
-    [SerializeField] int _maxHp = 200;
+    [SerializeField] int _maxArmor = 100;
+    [SerializeField] int _maxHp = 100;
     [SerializeField] Image _damagaeCanvasImage;
+    [SerializeField] DamageCounter _damageCounter;
+
     PlayerManager _pManager;
 
     // collider
@@ -28,10 +31,52 @@ public class PlayerHealthManager : Damageable
         }
     }
 
+    // hp status HPはintなのか
+    int _armor;
+    int _hp;
+
+    // 部位によるダメージレート
+    float _headDmgRate = 2f; // 頭
+    float _limbsDmgRate = 0.8f; // 手足
+
     private void Awake()
     {
         _pManager = GetComponent<PlayerManager>();
         _currentHp = _maxHp;
+        _armor = _maxArmor;
+        _hp = _maxHp;
+    }
+
+    protected override void OnDamageTaken(int dmg, int colliderIndex)
+    {
+        int calcDmg = dmg; // 部位によるダメージ計算
+        bool isArmour = false;
+
+        if (colliderIndex == 7) calcDmg = (int)(calcDmg * _headDmgRate); // 頭
+        else if (colliderIndex != 4) calcDmg = (int)(calcDmg * _limbsDmgRate); // 手足
+
+        if (_armor >= calcDmg)
+        {
+            _armor -= calcDmg; // アーマーで受けきれる
+            isArmour = true;
+        }
+        else if (_armor > 0) // アーマーで受けきれない
+        {
+            _hp -= calcDmg - _armor; // 超過分hpを減らす
+            _armor = 0;
+        }
+        else // アーマーがない
+        {
+            _hp -= calcDmg;
+
+            if (_hp <= 0)
+            {
+                _hp = 0; // 下限clamp
+                OnDead();
+            }
+        }
+
+        _damageCounter.DamageUpdate(calcDmg, isArmour);
     }
 
     [PunRPC]

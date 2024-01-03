@@ -63,7 +63,7 @@ public class DamageCounter : MonoBehaviour
         _targetPosOnHit = _target.position;
     }
 
-    public void DamageUpdate(int dmg)
+    public void DamageUpdate(int dmg, bool isArmour)
     {
         if (_timer > _changeTextTime)
         {
