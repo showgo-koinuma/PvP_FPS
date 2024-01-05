@@ -49,6 +49,11 @@ public class PlayerHealthManager : Damageable
 
     protected override void OnDamageTaken(int dmg, int colliderIndex)
     {
+    }
+
+    [PunRPC]
+    protected override void OnDamageTakenShare(int dmg, int colliderIndex)
+    {
         int calcDmg = dmg; // 部位によるダメージ計算
         bool isArmour = false;
 
@@ -76,20 +81,19 @@ public class PlayerHealthManager : Damageable
             }
         }
 
-        _damageCounter.DamageUpdate(calcDmg, isArmour);
-    }
-
-    [PunRPC]
-    protected override void OnDamageTakenShare(int damage, int collierIndex)
-    {
-        CurrentHp -= damage;
-        OnDamageTakenIsMine();
+        if (photonView.IsMine)
+        {
+            OnDamageTakenIsMine();
+        }
+        else
+        {
+            _damageCounter.DamageUpdate(calcDmg, isArmour);
+        }
     }
 
     /// <summary>自分がダメージを受けたときの処理</summary>
     private void OnDamageTakenIsMine()
     {
-        if (!photonView.IsMine) return;
         Debug.Log("dame-ji");
 
         // 画面を赤くする処理
@@ -101,6 +105,8 @@ public class PlayerHealthManager : Damageable
 
     void OnDead()
     {
+        if (photonView.IsMine) return; // 倒した側で処理する
+
         Debug.Log("sinnda");
         //_lastHitPlayer.AddScore();
         _currentHp = _maxHp;

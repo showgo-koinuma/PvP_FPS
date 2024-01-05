@@ -76,6 +76,15 @@ public class DamageCounter : MonoBehaviour
             _totalDmg += dmg;
         }
 
+        if (isArmour)
+        {
+            _textObjs[_currentTextObjIndex].color = Color.red;
+        }
+        else
+        {
+            _textObjs[_currentTextObjIndex].color = Color.black;
+        }
+
         _textObjs[_currentTextObjIndex].text = _totalDmg.ToString(); // テキスト更新
         TargetPosUpdate(); // ポジション更新
         _timer = 0f; // reset timer
