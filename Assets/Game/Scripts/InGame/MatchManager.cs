@@ -37,7 +37,7 @@ public class MatchManager : MonoBehaviourPun
     /// <summary>エリアにプレイヤーを登録する</summary>
     public void SetPlayerToArea(Transform player, bool isMaster)
     {
-        if (_masterArea != null) _masterArea.SetPlayerTransform(player, isMaster);
+        if (_masterArea != null) _masterArea.SetPlayerTransform(player);
         //if (_otherArea != null) _otherArea.SetPlayerTransform(player, isMaster);
         
         if (isMaster) _masterIsMine = true;
@@ -46,7 +46,7 @@ public class MatchManager : MonoBehaviourPun
     /// <summary>AreaOwnerからカウントを更新する</summary>
     void AreaCountUpdate()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient) // master側でmatch状況は処理することとする
         {
             if (_masterArea.AreaOwner == AreaOwner.master)
             {
@@ -55,7 +55,7 @@ public class MatchManager : MonoBehaviourPun
                 if (_masterAreaCount >= _masterUICount + 1)
                 {
                     _masterUICount++;
-                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
+                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All, _masterUICount, _otherUICount);
                 }
             }
             else if (_masterArea.AreaOwner == AreaOwner.other)
@@ -65,17 +65,17 @@ public class MatchManager : MonoBehaviourPun
                 if (_otherAreaCount >= _otherUICount + 1) 
                 {
                     _otherUICount++;
-                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All);
+                    photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All, _masterUICount, _otherUICount);
                 }
             }
         }
     }
 
     [PunRPC]
-    void SynchroAreaCountText()
+    void SynchroAreaCountText(int masterCount, int otherCount)
     {
-        _masterCountText.text = _masterUICount.ToString("D2");
-        _otherCountText.text = _otherUICount.ToString("D2");
+        _masterCountText.text = masterCount.ToString("D2");
+        _otherCountText.text = otherCount.ToString("D2");
     }
 
     private void Update()
