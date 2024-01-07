@@ -12,13 +12,12 @@ public class MatchManager : MonoBehaviourPun
     [SerializeField] float _areaCountUpSpeed = 1f;
 
     [Header("UI")]
-    [SerializeField] TextMeshProUGUI _masterCountText;
+    [SerializeField] TextMeshProUGUI _myCountText;
     [SerializeField] TextMeshProUGUI _otherCountText;
 
     static MatchManager _instance;
     public static MatchManager Instance { get => _instance; }
 
-    bool _masterIsMine = false;
     bool _thisIsMaster;
 
     float _masterAreaCount = 0;
@@ -35,18 +34,16 @@ public class MatchManager : MonoBehaviourPun
     }
 
     /// <summary>エリアにプレイヤーを登録する</summary>
-    public void SetPlayerToArea(Transform player, bool isMaster)
+    public void SetPlayerToArea(Transform player)
     {
         if (_masterArea != null) _masterArea.SetPlayerTransform(player);
         //if (_otherArea != null) _otherArea.SetPlayerTransform(player, isMaster);
-        
-        if (isMaster) _masterIsMine = true;
     }
 
     /// <summary>AreaOwnerからカウントを更新する</summary>
     void AreaCountUpdate()
     {
-        if (PhotonNetwork.IsMasterClient) // master側でmatch状況は処理することとする
+        if (_thisIsMaster) // master側でmatch状況は処理することとする
         {
             if (_masterArea.AreaOwner == AreaOwner.master)
             {
@@ -71,11 +68,20 @@ public class MatchManager : MonoBehaviourPun
         }
     }
 
+    /// <summary>UI更新を共有</summary>
     [PunRPC]
     void SynchroAreaCountText(int masterCount, int otherCount)
     {
-        _masterCountText.text = masterCount.ToString("D2");
-        _otherCountText.text = otherCount.ToString("D2");
+        if (_thisIsMaster)
+        {
+            _myCountText.text = masterCount.ToString("D2");
+            _otherCountText.text = otherCount.ToString("D2");
+        }
+        else
+        {
+            _otherCountText.text = masterCount.ToString("D2");
+            _myCountText.text = otherCount.ToString("D2");
+        }
     }
 
     private void Update()

@@ -41,6 +41,13 @@ public class PointAreaManager : MonoBehaviourPun
     private void Awake()
     {
         _isMaster = PhotonNetwork.IsMasterClient;
+
+        if (!_isMaster)
+        {
+            Color masterColor = _teamColor[0];
+            _teamColor[0] = _teamColor[1];
+            _teamColor[1] = masterColor;
+        }
     }
 
     public void SetPlayerTransform(Transform player)

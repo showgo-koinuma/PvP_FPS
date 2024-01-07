@@ -1205,7 +1205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _masterArea: {fileID: 1090249438}
   _areaCountUpSpeed: 1
-  _masterCountText: {fileID: 144629272}
+  _myCountText: {fileID: 144629272}
   _otherCountText: {fileID: 1525087683}
 --- !u!114 &1459475990
 MonoBehaviour:
