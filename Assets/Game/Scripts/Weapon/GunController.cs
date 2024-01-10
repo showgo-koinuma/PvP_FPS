@@ -93,6 +93,8 @@ public class GunController : MonoBehaviourPun
             return;
         }
 
+        bool isHit = false;
+
         // Hit計算
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
         {
@@ -109,6 +111,7 @@ public class GunController : MonoBehaviourPun
                 if (hit.collider.gameObject.transform.root.gameObject.TryGetComponent(out Damageable damageable))
                 {
                     damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider);
+                    isHit = true;
                 }
                 else
                 {
@@ -135,6 +138,8 @@ public class GunController : MonoBehaviourPun
         StartRecoil(); // view model recoil animation
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
+
+        _playerManager.OnShoot(isHit);
 
         _gunState = GunState.interval; // インターバルに入れて
         ShootInterval();

@@ -20,17 +20,6 @@ public class PlayerHealthManager : Damageable
     // ì∑ : 5
     // éËë´ : ÇªÇÃëº(MoveBodyÇÃcolliderÇ…ÇÕìñÇΩÇÁÇ»Ç¢)
 
-    int _currentHp;
-    int CurrentHp
-    {
-        get => _currentHp;
-        set
-        {
-            _currentHp = value;
-            if (_currentHp <= 0) OnDead();
-        }
-    }
-
     // hp status HPÇÕintÇ»ÇÃÇ©
     int _armor;
     int _hp;
@@ -42,7 +31,6 @@ public class PlayerHealthManager : Damageable
     private void Awake()
     {
         _pManager = GetComponent<PlayerManager>();
-        _currentHp = _maxHp;
         _armor = _maxArmor;
         _hp = _maxHp;
     }
@@ -108,8 +96,17 @@ public class PlayerHealthManager : Damageable
         if (photonView.IsMine) return; // ì|ÇµÇΩë§Ç≈èàóùÇ∑ÇÈ
 
         Debug.Log("sinnda");
-        //_lastHitPlayer.AddScore();
-        _currentHp = _maxHp;
-        _pManager.Respawn();
+        _armor = _maxArmor;
+        _hp = _maxHp;
+
+        _pManager.OnDead();
+        _pManager.RespawnPosition();
+        photonView.RPC(nameof(OnOtherKill), RpcTarget.Others);
+    }
+
+    [PunRPC]
+    void OnOtherKill()
+    {
+        _pManager.OnKill();
     }
 }

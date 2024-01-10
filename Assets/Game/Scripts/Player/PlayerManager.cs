@@ -20,8 +20,15 @@ public class PlayerManager : MonoBehaviourPun
     int _hitLayer = 6;
     int _invisibleLayer = 7;
 
-    int _score = 0;
-    int _clearScore = 1; // inGameManagerが無難か
+    // result data
+    int _shootCount = 0;
+    public int ShootCount { get => _shootCount; }
+    int _hitCount = 0;
+    public int HitCount { get => _hitCount; }
+    int _deadCount = 0;
+    public int DeadCount { get => _deadCount; }
+    int _killCount = 0;
+    public int KillCount { get => _killCount; }
 
     int _weaponIndex = 0;
     bool _canSwitch = true;
@@ -29,8 +36,7 @@ public class PlayerManager : MonoBehaviourPun
 
     private void Awake()
     {
-        InGameManager.Instance.ViewGameObjects.Add(photonView.ViewID, this.gameObject); // オブジェクト共有
-        if (photonView.IsMine && MatchManager.Instance) MatchManager.Instance.SetPlayerToArea(transform);
+        if (photonView.IsMine && MatchManager.Instance) MatchManager.Instance.SetPlayer(this, transform);
 
         InitializationLayer();
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer); // 見えないレイヤー設定
@@ -59,20 +65,22 @@ public class PlayerManager : MonoBehaviourPun
         }
     }
 
-    public void AddScore()
+    #region Helth -------------------------------------------------------
+    public void OnDead()
     {
-        _score++;
-        if (_score >= _clearScore) // ゲーム終了条件
-        {
-            InGameManager.Instance.FinishGame();
-        } 
+        _deadCount++;
     }
 
-    public void Respawn()
+    public void OnKill()
+    {
+        _killCount++;
+    }
+
+    public void RespawnPosition()
     {
         // 位置、向きの初期化
         Vector3 position;
-        if (PhotonNetwork.LocalPlayer.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
             position = InGameManager.Instance.PlayerSpawnPoints[0];
             transform.forward = Vector3.forward;
@@ -85,6 +93,14 @@ public class PlayerManager : MonoBehaviourPun
         transform.position = position;
 
         // TO:DO 内部データの初期化
+    }
+    #endregion
+
+    #region Weapon ----------------------------------------------
+    public void OnShoot(bool isHit)
+    {
+        _shootCount++;
+        if (isHit) _hitCount++;
     }
 
     void SwitchWeapon()
@@ -105,6 +121,7 @@ public class PlayerManager : MonoBehaviourPun
     {
         _canSwitch = true;
     }
+    #endregion
 
     private void OnEnable()
     {

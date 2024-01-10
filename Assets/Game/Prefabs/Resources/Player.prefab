@@ -404,7 +404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxArmor: 100
-  _maxHp: 200
+  _maxHp: 100
   _damagaeCanvasImage: {fileID: 3328033741031809898}
   _damageCounter: {fileID: 4974036203137704364}
 --- !u!114 &3596279132540715783

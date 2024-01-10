@@ -10,8 +10,6 @@ public class InGameManager : MonoBehaviour
     static InGameManager _instance;
     public static InGameManager Instance { get => _instance; }
     public event Action UpdateAction;
-    /// <summary>オブジェクトの参照を共有するため</summary>
-    public Dictionary<int, GameObject> ViewGameObjects = new Dictionary<int, GameObject>();
 
     private void Awake()
     {
