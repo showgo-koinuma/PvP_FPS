@@ -180,6 +180,10 @@ public class PointAreaManager : MonoBehaviourPun
                     if (_otherTakePer > 0) _otherTakePer -= _lostAreaPerSpeed * Time.deltaTime;
                     else _otherTakePer = 0;
                 }
+                else
+                {
+                    _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                }
             }
             else if (_areaOwner == AreaOwner.other)
             {
@@ -190,19 +194,31 @@ public class PointAreaManager : MonoBehaviourPun
                     if (_masterTakePer > 0) _masterTakePer -= _lostAreaPerSpeed * Time.deltaTime;
                     else _masterTakePer = 0;
                 }
+                else
+                {
+                    _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                }
             }
-
-            if (_areaState == AreaState.masterTaking && _areaOwner != AreaOwner.master)
+            else // if owner == anyone
             {
-                _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
-                _otherTakePer = 0;
+                if (_areaState == AreaState.masterTaking)
+                {
+                    _masterTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                    _otherTakePer = 0;
+                }
+                else if (_areaState == AreaState.otherTaking)
+                {
+                    _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
+                    _masterTakePer = 0;
+                }
+                else // if state == anyone
+                {
+                    if (_masterTakePer > 0) _masterTakePer -= _lostAreaPerSpeed * Time.deltaTime;
+                    else _masterTakePer = 0;
+                    if (_otherTakePer > 0) _otherTakePer -= _lostAreaPerSpeed * Time.deltaTime;
+                    else _otherTakePer = 0;
+                }
             }
-            else if (_areaState == AreaState.otherTaking && _areaOwner != AreaOwner.other)
-            {
-                _otherTakePer += _takeAreaPerSpeed * Time.deltaTime;
-                _masterTakePer = 0;
-            }
-
         }
     }
 

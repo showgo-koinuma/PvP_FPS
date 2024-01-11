@@ -27,8 +27,6 @@ public class PlayerManager : MonoBehaviourPun
     public int HitCount { get => _hitCount; }
     int _deadCount = 0;
     public int DeadCount { get => _deadCount; }
-    int _killCount = 0;
-    public int KillCount { get => _killCount; }
 
     int _weaponIndex = 0;
     bool _canSwitch = true;
@@ -36,7 +34,7 @@ public class PlayerManager : MonoBehaviourPun
 
     private void Awake()
     {
-        if (photonView.IsMine && MatchManager.Instance) MatchManager.Instance.SetPlayer(this, transform);
+        if (MatchManager.Instance) MatchManager.Instance.SetPlayer(this, photonView.IsMine);
 
         InitializationLayer();
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer); // 見えないレイヤー設定
@@ -68,12 +66,13 @@ public class PlayerManager : MonoBehaviourPun
     #region Helth -------------------------------------------------------
     public void OnDead()
     {
-        _deadCount++;
+        photonView.RPC(nameof(ShareDead), RpcTarget.All);
     }
 
-    public void OnKill()
+    [PunRPC]
+    void ShareDead()
     {
-        _killCount++;
+        _deadCount++;
     }
 
     public void RespawnPosShare()
@@ -97,7 +96,7 @@ public class PlayerManager : MonoBehaviourPun
             transform.forward = Vector3.back;
         }
         transform.position = position;
-
+        Debug.Log("respawn");
         // TO:DO 内部データの初期化
     }
     #endregion

@@ -17,6 +17,8 @@ public class MatchManager : MonoBehaviourPun
     [SerializeField] TextMeshProUGUI _otherCountText;
 
     [Header("ゲーム終了時")]
+    [SerializeField, Tooltip("inGameのキャンバス")] GameObject _inGameCanvas;
+    [SerializeField] GameObject _pointCanves;
     [SerializeField, Tooltip("ゲーム終了時に表示するキャンバス")] GameObject _gameOverCanvas;
     [SerializeField] TextMeshProUGUI _winOrLossText;
     [SerializeField] GameObject _resultCanvas;
@@ -27,8 +29,9 @@ public class MatchManager : MonoBehaviourPun
     public static MatchManager Instance { get => _instance; }
 
     GameState _gameState = GameState.InGame;
-    PlayerManager _minePlayer;
+    PlayerManager _minePlayer, _otherPlayer;
     bool _thisIsMaster;
+    int _winCount = 5;
 
     float _masterAreaCount = 0;
     float _otherAreaCount = 0;
@@ -42,16 +45,27 @@ public class MatchManager : MonoBehaviourPun
 
         _thisIsMaster = PhotonNetwork.IsMasterClient;
 
+        _inGameCanvas.SetActive(true);
         _gameOverCanvas.SetActive(false); // 終了時キャンバス非表示
         _resultCanvas.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.Locked; // カーソル
+        Cursor.visible = false;
     }
 
     /// <summary>エリアにプレイヤーを登録する</summary>
-    public void SetPlayer(PlayerManager pManager, Transform player)
+    public void SetPlayer(PlayerManager pManager, bool isMine)
     {
-        _minePlayer = pManager;
-        if (_masterArea != null) _masterArea.SetPlayerTransform(player);
-        //if (_otherArea != null) _otherArea.SetPlayerTransform(player, isMaster);
+        if (isMine)
+        {
+            _minePlayer = pManager;
+            if (_masterArea != null) _masterArea.SetPlayerTransform(pManager.transform);
+            //if (_otherArea != null) _otherArea.SetPlayerTransform(player, isMaster);
+        }
+        else
+        {
+            _otherPlayer = pManager;
+        }
     }
 
     /// <summary>AreaOwnerからカウントを更新する</summary>
@@ -68,7 +82,7 @@ public class MatchManager : MonoBehaviourPun
                     _masterUICount++;
                     photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All, _masterUICount, _otherUICount);
 
-                    if (_masterUICount >= 10) // test 10
+                    if (_masterUICount >= _winCount) // test 10
                     {
                         photonView.RPC(nameof(GameOver), RpcTarget.All, true);
                     }
@@ -83,7 +97,7 @@ public class MatchManager : MonoBehaviourPun
                     _otherUICount++;
                     photonView.RPC(nameof(SynchroAreaCountText), RpcTarget.All, _masterUICount, _otherUICount);
 
-                    if (_otherUICount >= 10) // test 10
+                    if (_otherUICount >= _winCount) // test 10
                     {
                         photonView.RPC(nameof(GameOver), RpcTarget.All, false);
                     }
@@ -125,26 +139,31 @@ public class MatchManager : MonoBehaviourPun
 
     IEnumerator GameOverUI(bool isWin)
     {
+        _inGameCanvas.SetActive(false);
+        _pointCanves.SetActive(false);
+        _gameOverCanvas.SetActive(true);
+
         if (isWin)
         {
-            _gameOverCanvas.SetActive(true);
             _winOrLossText.text = "Victory";
         }
         else
         {
-            _gameOverCanvas.SetActive(true);
             _winOrLossText.text = "Defeat";
         }
 
         yield return new WaitForSeconds(2); // fade開始までのdelay
 
-        _resultFadePanel.DOFade(1, 1).OnComplete(() => _resultFadePanel.DOFade(0, 1));
+        _resultFadePanel.DOFade(1, 1);
 
         yield return new WaitForSeconds(1); // fade終了までのdelay
 
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        _resultFadePanel.DOFade(0, 1);
         _gameOverCanvas.SetActive(false);
         _resultCanvas.SetActive(true);
-        _kdText.text = $"{_minePlayer.KillCount} / {_minePlayer.DeadCount}";
+        _kdText.text = $"{_otherPlayer.DeadCount} / {_minePlayer.DeadCount}";
     }
 
     /// <summary>リザルトデータを取得する</summary>

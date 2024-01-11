@@ -82,8 +82,6 @@ public class PlayerMovement : MonoBehaviourPun
     void Start()
     {
         _playerScale = transform.localScale;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     private void ThisUpdate()

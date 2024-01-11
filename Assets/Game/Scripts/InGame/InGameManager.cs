@@ -1,15 +1,18 @@
 using Photon.Pun;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class InGameManager : MonoBehaviour
+public class InGameManager : MonoBehaviourPun
 {
     [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
+
     public Vector3[] PlayerSpawnPoints { get => _playerSpawnPoints; }
     static InGameManager _instance;
     public static InGameManager Instance { get => _instance; }
     public event Action UpdateAction;
+
+    bool _otherContinue = false;
 
     private void Awake()
     {
@@ -34,9 +37,47 @@ public class InGameManager : MonoBehaviour
         PhotonNetwork.Instantiate("Player", position, forword);
     }
 
-    public void FinishGame()
+    /// <summary>ゲームを続けるを選択</summary>
+    public void SelectContinueGame() // button call
     {
-        if (PhotonNetwork.IsMasterClient) PhotonNetwork.LoadLevel(0);
+        PhotonNetwork.AutomaticallySyncScene = true;
+
+        if (_otherContinue)
+        {
+            photonView.RPC(nameof(ContinueGame), RpcTarget.MasterClient);
+        }
+        else
+        {
+            photonView.RPC(nameof(ShareContinueGame), RpcTarget.Others);
+        }
+    }
+
+    [PunRPC]
+    void ShareContinueGame()
+    {
+        _otherContinue = true;
+    }
+
+    [PunRPC]
+    void ContinueGame()
+    {
+        PhotonNetwork.LoadLevel(2);
+    }
+
+    /// <summary>ゲーム終了を選択</summary>
+    public void SelectEndGame() // button call
+    {
+        photonView.RPC(nameof(GameEnded), RpcTarget.Others); // 終了を共有
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
+    }
+
+    /// <summary>相手がゲーム終了を選択した</summary>
+    [PunRPC]
+    void GameEnded()
+    {
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
     }
 
     private void Update()

@@ -101,12 +101,5 @@ public class PlayerHealthManager : Damageable
 
         _pManager.OnDead();
         _pManager.RespawnPosShare();
-        photonView.RPC(nameof(OnOtherKill), RpcTarget.Others);
-    }
-
-    [PunRPC]
-    void OnOtherKill()
-    {
-        _pManager.OnKill();
     }
 }
