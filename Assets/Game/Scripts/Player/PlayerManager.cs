@@ -76,11 +76,17 @@ public class PlayerManager : MonoBehaviourPun
         _killCount++;
     }
 
-    public void RespawnPosition()
+    public void RespawnPosShare()
+    {
+        photonView.RPC(nameof(RespawnPosition), RpcTarget.All);
+    }
+
+    [PunRPC]
+    void RespawnPosition()
     {
         // ˆÊ’uAŒü‚«‚Ì‰Šú‰»
         Vector3 position;
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient ^ !photonView.IsMine)
         {
             position = InGameManager.Instance.PlayerSpawnPoints[0];
             transform.forward = Vector3.forward;

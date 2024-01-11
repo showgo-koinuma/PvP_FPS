@@ -93,14 +93,14 @@ public class PlayerHealthManager : Damageable
 
     void OnDead()
     {
-        if (photonView.IsMine) return; // ì|ÇµÇΩë§Ç≈èàóùÇ∑ÇÈ
+        if (!photonView.IsMine) return;
 
         Debug.Log("sinnda");
         _armor = _maxArmor;
         _hp = _maxHp;
 
         _pManager.OnDead();
-        _pManager.RespawnPosition();
+        _pManager.RespawnPosShare();
         photonView.RPC(nameof(OnOtherKill), RpcTarget.Others);
     }
 

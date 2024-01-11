@@ -31,7 +31,7 @@ public class InGamePlayerSpawner : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         // Player‚ğ¶¬‚µARespawn‚ÅTrasform‚ğ‰Šú‰»‚·‚é
-        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity).GetComponent<PlayerManager>().RespawnPosition();
+        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity).GetComponent<PlayerManager>().RespawnPosShare();
     }
 
     /// <summary>room‚Ö‚ÌQ‰Á‚É¸”s‚µ‚½</summary>
