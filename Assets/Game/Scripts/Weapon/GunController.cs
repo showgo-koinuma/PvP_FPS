@@ -17,6 +17,8 @@ public class GunController : MonoBehaviourPun
     [Header("エフェクト")]
     [SerializeField, Tooltip("弾道オブジェクトの親になるマズルオブジェクト [0] = view, [1] = model")] GameObject[] _muzzles;
     [SerializeField, Tooltip("弾道TrailRendererプレハブ")] TrailRenderer _ballisticTrailPrefab;
+    TrailRenderer[] _ballisticTrailObjs;
+    int _ballisticTrailIndex = 0;
     [SerializeField, Tooltip("マズルフラッシュparticle")] ParticleSystem _muzzleFlash;
     [SerializeField] ParticleSystem _hitParticleEffect;
 
@@ -58,7 +60,15 @@ public class GunController : MonoBehaviourPun
         _headCntler = transform.root.GetComponent<HeadController>();
         _playerAnimManager = transform.root.GetComponent<PlayerAnimationManager>();
 
+        _ballisticTrailObjs = new TrailRenderer[_gunStatus.OneShotNum];
+
+        for (int i = 0; i < _gunStatus.OneShotNum; i++)
+        {
+            _ballisticTrailObjs[i] = Instantiate(_ballisticTrailPrefab);
+        }
+
         if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // 自分でないなら消す
+
         _currentMagazine = _gunStatus.FullMagazineSize; // 弾数初期化
         _defaultPos = _recoilObj.transform.localPosition;
     }
@@ -195,14 +205,20 @@ public class GunController : MonoBehaviourPun
     /// <summary>弾道を描画する</summary>
     void DrawBallistic(Vector3 target)
     {
-        for (int i= 0; i < _muzzles.Length; i++)
+        if (photonView.IsMine)
         {
-            var ballisticTrail = Instantiate(_ballisticTrailPrefab, _muzzles[i].transform.position, Quaternion.identity);
-            if (_playerManager.photonView.IsMine ^ i == 0) ballisticTrail.gameObject.layer = 7; // setting invisible layer
-            ballisticTrail.AddPosition(_muzzles[i].transform.position); // 初期pos
-            ballisticTrail.transform.position = target; // 着弾pos
-            Destroy(ballisticTrail.gameObject, 0.1f); // 着弾したら消す(0.1s)
+            _ballisticTrailObjs[_ballisticTrailIndex].Clear();
+            _ballisticTrailObjs[_ballisticTrailIndex].AddPosition(_muzzles[0].transform.position); // 初期pos
+            _ballisticTrailObjs[_ballisticTrailIndex].transform.position = target; // 初期pos
         }
+        else
+        {
+            _ballisticTrailObjs[_ballisticTrailIndex].Clear();
+            _ballisticTrailObjs[_ballisticTrailIndex].AddPosition(_muzzles[1].transform.position); // 初期pos
+            _ballisticTrailObjs[_ballisticTrailIndex].transform.position = target; // 初期pos
+        }
+
+        _ballisticTrailIndex = (_ballisticTrailIndex + 1) % _gunStatus.OneShotNum;
     }
 
     /// <summary>objに当たったときのエフェクト再生</summary>

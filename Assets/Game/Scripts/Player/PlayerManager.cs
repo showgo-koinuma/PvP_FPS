@@ -107,14 +107,20 @@ public class PlayerManager : MonoBehaviourPun
     {
         if (!_canSwitch) return;
         // Switch
-        _weapons[_weaponIndex].SetActive(false);
+        photonView.RPC(nameof(SwitchOtherWeapon), RpcTarget.All, _weaponIndex);
         _weaponIndex++;
         _weaponIndex %= _weapons.Length;
-        _weapons[_weaponIndex].SetActive(true);
         _pAnimMg.SetWeaponIndex(_weaponIndex == 1);
         // Interval
         _canSwitch = false;
         Invoke(nameof(SwitchInterval), _switchInterval);
+    }
+
+    [PunRPC]
+    void SwitchOtherWeapon(int index)
+    {
+        _weapons[index].SetActive(false);
+        _weapons[(index + 1) % _weapons.Length].SetActive(true);
     }
 
     void SwitchInterval()
@@ -125,11 +131,11 @@ public class PlayerManager : MonoBehaviourPun
 
     private void OnEnable()
     {
-        PlayerInput.Instance.SetInputAction(InputType.SwitchWeapon, SwitchWeapon);
+        if (photonView.IsMine) PlayerInput.Instance.SetInputAction(InputType.SwitchWeapon, SwitchWeapon);
     }
 
     private void OnDisable()
     {
-        PlayerInput.Instance.DelInputAction(InputType.SwitchWeapon, SwitchWeapon);
+        if (photonView.IsMine) PlayerInput.Instance.DelInputAction(InputType.SwitchWeapon, SwitchWeapon);
     }
 }

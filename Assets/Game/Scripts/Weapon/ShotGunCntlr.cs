@@ -29,12 +29,6 @@ public class ShotGunCntlr : GunController
         ReturnGunState();
     }
 
-    //protected override void FireCalculation()
-    //{
-    //    base.FireCalculation();
-    //}
-
-    /// <summary>åpè≥Ç∑ÇÈÇ∆photonÇ™îΩâûÇµÇ»Ç¢ ****</summary>
     [PunRPC]
     protected override void ShareFireAction(Vector3 hitPoint)
     {

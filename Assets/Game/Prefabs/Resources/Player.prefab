@@ -3317,6 +3317,11 @@ PrefabInstance:
       propertyPath: _muzzles.Array.data[1]
       value: 
       objectReference: {fileID: 604555566300065754}
+    - target: {fileID: 4257523280815769745, guid: 2b56009cd6438c64080adb38df4d571d,
+        type: 3}
+      propertyPath: _ballisticTrailPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -3384,7 +3389,7 @@ PrefabInstance:
     - target: {fileID: 6101454178329259229, guid: 0c0199d2ce977cd41b22b1d798eb2866,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6910607133961827943, guid: 0c0199d2ce977cd41b22b1d798eb2866,
         type: 3}
@@ -3550,7 +3555,7 @@ PrefabInstance:
     - target: {fileID: 6524391818695673363, guid: bafc85477ea5f3e4098f91b09e4c3969,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3764,6 +3769,11 @@ PrefabInstance:
       propertyPath: _muzzles.Array.data[1]
       value: 
       objectReference: {fileID: 7758143033053410446}
+    - target: {fileID: 3774583263337846288, guid: b2118c9ad3e7ab44aa00df517c1f0880,
+        type: 3}
+      propertyPath: _ballisticTrailPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4446188378960651585, guid: b2118c9ad3e7ab44aa00df517c1f0880,
         type: 3}
       propertyPath: m_Name
