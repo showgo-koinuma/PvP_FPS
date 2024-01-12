@@ -57,6 +57,8 @@ public class PointAreaManager : MonoBehaviourPun
 
     private void Update()
     {
+        if (InGameManager.Instance.GameState != GameState.InGame) return;
+
         AreaStateUpdate();
         UIUpdate();
     }

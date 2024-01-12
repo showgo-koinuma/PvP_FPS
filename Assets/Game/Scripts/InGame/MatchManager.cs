@@ -7,9 +7,9 @@ using DG.Tweening;
 
 public class MatchManager : MonoBehaviourPun
 {
+    [Tooltip("Area")]
     [SerializeField] PointAreaManager _masterArea;
     //[SerializeField] PointAreaManager _otherArea;
-
     [SerializeField] float _areaCountUpSpeed = 1f;
 
     [Header("UI")]
@@ -28,7 +28,6 @@ public class MatchManager : MonoBehaviourPun
     static MatchManager _instance;
     public static MatchManager Instance { get => _instance; }
 
-    GameState _gameState = GameState.InGame;
     PlayerManager _minePlayer, _otherPlayer;
     bool _thisIsMaster;
     int _winCount = 5;
@@ -71,7 +70,7 @@ public class MatchManager : MonoBehaviourPun
     /// <summary>AreaOwnerからカウントを更新する</summary>
     void AreaCountUpdate()
     {
-        if (_thisIsMaster && _gameState == GameState.InGame) // master側でmatch状況は処理することとする
+        if (_thisIsMaster && InGameManager.Instance.GameState == GameState.InGame) // master側でmatch状況は処理することとする
         {
             if (_masterArea.AreaOwner == AreaOwner.master)
             {
@@ -134,7 +133,7 @@ public class MatchManager : MonoBehaviourPun
             StartCoroutine(GameOverUI(!winMaster));
         }
 
-        _gameState = GameState.Result;
+        InGameManager.Instance.GameState = GameState.Result;
     }
 
     IEnumerator GameOverUI(bool isWin)
@@ -160,27 +159,16 @@ public class MatchManager : MonoBehaviourPun
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
         _resultFadePanel.DOFade(0, 1);
         _gameOverCanvas.SetActive(false);
         _resultCanvas.SetActive(true);
+
         _kdText.text = $"{_otherPlayer.DeadCount} / {_minePlayer.DeadCount}";
-    }
-
-    /// <summary>リザルトデータを取得する</summary>
-    void GetResultData()
-    {
-
     }
 
     private void Update()
     {
         AreaCountUpdate();
     }
-}
-
-public enum GameState
-{
-    Ready,
-    InGame,
-    Result
 }

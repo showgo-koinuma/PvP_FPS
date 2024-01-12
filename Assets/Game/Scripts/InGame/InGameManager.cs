@@ -1,17 +1,21 @@
 using Photon.Pun;
 using System;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
 public class InGameManager : MonoBehaviourPun
 {
+    [SerializeField] PlayableDirector _openingTimeline;
     [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
 
-    public Vector3[] PlayerSpawnPoints { get => _playerSpawnPoints; }
     static InGameManager _instance;
     public static InGameManager Instance { get => _instance; }
     public event Action UpdateAction;
 
+    public GameState GameState = GameState.Ready;
+
+    public Vector3[] PlayerSpawnPoints { get => _playerSpawnPoints; }
     bool _otherContinue = false;
 
     private void Awake()
@@ -22,8 +26,33 @@ public class InGameManager : MonoBehaviourPun
 
     private void Start()
     {
+        _openingTimeline.Play();
+    }
+
+    private void Update()
+    {
+        switch (GameState)
+        {
+            case GameState.Ready:
+                if (_openingTimeline.state != PlayState.Playing)
+                {
+                    PlayerInitialSpawn();
+                    GameState = GameState.InGame;
+                }
+                break;
+            case GameState.InGame:
+                UpdateAction?.Invoke();
+                break;
+            case GameState.Result:
+                break;
+        }
+    }
+
+    void PlayerInitialSpawn()
+    {
         Vector3 position;
         Quaternion forword;
+
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
             position = InGameManager.Instance.PlayerSpawnPoints[0];
@@ -34,6 +63,7 @@ public class InGameManager : MonoBehaviourPun
             position = InGameManager.Instance.PlayerSpawnPoints[1];
             forword = Quaternion.AngleAxis(180, Vector3.up);
         }
+
         PhotonNetwork.Instantiate("Player", position, forword);
     }
 
@@ -79,9 +109,11 @@ public class InGameManager : MonoBehaviourPun
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene(0);
     }
+}
 
-    private void Update()
-    {
-        UpdateAction?.Invoke();
-    }
+public enum GameState
+{
+    Ready,
+    InGame,
+    Result
 }
