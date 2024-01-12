@@ -50,14 +50,12 @@ public class HeadController : MonoBehaviourPun
 
         if (lookRotation.magnitude != 0) _returnTarget = _currentRotation;
 
-        //Find current look rotation
-        Vector3 rot = _orientation.localRotation.eulerAngles;
-        _yRotation = rot.y + lookRotation.x;
-
         //Rotate, and also make sure we dont over- or under-rotate.
         _xRotation -= lookRotation.y;
-        //_xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
+        _yRotation += lookRotation.x;
+
         Vector3 currentRot = _currentRotation;
+
         if (_xRotation + currentRot.x > 90f) // 手動Clamp
         {
             currentRot.x -= _xRotation + currentRot.x - 90;
@@ -68,11 +66,10 @@ public class HeadController : MonoBehaviourPun
         }
 
         //Perform the rotations
-        //_orientation.transform.localRotation = Quaternion.Euler(0, _desiredX, 0);
-        _head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, currentRot.y, 0);
-        //_rotationLookTarget.transform.localRotation = Quaternion.Euler(_xRotation, 0, 0);
+        _head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, 0, 0);
+        //_head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, currentRot.y, 0);
 
-        photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _yRotation, new Vector3(_xRotation + currentRot.x, currentRot.y, 0));
+        photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _yRotation + currentRot.y, new Vector3(_xRotation + currentRot.x, currentRot.y, 0));
     }
 
     /// <summary>指定したリコイルを設定する</summary>
@@ -86,13 +83,6 @@ public class HeadController : MonoBehaviourPun
     {
         _targetRotation = Vector3.Lerp(_targetRotation, _returnTarget, _returnSpeed * Time.deltaTime / (_returnTarget - _targetRotation).magnitude * 20);
         _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * Time.deltaTime);
-        //_head.transform.localRotation = Quaternion.Euler(_currentRotation + _head.transform.localRotation.eulerAngles);
-    }
-
-    /// <summary>同期を呼び出すもの</summary>
-    void ReflectsLookRotate()
-    {
-        photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _yRotation, _xRotation, _currentRotation);
     }
 
     /// <summary>LookTargetを同期する</summary>
