@@ -45,7 +45,7 @@ public class PlayerHealthManager : Damageable
         int calcDmg = dmg; // 部位によるダメージ計算
         bool isArmour = false;
 
-        if (colliderIndex == 7) calcDmg = (int)(calcDmg * _headDmgRate); // 頭
+        if (colliderIndex == 8) calcDmg = (int)(calcDmg * _headDmgRate); // 頭
         else if (colliderIndex != 4) calcDmg = (int)(calcDmg * _limbsDmgRate); // 手足
 
         if (_armor >= calcDmg)

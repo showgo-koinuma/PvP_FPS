@@ -120,7 +120,6 @@ public class HeadController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += Look;
         InGameManager.Instance.UpdateAction += ReflectsRecoil;
-        //InGameManager.Instance.UpdateAction += ReflectsLookRotate;
         InGameManager.Instance.UpdateAction += ReflectsADS;
     }
 
@@ -129,7 +128,6 @@ public class HeadController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= Look;
         InGameManager.Instance.UpdateAction -= ReflectsRecoil;
-        //InGameManager.Instance.UpdateAction -= ReflectsLookRotate;
         InGameManager.Instance.UpdateAction -= ReflectsADS;
     }
 }

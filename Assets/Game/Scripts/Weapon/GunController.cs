@@ -267,7 +267,7 @@ public class GunController : MonoBehaviourPun
 
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.Euler(0, 0, 0);
-        yield break;
+        ADS();
     }
 
     protected virtual void ReturnLastState()
@@ -284,6 +284,8 @@ public class GunController : MonoBehaviourPun
 
         if (!_playerManager.photonView.IsMine) return;
         _setedAction = true;
+
+        ADS();
         PlayerInput.Instance.SetInputAction(InputType.Reload, Reload);
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
