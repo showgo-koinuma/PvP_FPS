@@ -35,8 +35,14 @@ public class PlayerHealthManager : Damageable
         _hp = _maxHp;
     }
 
-    protected override void OnDamageTaken(int dmg, int colliderIndex)
+    protected override HitData OnDamageTaken(int dmg, int colliderIndex)
     {
+        int calcDmg = dmg;
+
+        if (colliderIndex == 8) calcDmg = (int)(calcDmg * _headDmgRate); // “ª
+        else if (colliderIndex != 4) calcDmg = (int)(calcDmg * _limbsDmgRate); // Žè‘«
+
+        return new HitData(colliderIndex == 8, _armor > 0, _armor <= calcDmg);
     }
 
     [PunRPC]
@@ -102,4 +108,18 @@ public class PlayerHealthManager : Damageable
         _pManager.OnDead();
         _pManager.RespawnPosShare();
     }
+}
+
+public struct HitData
+{
+    public HitData(bool isHead, bool isArmor, bool exceedsArmor)
+    {
+        IsHead = isHead;
+        IsArmor = isArmor;
+        ExceedsArmor = exceedsArmor;
+    }
+
+    public bool IsHead;
+    public bool IsArmor;
+    public bool ExceedsArmor;
 }

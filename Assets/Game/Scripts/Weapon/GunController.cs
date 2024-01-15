@@ -120,7 +120,7 @@ public class GunController : MonoBehaviourPun
                 // 親オブジェクトにTryGetComponent
                 if (hit.collider.gameObject.transform.root.gameObject.TryGetComponent(out Damageable damageable))
                 {
-                    damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider);
+                    DamageableHitEffect(damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider));
                     isHit = true;
                 }
                 else
@@ -219,6 +219,11 @@ public class GunController : MonoBehaviourPun
         }
 
         _ballisticTrailIndex = (_ballisticTrailIndex + 1) % _gunStatus.OneShotNum;
+    }
+
+    void DamageableHitEffect(HitData hitData)
+    {
+
     }
 
     /// <summary>objに当たったときのエフェクト再生</summary>

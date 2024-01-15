@@ -25,7 +25,7 @@ public class Dummy : Damageable
     /// <summary>HPリセットまでの時間</summary>
     float _resetHpTime = 2;
 
-    protected override void OnDamageTaken(int dmg, int colliderIndex)
+    protected override HitData OnDamageTaken(int dmg, int colliderIndex)
     {
         int calcDmg = dmg; // 部位によるダメージ計算
         bool isArmour = false;
@@ -52,6 +52,7 @@ public class Dummy : Damageable
         _damageCounter.DamageUpdate(calcDmg, isArmour);
         CancelInvoke(nameof(ResetHP));
         Invoke(nameof(ResetHP), _resetHpTime);
+        return new HitData(colliderIndex == 7, _armor > 0, _armor <= calcDmg);
     }
 
     void ResetHP()
