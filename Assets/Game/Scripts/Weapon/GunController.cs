@@ -229,7 +229,7 @@ public class GunController : MonoBehaviourPun
 
     void DamageableHitEffect(HitData hitData)
     {
-
+        _crosshairCntlr.OnHit(hitData.IsHead);
     }
 
     /// <summary>objに当たったときのエフェクト再生</summary>

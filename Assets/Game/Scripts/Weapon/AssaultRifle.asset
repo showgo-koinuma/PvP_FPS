@@ -44,5 +44,6 @@ MonoBehaviour:
   _adsDefaultDiffusion: 0
   _diffusionValue: 0.5
   _adsDiffusionValue: 0
+  _reducedDiffusionRate: 1
   _adsFov: 70
   _timeADSTake: 0.2

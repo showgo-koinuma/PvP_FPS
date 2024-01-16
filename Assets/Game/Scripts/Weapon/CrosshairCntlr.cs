@@ -1,19 +1,29 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CrosshairCntlr : MonoBehaviour
 {
+    [SerializeField] GameObject _crosshair;
     [SerializeField] MoveType _moveType;
     [SerializeField] float _sizeChangeRate = 2f;
+    [Space(10)] // 以下hit marker
+    [SerializeField] GameObject _hitMarker;
 
     RectTransform _rectTF;
+    Image _hitMarkerImage;
 
     float _initialSize;
     float _targetSizeDelta;
     float _timeItTake = 0.1f;
 
+    float _hitMarkerCurrentAlpha = 0;
+    Color _hitMarkerColor = new Color(1, 1, 1, 0); // 初期 透明な白
+
     private void Awake()
     {
         _rectTF = GetComponent<RectTransform>();
+        _hitMarkerImage = _hitMarker.GetComponent<Image>();
+        _hitMarkerImage.color = _hitMarkerColor;
         _initialSize = _rectTF.sizeDelta.x;
     }
 
@@ -27,6 +37,8 @@ public class CrosshairCntlr : MonoBehaviour
         {
             ReflectScale();
         }
+
+        ReflectHitMarkerFade();
     }
 
     /// <summary>サイズを反映させる</summary>
@@ -41,6 +53,7 @@ public class CrosshairCntlr : MonoBehaviour
         _rectTF.sizeDelta = smoothedSize; // 反映
     }
 
+    /// <summary>サイズを反映させる</summary>
     void ReflectScale()
     {
         Vector2 currentScale = _rectTF.localScale;
@@ -51,16 +64,44 @@ public class CrosshairCntlr : MonoBehaviour
         _rectTF.localScale = smoothedScale;
     }
 
+    /// <summary>ヒットマーカーのfadeを計算し反映</summary>
+    void ReflectHitMarkerFade()
+    {
+        _hitMarkerColor.a = _hitMarkerCurrentAlpha;
+        _hitMarkerCurrentAlpha -= Time.deltaTime; // aの減少
+        _hitMarkerImage.color = _hitMarkerColor;
+    }
+
     /// <summary>サイズをセットする</summary>
     public void SetSize(float size)
     {
         _targetSizeDelta = _initialSize + size * _sizeChangeRate;
     }
 
+    /// <summary>damagebleに当てたときの処理</summary>
+    public void OnHit(bool isHead)
+    {
+        ChangeHitMarkerColor(isHead);
+        _hitMarkerCurrentAlpha = 1;
+    }
+
+    /// <summary>ヒットマーカーの色を変える</summary>
+    void ChangeHitMarkerColor(bool isHead)
+    {
+        if (isHead)
+        {
+            _hitMarkerColor = Color.red;
+        }
+        else
+        {
+            _hitMarkerColor = Color.white;
+        }
+    }
+
     /// <summary>画面表示を切り替える</summary>
     public void SwitchDisplay(bool isDisplay)
     {
-        gameObject.SetActive(isDisplay);
+        _crosshair.SetActive(isDisplay);
     }
 }
 
