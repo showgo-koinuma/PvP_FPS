@@ -20,6 +20,7 @@ public class HeadController : MonoBehaviourPun
     PlayerAnimationManager _animManager;
 
     // ADS
+    Tweener _adsTweener;
     /// <summary>ADS Sens Rate</summary>
     float _sensMultiplier = 1f; // ads時感度変更用
     float _currentFov = 90f;
@@ -97,14 +98,19 @@ public class HeadController : MonoBehaviourPun
     /// <summary>ADS時のカメラ関連の処理</summary>
     public void OnADSCamera(bool on, float fov, float adsSpeed)
     {
+        if (_adsTweener != null)
+        {
+            _adsTweener.Kill();
+        }
+
         if (on) // fovの遷移と感度の変更
         {
-            DOTween.To(() => _currentFov, x => _currentFov = x, fov, adsSpeed * (_currentFov - fov) / (90 - fov));
+            _adsTweener = DOTween.To(() => _currentFov, x => _currentFov = x, fov, adsSpeed * (_currentFov - fov) / (90 - fov));
             _sensMultiplier = _adsSensRate;
         }
         else
         {
-            DOTween.To(() => _currentFov, x => _currentFov = x, 90f, adsSpeed * (90 - _currentFov) / (90 - fov));
+            _adsTweener = DOTween.To(() => _currentFov, x => _currentFov = x, 90f, adsSpeed * (90 - _currentFov) / (90 - fov));
             _sensMultiplier = 1;
         }
     }

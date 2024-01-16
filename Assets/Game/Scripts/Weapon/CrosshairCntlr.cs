@@ -3,13 +3,13 @@ using UnityEngine.UI;
 
 public class CrosshairCntlr : MonoBehaviour
 {
-    [SerializeField] GameObject _crosshair;
+    [SerializeField] RectTransform _crosshair;
     [SerializeField] MoveType _moveType;
     [SerializeField] float _sizeChangeRate = 2f;
     [Space(10)] // 以下hit marker
     [SerializeField] GameObject _hitMarker;
 
-    RectTransform _rectTF;
+    RectTransform _hitMarkerRT;
     Image _hitMarkerImage;
 
     float _initialSize;
@@ -21,10 +21,10 @@ public class CrosshairCntlr : MonoBehaviour
 
     private void Awake()
     {
-        _rectTF = GetComponent<RectTransform>();
+        _hitMarkerRT = _hitMarker.GetComponent<RectTransform>();
         _hitMarkerImage = _hitMarker.GetComponent<Image>();
         _hitMarkerImage.color = _hitMarkerColor;
-        _initialSize = _rectTF.sizeDelta.x;
+        _initialSize = _crosshair.sizeDelta.x;
     }
 
     void Update()
@@ -44,24 +44,24 @@ public class CrosshairCntlr : MonoBehaviour
     /// <summary>サイズを反映させる</summary>
     void ReflectSizeDelta()
     {
-        Vector2 currentSizeDelta = _rectTF.sizeDelta;
+        Vector2 currentSizeDelta = _crosshair.sizeDelta;
         Vector2 targetSizeDelta = new Vector2(_targetSizeDelta, _targetSizeDelta);
 
         // clampが必要ならclampする
 
         Vector2 smoothedSize = Vector2.Lerp(currentSizeDelta, targetSizeDelta, _timeItTake); // 遷移
-        _rectTF.sizeDelta = smoothedSize; // 反映
+        _crosshair.sizeDelta = smoothedSize; // 反映
     }
 
     /// <summary>サイズを反映させる</summary>
     void ReflectScale()
     {
-        Vector2 currentScale = _rectTF.localScale;
-        Vector2 targetScale = new Vector2(_targetSizeDelta - 7f, _targetSizeDelta - 7f);
+        Vector2 currentScale = _crosshair.localScale;
+        Vector2 targetScale = new Vector2(_targetSizeDelta - 107, _targetSizeDelta - 107);
         Vector2 smoothedScale = Vector2.Lerp(currentScale, targetScale, _timeItTake); // 遷移
         Debug.Log(_targetSizeDelta);
 
-        _rectTF.localScale = smoothedScale;
+        _crosshair.localScale = smoothedScale;
     }
 
     /// <summary>ヒットマーカーのfadeを計算し反映</summary>
@@ -101,7 +101,7 @@ public class CrosshairCntlr : MonoBehaviour
     /// <summary>画面表示を切り替える</summary>
     public void SwitchDisplay(bool isDisplay)
     {
-        _crosshair.SetActive(isDisplay);
+        _crosshair.gameObject.SetActive(isDisplay);
     }
 }
 

@@ -2955,7 +2955,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.13
   m_Height: 0.58
   m_Direction: 1
   m_Center: {x: 0, y: 0.24, z: 0}
@@ -2990,7 +2990,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.13
   m_Height: 0.55
   m_Direction: 1
   m_Center: {x: 0, y: 0.21, z: 0}
@@ -3019,7 +3019,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.13
+  m_Radius: 0.19
   m_Height: 0.32
   m_Direction: 1
   m_Center: {x: 0, y: 0.06, z: 0}
@@ -3048,7 +3048,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.42, z: 0.1}
+  m_Size: {x: 0.16, y: 0.42, z: 0.16}
   m_Center: {x: 0, y: 0.19, z: 0}
 --- !u!1 &4107971334864040271 stripped
 GameObject:
@@ -3075,7 +3075,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.42, z: 0.1}
+  m_Size: {x: 0.16, y: 0.42, z: 0.16}
   m_Center: {x: 0, y: 0.13, z: 0}
 --- !u!1 &4702364943296448138 stripped
 GameObject:
@@ -3102,7 +3102,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.42, z: 0.1}
+  m_Size: {x: 0.16, y: 0.42, z: 0.16}
   m_Center: {x: 0, y: 0.13, z: 0}
 --- !u!4 &4960630355864019751 stripped
 Transform:
@@ -3135,7 +3135,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.39, y: 0.61, z: 0.26}
+  m_Size: {x: 0.51, y: 0.61, z: 0.35}
   m_Center: {x: 0, y: 0.12, z: 0.03}
 --- !u!4 &6550668939710298884 stripped
 Transform:
@@ -3168,7 +3168,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.13
   m_Height: 0.55
   m_Direction: 1
   m_Center: {x: 0, y: 0.21, z: 0}
@@ -3197,7 +3197,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.13
   m_Height: 0.58
   m_Direction: 1
   m_Center: {x: 0, y: 0.24, z: 0}
@@ -3226,7 +3226,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.42, z: 0.1}
+  m_Size: {x: 0.16, y: 0.42, z: 0.16}
   m_Center: {x: 0, y: 0.19, z: 0}
 --- !u!1 &9073935009296927646 stripped
 GameObject:
