@@ -25,4 +25,9 @@ public class ChangeColorCntlr : Damageable
         _index++;
         _index %= _materials.Length;
     }
+
+    protected override HitData OnDamageTaken(int dmg, int colliderIndex)
+    {
+        return new HitData(false, false, false);
+    }
 }

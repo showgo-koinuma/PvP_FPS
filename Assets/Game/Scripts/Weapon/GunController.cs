@@ -85,12 +85,18 @@ public class GunController : MonoBehaviourPun
             // ”ñŽËŒ‚Žž‚ÉŠgŽU‚ð‚à‚Æ‚É–ß‚·
             if (PlayerInput.Instance.IsADS)
             {
-                if (_currentDiffusion > _gunStatus.ADSDefaultDiffusion) _currentDiffusion -= _currentDiffusion * Time.deltaTime; // 1•b‚ÅŒ³‚É–ß‚é
+                if (_currentDiffusion > _gunStatus.ADSDefaultDiffusion)
+                {
+                    _currentDiffusion -= _currentDiffusion * _gunStatus.ReducedDiffusionRate * Time.deltaTime; // 1•b‚ÅŒ³‚É–ß‚é
+                }
                 else _currentDiffusion = _gunStatus.ADSDefaultDiffusion;
             }
             else
             {
-                if (_currentDiffusion > _gunStatus.DefaultDiffusion) _currentDiffusion -= _currentDiffusion * Time.deltaTime;
+                if (_currentDiffusion > _gunStatus.DefaultDiffusion)
+                {
+                    _currentDiffusion -= _currentDiffusion * _gunStatus.ReducedDiffusionRate * Time.deltaTime;
+                }
                 else _currentDiffusion = _gunStatus.DefaultDiffusion;
             }
             return; // nomal‚Å‚È‚¢‚ÆŒ‚‚Ä‚È‚¢

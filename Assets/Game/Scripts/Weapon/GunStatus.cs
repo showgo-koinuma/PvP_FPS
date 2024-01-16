@@ -18,6 +18,7 @@ public class GunStatus : ScriptableObject
     [SerializeField, Tooltip("ADSŽž‚ÌƒfƒtƒHƒ‹ƒg‚ÌŠgŽU")] float _adsDefaultDiffusion;
     [SerializeField, Tooltip("ŽËŒ‚Žž‚ÌŠgŽU—Ê")] float _diffusionValue;
     [SerializeField, Tooltip("ADSŽËŒ‚Žž‚ÌŠgŽU—Ê")] float _adsDiffusionValue;
+    [SerializeField, Tooltip("ŠgŽUŒ¸­‚ÌƒXƒs[ƒh")] float _reducedDiffusionRate;
     [Space(10)]
     [SerializeField] int _adsFov;
     [SerializeField] float _timeADSTake;
@@ -34,6 +35,7 @@ public class GunStatus : ScriptableObject
     public float ADSDefaultDiffusion { get => _adsDefaultDiffusion; }
     public float Diffusion {  get => _diffusionValue; }
     public float ADSDiffusion { get => _adsDiffusionValue; }
+    public float ReducedDiffusionRate { get => _reducedDiffusionRate; }
     public int ADSFov {  get => _adsFov; }
     public float ADSSpeed { get => _timeADSTake; }
 }
