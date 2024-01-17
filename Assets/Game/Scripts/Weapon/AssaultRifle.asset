@@ -42,7 +42,7 @@ MonoBehaviour:
   _randomRecoilX: 2
   _defaultDiffusion: 0
   _adsDefaultDiffusion: 0
-  _diffusionValue: 0.5
+  _diffusionValue: 0.3
   _adsDiffusionValue: 0
   _reducedDiffusionRate: 1
   _adsFov: 70

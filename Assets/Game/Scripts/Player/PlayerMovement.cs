@@ -10,21 +10,22 @@ public class PlayerMovement : MonoBehaviourPun
 {
     Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
     Rigidbody _rb;
+    LineRenderer _lineRenderer;
 
     [Header("移動")]
     // 接地中
     [SerializeField] float _moveSpeed;
     [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
+    [SerializeField, Tooltip("摩擦")] float _friction;
+    [SerializeField] float _adsMoveSpeedRate = 0.5f;
     [Space(5)]
     // 空中
+    [SerializeField] float _airMoveSpeed;
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
-    [SerializeField, Tooltip("ストレイフの加速度")] float _strafeAcceleration;
-    [SerializeField, Tooltip("ストレイフの最大速度")] float _maxStrafeSpeed;
-    [SerializeField, Tooltip("空中でどの程度制御できるか")] float _airControl;
+    [SerializeField, Tooltip("空中摩擦")] float _airFriction;
     [Space(5)]
     // その他
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
-    [SerializeField, Tooltip("摩擦")] float _friction;
     [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
     /// <summary>rbに直接代入するplayerのvelocity</summary>
     Vector3 _playerVelocity;
@@ -61,6 +62,7 @@ public class PlayerMovement : MonoBehaviourPun
     [SerializeField, Tooltip("スライディイングがかかるスピードの最小値")] float _minCnaSlidingSpeed;
     [SerializeField, Tooltip("スライディングのクールダウン")] float _slidingCooldown;
     bool _readyToSliding = true;
+    float _slidingTimer;
 
     // 現在の状態を管理　enumでやる必要がでてくるかも
     bool _jumping, _crouching, _isSliding;
@@ -82,6 +84,7 @@ public class PlayerMovement : MonoBehaviourPun
     void Start()
     {
         _playerScale = transform.localScale;
+        _lineRenderer = GetComponent<LineRenderer>();
     }
 
     private void ThisUpdate()
@@ -90,15 +93,22 @@ public class PlayerMovement : MonoBehaviourPun
         if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         Movement();
         CrouchTransition();
+        SlidingTimerCounter();
     }
 
     void Movement()
     {
         if (_isGround) GroundMove();
         else AirMove();
+
+        _lineRenderer.SetPosition(0, transform.position);
+        _lineRenderer.SetPosition(1, transform.position + _playerVelocity * 2);
+
         _playerVelocity.y = _rb.velocity.y;
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
+
+        Debug.Log(_playerVelocity.magnitude);
     }
 
     /// <summary>地上での動き</summary>
@@ -120,19 +130,29 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.x *= newspeed;
         _playerVelocity.z *= newspeed;
 
+        //Debug.Log(newspeed);
+
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
+
         if (_isSliding)
         {
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _isSliding = false;
         }
-        else if (PlayerInput.Instance.IsCrouching)
+        else if (_crouching)
         {
             Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             Sliding(_playerVelocity.magnitude);
         }
-        else Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+        else if (PlayerInput.Instance.IsADS) // ads中は遅くなる
+        {
+            Accelerate(wishdir, _moveSpeed * _adsMoveSpeedRate, _groundAcceleration * _adsMoveSpeedRate);
+        }
+        else 
+        {
+            Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+        }
     }
 
     /// <summary>空中での動き</summary>
@@ -140,32 +160,29 @@ public class PlayerMovement : MonoBehaviourPun
     {
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
 
-        float wishspeed = 7f;
+        float speed = _playerVelocity.magnitude;
+        float control = speed < _airAcceleration ? _airAcceleration : speed;
+        float drop = control * _airFriction * Time.deltaTime;
 
-        // Aircontrol
-        float wishspeed2 = wishspeed;
-        float accel = _airAcceleration;
+        float newspeed = speed - drop;
+        if (newspeed < 0) newspeed = 0;
+        if (speed > 0) newspeed /= speed;
 
-        // 左右キーだけでストレイフしていた場合
-        if (wishdir.x != 0 && wishdir.z == 0)
-        {
-            if (wishspeed > _maxStrafeSpeed)
-                wishspeed = _maxStrafeSpeed;
-            accel = _strafeAcceleration;
-        }
+        _playerVelocity.x *= newspeed;
+        _playerVelocity.z *= newspeed;
 
         wishdir = transform.TransformDirection(wishdir);
-        Accelerate(wishdir, wishspeed, accel);
+        Accelerate(wishdir, _airMoveSpeed, _airAcceleration);
     }
 
     /// <summary>ベクトルを計算する</summary>
-    public void Accelerate(Vector3 wishdir, float wishSpeed, float accel)
+    void Accelerate(Vector3 wishdir, float wishSpeed, float accel)
     {
         float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
         float addspeed = wishSpeed - currentspeed;
         if (addspeed <= 0)
             return;
-        float accelspeed = accel * Time.deltaTime * wishSpeed;
+        float accelspeed = accel * Time.deltaTime * wishSpeed; // * wishSpeed
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
@@ -276,12 +293,21 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;
         _isSliding = true;
-        Invoke(nameof(ResetSliding), _slidingCooldown);
+        _slidingTimer = _slidingCooldown;
     }
 
-    void ResetSliding()
+    /// <summary>sliding timerの計算</summary>
+    void SlidingTimerCounter()
     {
-        _readyToSliding = true;
+        if (_slidingTimer > 0 && _readyToJump && !_crouching)
+        {
+            _slidingTimer -= Time.deltaTime;
+
+            if ( _slidingTimer <= 0)
+            {
+                _readyToSliding = true;
+            }
+        }
     }
 
     /// <summary>その法線ベクトルの面は地面として扱えるか</summary>
@@ -358,122 +384,4 @@ public class PlayerMovement : MonoBehaviourPun
         //PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }
-
-#if false
-    //-----------------------------------------------------------------------------
-    // Purpose: 
-    // Input  : wishdir - 
-    //			accel - 
-    //-----------------------------------------------------------------------------
-    void CGameMovement::AirAccelerate(Vector3 wishdir, float wishspeed, float accel)
-    {
-        int i;
-        float addspeed, accelspeed, currentspeed;
-        float wishspd;
-
-        wishspd = wishspeed;
-
-        if (player->pl.deadflag) // 死んでたら戻る
-            return;
-        if (player->m_flWaterJumpTime) // 水？ジャンプ？してたら戻る
-            return;
-
-        // Cap speed 帽子スピード？？？　最大量を決めてる何かで Cap = 固定最大値以上に行かないようにすること
-        if (wishspd > GetAirSpeedCap())
-            wishspd = GetAirSpeedCap();
-
-        // Determine veer amount　振れ幅の決定　magnitude?
-        currentspeed = mv->m_vecVelocity.Dot(wishdir);
-
-        // See how much to add　追加量を見る
-        addspeed = wishspd - currentspeed;
-
-        // If not adding any, done.
-        if (addspeed <= 0)
-            return;
-
-        // Determine acceleration speed after acceleration 加速後の加速速度を決定する
-        accelspeed = accel * wishspeed * gpGlobals->frametime * player->m_surfaceFriction;
-
-        // Cap it
-        if (accelspeed > addspeed)
-            accelspeed = addspeed;
-
-        // Adjust pmove vel.
-        for (i = 0; i < 3; i++)
-        {
-            mv->m_vecVelocity[i] += accelspeed * wishdir[i];
-            mv->m_outWishVel[i] += accelspeed * wishdir[i];
-        }
-    }
-
-    //-----------------------------------------------------------------------------
-    // Purpose: 目的
-    //-----------------------------------------------------------------------------
-    void CGameMovement::AirMove()
-    {
-        int i;
-        Vector3 wishvel = new Vector3();
-        float fmove, smove;
-        Vector3 wishdir;
-        float wishspeed;
-        Vector3 forward, right, up;
-
-        AngleVectors(mv->m_vecViewAngles, &forward, &right, &up);  // Determine movement angles 動作角度の決定
-
-        // Copy movement amounts コピー移動量
-        fmove = mv->m_flForwardMove;
-        smove = mv->m_flSideMove;
-
-        // Zero out z components of movement vectors 移動ベクトルのz成分をゼロにする 多分今のy軸じゃね
-        forward[2] = 0;
-        right[2] = 0;
-        VectorNormalize(forward);  // Normalize remainder of vectors ベクトルの余りを正規化する
-        VectorNormalize(right);    // 
-
-        for (i = 0; i < 2; i++)       // Determine x and y parts of velocity 速度のx部分とy部分を決定する
-            wishvel[i] = forward[i] * fmove + right[i] * smove;
-        wishvel[2] = 0;             // Zero out z part of velocity 速度のz部分をゼロにする
-
-        VectorCopy(wishvel, wishdir);   // Determine maginitude of speed of move 移動速度のマジニチュードを決定する
-        wishspeed = VectorNormalize(wishdir);
-
-        //
-        // clamp to server defined max speed サーバーが定義した最高速度にクランプ
-        //
-        if (wishspeed != 0 && (wishspeed > mv->m_flMaxSpeed))
-        {
-            VectorScale(wishvel, mv->m_flMaxSpeed / wishspeed, wishvel);
-            wishspeed = mv->m_flMaxSpeed;
-        }
-
-        AirAccelerate(wishdir, wishspeed, sv_airaccelerate.GetFloat());
-
-        // Add in any base velocity to the current velocity. 現在の速度に任意の基本速度を加える
-        VectorAdd(mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
-
-        TryPlayerMove();
-
-        // Now pull the base velocity back out.   Base velocity is set if you are on a moving object, like a conveyor (or maybe another monster?)
-        // 今度はベース速度を引き戻す 基本速度は、コンベアのような動く物体に乗っている場合に設定される(それとも別のモンスター？)
-        VectorSubtract(mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity);
-    }
-
-    void SV_Accelerate()
-    {
-        int i;
-        float addspeed, accelspeed, currentspeed;
-
-        currentspeed = DotProduct(velocity, wishdir);
-        addspeed = 20 - currentspeed;
-        if (addspeed <= 0)
-            return;
-        accelspeed = sv_accelerate.value * host_frametime * wishspeed;
-        if (accelspeed > addspeed)
-            accelspeed = addspeed;
-
-        for (i = 0; i < 3; i++)
-            velocity[i] += accelspeed * wishdir[i];
-    }
-#endif
 }
