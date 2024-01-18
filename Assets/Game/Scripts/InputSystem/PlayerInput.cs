@@ -30,8 +30,14 @@ public class PlayerInput : MonoBehaviour
     // input‚Ìó‘Ô‚ð•Û‘¶‚µAðŒ‚ÅŽÀs‚·‚é‚½‚ß‚Ì‚à‚Ì
     Vector2 _lookRotation;
     public Vector2 LookRotation { get => _lookRotation; }
-    Vector3 _inputMoveVector;
-    public Vector3 InputMoveVector { get => _inputMoveVector; }
+    bool _onForward;
+    bool _onBack;
+    bool _onLeft;
+    bool _onRight;
+    public Vector3 InputMoveVector
+    {
+        get => new Vector3(_onRight ? 1 : 0 + (_onLeft ? -1 : 0), 0, _onForward? 1 : 0 + (_onBack? -1 : 0));
+    }
     bool _onJump;
     public bool OnJumpButton { get => _onJump; }
     bool _isCrouching = false;
@@ -60,9 +66,14 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.Look.started += OnLookRotate;
         _gameInput.InGame.Look.performed += OnLookRotate;
         _gameInput.InGame.Look.canceled += OnLookRotate;
-        _gameInput.InGame.Move.started += OnMove;
-        _gameInput.InGame.Move.performed += OnMove;
-        _gameInput.InGame.Move.canceled += OnMove;
+        _gameInput.InGame.Forward.started += OnForward;
+        _gameInput.InGame.Forward.canceled += OnForward;
+        _gameInput.InGame.Back.started += OnBackwards;
+        _gameInput.InGame.Back.canceled += OnBackwards;
+        _gameInput.InGame.Left.started += OnLeft;
+        _gameInput.InGame.Left.canceled += OnLeft;
+        _gameInput.InGame.Right.started += OnRight;
+        _gameInput.InGame.Right.canceled += OnRight;
         _gameInput.InGame.Jump.started += OnJump;
         _gameInput.InGame.Jump.canceled += OnJump;
         _gameInput.InGame.Crouch.started += OnCrouch;
@@ -92,9 +103,21 @@ public class PlayerInput : MonoBehaviour
     {
         _lookRotation = context.ReadValue<Vector2>();
     }
-    void OnMove(InputAction.CallbackContext context)
+    void OnForward(InputAction.CallbackContext context)
     {
-        _inputMoveVector = new Vector3(context.ReadValue<Vector2>().x, 0, context.ReadValue<Vector2>().y);
+        _onForward = context.phase == InputActionPhase.Started;
+    }
+    void OnBackwards(InputAction.CallbackContext context)
+    {
+        _onBack = context.phase == InputActionPhase.Started;
+    }
+    void OnLeft(InputAction.CallbackContext context)
+    {
+        _onLeft = context.phase == InputActionPhase.Started;
+    }
+    void OnRight(InputAction.CallbackContext context)
+    {
+        _onRight = context.phase == InputActionPhase.Started;
     }
     void OnJump(InputAction.CallbackContext context)
     {

@@ -11,7 +11,7 @@ public class RebindCntler : MonoBehaviour
     InputAction _action;
     InputAction _escapeAction;
     InputActionRebindingExtensions.RebindingOperation _rebindOperation;
-    string _waitingString = "Waiting for key...";
+    string _waitingString = "Waiting...";
 
     public static string FindKeyName(string actionName) =>
         PlayerInput.Instance.GameInput.FindAction(actionName).GetBindingDisplayString(InputBinding.DisplayStringOptions.DontIncludeInteractions);

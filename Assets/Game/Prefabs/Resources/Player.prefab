@@ -351,12 +351,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 8
   _groundAcceleration: 14
-  _maxSpeed: 0
   _friction: 4
   _adsMoveSpeedRate: 1
   _airMoveSpeed: 8
   _airAcceleration: 5
-  _maxAirSpeed: 1
   _airFriction: 2
   _maxSlopeAngle: 35
   _whatIsGround:
