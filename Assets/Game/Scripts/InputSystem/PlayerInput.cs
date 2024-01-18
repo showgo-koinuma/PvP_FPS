@@ -20,8 +20,10 @@ public class PlayerInput : MonoBehaviour
             return _instance;
         }
     }
+
     /// <summary>コールバック登録用</summary>
     GameInput _gameInput;
+    public GameInput GameInput { get => _gameInput; }
     /// <summary>InputTypeとそれに対応するActionのDictionary</summary>
     Dictionary<InputType, Action> _actionDic = new Dictionary<InputType, Action>();
 
@@ -71,6 +73,7 @@ public class PlayerInput : MonoBehaviour
         _gameInput.InGame.ADS.started += OnADS;
         _gameInput.InGame.ADS.canceled += OnADS;
         _gameInput.InGame.SwitchWeapon.started += OnSwitchWeapon;
+        _gameInput.InGame.SettingSwitch.started += OnSettingSwitch;
     }
 
     /// <summary>コールバックに登録するActionをセット出来る</summary>
@@ -120,6 +123,10 @@ public class PlayerInput : MonoBehaviour
     {
         _actionDic[InputType.SwitchWeapon]?.Invoke();
     }
+    void OnSettingSwitch(InputAction.CallbackContext context)
+    {
+        _actionDic[InputType.SettingSwitch]?.Invoke();
+    }
     #endregion
 }
 
@@ -131,5 +138,6 @@ public enum InputType
     //Fire,
     Reload,
     ADS,
-    SwitchWeapon
+    SwitchWeapon,
+    SettingSwitch
 }
