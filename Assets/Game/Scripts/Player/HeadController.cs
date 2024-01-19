@@ -121,12 +121,31 @@ public class HeadController : MonoBehaviourPun
         _myVirtualCam.m_Lens.FieldOfView = _currentFov;
     }
 
+    void OnHoriSensChanged(float value)
+    {
+        _XSensitivity = value;
+    }
+
+    void OnVerSensChanged(float value)
+    {
+        _YSensitivity = value;
+    }
+
+    void OnZoomSensChanged(float value)
+    {
+        _adsSensRate = value;
+    }
+
     private void OnEnable()
     {
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += Look;
         InGameManager.Instance.UpdateAction += ReflectsRecoil;
         InGameManager.Instance.UpdateAction += ReflectsADS;
+
+        SettingManager.Instance.OnHoriSensChanged += OnHoriSensChanged;
+        SettingManager.Instance.OnVerSensChanged += OnVerSensChanged;
+        SettingManager.Instance.OnZoomSensChanged += OnZoomSensChanged;
     }
 
     private void OnDisable()
@@ -135,5 +154,9 @@ public class HeadController : MonoBehaviourPun
         InGameManager.Instance.UpdateAction -= Look;
         InGameManager.Instance.UpdateAction -= ReflectsRecoil;
         InGameManager.Instance.UpdateAction -= ReflectsADS;
+
+        SettingManager.Instance.OnHoriSensChanged -= OnHoriSensChanged;
+        SettingManager.Instance.OnVerSensChanged -= OnVerSensChanged;
+        SettingManager.Instance.OnZoomSensChanged -= OnZoomSensChanged;
     }
 }
