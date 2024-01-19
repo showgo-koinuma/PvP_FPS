@@ -22,6 +22,9 @@ public class InGameManager : MonoBehaviourPun
     {
         if (_instance) Destroy(gameObject);
         else _instance = this;
+
+        Cursor.lockState = CursorLockMode.Locked; // ÉJÅ[É\Éã
+        Cursor.visible = false;
     }
 
     private void Start()

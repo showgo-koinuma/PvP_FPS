@@ -1,13 +1,23 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
+using UnityEngine.UI;
 
 public class SettingManager : MonoBehaviour
 {
     [SerializeField] GameObject _settingCanvas;
-    [Space(10)]
+    [Tooltip("SensSetting")]
+    [SerializeField] TMP_InputField _horiText;
+    [SerializeField] Slider _horiSlider;
 
 
     static SettingManager _instance = default;
     public static SettingManager Instance { get => _instance; }
+
+    bool _cursolrVisible; // 開いたときのカーソル設定を保存し、閉じるときに再設定する
+
+    // sens
+
 
     private void Awake()
     {
@@ -22,8 +32,43 @@ public class SettingManager : MonoBehaviour
         PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // 切替アクションを登録
     }
 
+    public void HoriSensValueChanged(bool isInputField)
+    {
+        if (isInputField)
+        {
+            if (float.TryParse(_horiText.text, out float value))
+            {
+                _horiSlider.value = value;
+            }
+            else 
+            {
+
+            }
+        }
+        else
+        {
+
+        }
+    }
+
     void SwitchCanvas()
     {
-        _settingCanvas.SetActive(!_settingCanvas.activeSelf);
+        if (_settingCanvas.activeSelf)
+        {
+            _settingCanvas.SetActive(false);
+
+            if (!_cursolrVisible)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+        else
+        {
+            _settingCanvas.SetActive(true);
+            _cursolrVisible = Cursor.visible;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }

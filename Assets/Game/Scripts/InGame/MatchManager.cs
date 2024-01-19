@@ -47,9 +47,6 @@ public class MatchManager : MonoBehaviourPun
         _inGameCanvas.SetActive(true);
         _gameOverCanvas.SetActive(false); // 終了時キャンバス非表示
         _resultCanvas.SetActive(false);
-
-        Cursor.lockState = CursorLockMode.Locked; // カーソル
-        Cursor.visible = false;
     }
 
     /// <summary>エリアにプレイヤーを登録する</summary>
