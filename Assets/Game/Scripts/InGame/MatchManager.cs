@@ -14,7 +14,10 @@ public class MatchManager : MonoBehaviourPun
 
     [Header("UI")]
     [SerializeField] TextMeshProUGUI _myCountText;
+    [SerializeField] Image _myCoutnBackImage;
     [SerializeField] TextMeshProUGUI _otherCountText;
+    [SerializeField] Image _otherCoutnBackImage;
+    [SerializeField] Color[] _uiColors; // [0]:my color, [1]:other color, [2]:default back
 
     [Header("ゲーム終了時")]
     [SerializeField, Tooltip("inGameのキャンバス")] GameObject _inGameCanvas;
@@ -108,13 +111,31 @@ public class MatchManager : MonoBehaviourPun
     {
         if (_thisIsMaster)
         {
-            _myCountText.text = masterCount.ToString("D2");
-            _otherCountText.text = otherCount.ToString("D2");
+            _myCountText.text = masterCount.ToString("D2") + "%";
+            _otherCountText.text = otherCount.ToString("D2") + "%";
         }
         else
         {
-            _otherCountText.text = masterCount.ToString("D2");
-            _myCountText.text = otherCount.ToString("D2");
+            _otherCountText.text = masterCount.ToString("D2") + "%";
+            _myCountText.text = otherCount.ToString("D2") + "%";
+        }
+    }
+
+    void ChangeCountUIColor()
+    {
+        if ((_thisIsMaster && _masterArea.AreaOwner == AreaOwner.master) || (!_thisIsMaster && _masterArea.AreaOwner == AreaOwner.other))
+        {
+            _myCountText.color = Color.white;
+            _myCoutnBackImage.color = _uiColors[0];
+            _otherCountText.color = _uiColors[1];
+            _otherCoutnBackImage.color = _uiColors[2];
+        }
+        else if ((_thisIsMaster && _masterArea.AreaOwner == AreaOwner.other) || (!_thisIsMaster && _masterArea.AreaOwner == AreaOwner.master))
+        {
+            _myCountText.color = _uiColors[1];
+            _myCoutnBackImage.color = _uiColors[2];
+            _otherCountText.color = Color.white;
+            _otherCoutnBackImage.color = _uiColors[0];
         }
     }
 
@@ -167,5 +188,6 @@ public class MatchManager : MonoBehaviourPun
     private void Update()
     {
         AreaCountUpdate();
+
     }
 }
