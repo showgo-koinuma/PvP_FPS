@@ -47,6 +47,7 @@ public class ShotGunCntlr : GunController
     void InsertShellAction()
     {
         _currentMagazine++;
+        _curretnMagText.text = _currentMagazine.ToString(); // ’e”UIXV
         //Debug.Log("shotgun magazine : " + _currentMagazine);
         if (_currentMagazine >= _gunStatus.FullMagazineSize)
         {

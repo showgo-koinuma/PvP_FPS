@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Photon.Pun;
 using UnityEngine;
 
@@ -9,8 +10,10 @@ public class PlayerManager : MonoBehaviourPun
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)")] GameObject[] _invisibleToMyselfObj;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)の親")] GameObject[] _invisibleToMyselfObjs;
     [SerializeField, Tooltip("相手から見えなくなる(自分の画面に映る自分のモデル)の親")] GameObject[] _invisibleToEnemeyObjs;
-    [Header("weapon")]
+    [Header("weapon [0] : AR, [1] : SG")]
     [SerializeField, Tooltip("[0] : AR, [1] : SG")] GameObject[] _weapons;
+    [SerializeField] RectTransform[] _weaponIconPivots;
+    [SerializeField] GameObject[] _weaponIconOutLines;
 
     /// <summary>現在ActiveのGunController</summary>
     //GunController _activeGun;
@@ -28,9 +31,11 @@ public class PlayerManager : MonoBehaviourPun
     int _deadCount = 0;
     public int DeadCount { get => _deadCount; }
 
+    // weapon switch
     int _weaponIndex = 0;
     bool _canSwitch = true;
     float _switchInterval = 0.5f;
+    float _selectWeaponPivotScale = 0.8f;
 
     private void Awake()
     {
@@ -112,7 +117,8 @@ public class PlayerManager : MonoBehaviourPun
     {
         if (!_canSwitch) return;
         // Switch
-        photonView.RPC(nameof(SwitchOtherWeapon), RpcTarget.All, _weaponIndex);
+        photonView.RPC(nameof(SwitchWeaponActive), RpcTarget.All, _weaponIndex);
+        SwitchWeaponUI(_weaponIndex);
         _weaponIndex++;
         _weaponIndex %= _weapons.Length;
         _pAnimMg.SetWeaponIndex(_weaponIndex == 1);
@@ -122,10 +128,23 @@ public class PlayerManager : MonoBehaviourPun
     }
 
     [PunRPC]
-    void SwitchOtherWeapon(int index)
+    void SwitchWeaponActive(int index)
     {
         _weapons[index].SetActive(false);
         _weapons[(index + 1) % _weapons.Length].SetActive(true);
+    }
+
+    /// <summary>武器変更時のWeaponIconの動的処理</summary>
+    void SwitchWeaponUI(int index)
+    {
+        // icon scale
+        _weaponIconPivots[index].DOScale(Vector3.one * _selectWeaponPivotScale, 0.2f);
+        _weaponIconPivots[(index + 1) % _weapons.Length].DOScale(Vector3.one, 0.2f);
+        //_weaponIconPivots[index].localScale = Vector3.one * _selectWeaponPivotScale;
+        //_weaponIconPivots[(index + 1) % _weapons.Length].localScale = Vector3.one;
+        // out line
+        _weaponIconOutLines[index].SetActive(false);
+        _weaponIconOutLines[(index + 1) % _weapons.Length].SetActive(true);
     }
 
     void SwitchInterval()

@@ -1,7 +1,9 @@
 using Photon.Pun;
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GunController : MonoBehaviourPun
 {
@@ -22,8 +24,12 @@ public class GunController : MonoBehaviourPun
     [SerializeField, Tooltip("マズルフラッシュparticle")] ParticleSystem _muzzleFlash;
     [SerializeField] ParticleSystem _hitParticleEffect;
 
-    [Header("クロスヘア")]
+    [Header("UI")]
     [SerializeField] CrosshairCntlr _crosshairCntlr;
+    [Space(5)]
+    [SerializeField] protected TMP_Text _curretnMagText;
+    [SerializeField] TMP_Text _maxMagText;
+    [SerializeField] Image _iconBackImage;
 
     /// <summary>isMineでコールバックを登録しているか</summary>
     bool _setedAction = false;
@@ -150,6 +156,7 @@ public class GunController : MonoBehaviourPun
         
         _currentMagazine--;
         _recoilIndex++;
+        CurrentMagReflectUI();
 
         StartRecoil(); // view model recoil animation
         _playerAnimManager.SetFireTrigger(); // play model animation
@@ -181,7 +188,12 @@ public class GunController : MonoBehaviourPun
         _weaponModelAnimator.SetTrigger("Reload");
         _playerAnimManager.SetReloadTrigger();
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
-        Invoke((new Action(delegate { _currentMagazine = _gunStatus.FullMagazineSize; })).Method.Name, _gunStatus.ReloadTime); // 強引すぎるか
+        Invoke((new Action(delegate 
+        { // リロード完了したときの処理
+            _currentMagazine = _gunStatus.FullMagazineSize;
+            CurrentMagReflectUI();
+        }
+        )).Method.Name, _gunStatus.ReloadTime); // 強引すぎるか
     }
 
     /// <summary>gun stateをnomalに戻す</summary>
@@ -262,6 +274,13 @@ public class GunController : MonoBehaviourPun
         _recoilObj.transform.localPosition = new Vector3(_defaultPos.x, _defaultPos.y, _currentZpos);
     }
 
+    /// <summary>弾数情報をUIへ反映させる</summary>
+    void CurrentMagReflectUI()
+    {
+        _curretnMagText.text = _currentMagazine.ToString(); // 弾数UI更新
+        _iconBackImage.fillAmount = (float)_currentMagazine / _gunStatus.FullMagazineSize;
+    }
+
     IEnumerator SwitchWeaponAnimation()
     {
         transform.localPosition = _startPos;
@@ -301,6 +320,10 @@ public class GunController : MonoBehaviourPun
         PlayerInput.Instance.SetInputAction(InputType.ADS, ADS);
         InGameManager.Instance.UpdateAction += FireCalculation;
         InGameManager.Instance.UpdateAction += ReflectRecoil;
+
+        // ui
+        CurrentMagReflectUI();
+        _maxMagText.text = "/" + _gunStatus.FullMagazineSize.ToString();
 
         // weapon switch
         _gunState = GunState.switching;
