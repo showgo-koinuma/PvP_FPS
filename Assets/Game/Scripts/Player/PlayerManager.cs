@@ -14,6 +14,8 @@ public class PlayerManager : MonoBehaviourPun
     [SerializeField, Tooltip("[0] : AR, [1] : SG")] GameObject[] _weapons;
     [SerializeField] RectTransform[] _weaponIconPivots;
     [SerializeField] GameObject[] _weaponIconOutLines;
+    [Header("ScatteredPlayer")]
+    [SerializeField] GameObject _scatteredPlayer;
 
     /// <summary>åªç›ActiveÇÃGunController</summary>
     //GunController _activeGun;
@@ -88,6 +90,11 @@ public class PlayerManager : MonoBehaviourPun
     [PunRPC]
     void RespawnPosition()
     {
+        ScatteredModel scatteredModel = Instantiate(_scatteredPlayer, transform.position, Quaternion.identity)
+                                            .GetComponent<ScatteredModel>();
+
+        scatteredModel.Initialize(photonView.IsMine, Vector3.up * 6);
+
         // à íuÅAå¸Ç´ÇÃèâä˙âª
         Vector3 position;
         if (PhotonNetwork.IsMasterClient ^ !photonView.IsMine)
@@ -140,8 +147,6 @@ public class PlayerManager : MonoBehaviourPun
         // icon scale
         _weaponIconPivots[index].DOScale(Vector3.one * _selectWeaponPivotScale, 0.2f);
         _weaponIconPivots[(index + 1) % _weapons.Length].DOScale(Vector3.one, 0.2f);
-        //_weaponIconPivots[index].localScale = Vector3.one * _selectWeaponPivotScale;
-        //_weaponIconPivots[(index + 1) % _weapons.Length].localScale = Vector3.one;
         // out line
         _weaponIconOutLines[index].SetActive(false);
         _weaponIconOutLines[(index + 1) % _weapons.Length].SetActive(true);
