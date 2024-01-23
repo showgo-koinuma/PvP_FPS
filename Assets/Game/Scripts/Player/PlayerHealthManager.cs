@@ -1,14 +1,15 @@
 using UnityEngine;
 using Photon.Pun;
-using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Rendering.PostProcessing;
 
 /// <summary>playerのHPを管理する</summary>
 public class PlayerHealthManager : Damageable
 {
     [SerializeField] int _maxArmor = 100;
     [SerializeField] int _maxHp = 100;
-    [SerializeField] Image _damagaeCanvasImage;
+    [Header("UI")]
+    [SerializeField] PostProcessVolume _damagePostProcessV;
     [SerializeField] DamageCounter _damageCounter;
 
     PlayerManager _pManager;
@@ -33,6 +34,15 @@ public class PlayerHealthManager : Damageable
         _pManager = GetComponent<PlayerManager>();
         _armor = _maxArmor;
         _hp = _maxHp;
+        _damagePostProcessV.weight = 0;
+    }
+
+    private void Update()
+    {
+        if (_damagePostProcessV.weight > 0)
+        {
+            _damagePostProcessV.weight -= Time.deltaTime / 0.3f; // 0.1sでフェードアウト
+        }
     }
 
     protected override HitData OnDamageTaken(int dmg, int colliderIndex)
@@ -90,11 +100,7 @@ public class PlayerHealthManager : Damageable
     {
         Debug.Log("dame-ji");
 
-        // 画面を赤くする処理
-        Color color = _damagaeCanvasImage.color;
-        color.a = 0.3f;
-        _damagaeCanvasImage.color = color; // aをあげて
-        _damagaeCanvasImage.DOFade(0, 0.1f); // 0.1秒で戻す
+        _damagePostProcessV.weight = 1; // damage effect開始
     }
 
     void OnDead()

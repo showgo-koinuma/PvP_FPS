@@ -2,6 +2,7 @@ using Cinemachine;
 using Photon.Pun;
 using DG.Tweening;
 using UnityEngine;
+using Photon.Pun.Demo.PunBasics;
 
 public class HeadController : MonoBehaviourPun
 {
@@ -17,6 +18,7 @@ public class HeadController : MonoBehaviourPun
     [SerializeField] float _YSensitivity = 50f;
     [SerializeField] float _adsSensRate = 0.8f;
 
+    PlayerManager _playerManager;
     PlayerAnimationManager _animManager;
 
     // ADS
@@ -34,11 +36,12 @@ public class HeadController : MonoBehaviourPun
 
     private void Awake()
     {
+        _playerManager = GetComponent<PlayerManager>();
         _animManager = GetComponent<PlayerAnimationManager>();
 
-        if (!photonView.IsMine) ;// this.enabled = false;
-        else
+        if (photonView.IsMine)
         {
+            ResetRotationYonMine();
             _myVirtualCam = Instantiate(_myCinemachine, transform).GetComponent<CinemachineVirtualCamera>();
             _myVirtualCam.Follow = _head;
         }
@@ -46,6 +49,11 @@ public class HeadController : MonoBehaviourPun
 
     void Look()
     {
+        if (_playerManager.PlayerState != PlayerState.Nomal)
+        { // nomalでなかったら視点移動を出来なくする
+            return;
+        }
+
         Vector2 lookRotation = new Vector2(PlayerInput.Instance.LookRotation.x * _XSensitivity * Time.fixedDeltaTime * _sensMultiplier,
             PlayerInput.Instance.LookRotation.y * _YSensitivity * Time.fixedDeltaTime * _sensMultiplier);
 
@@ -54,6 +62,7 @@ public class HeadController : MonoBehaviourPun
         //Rotate, and also make sure we dont over- or under-rotate.
         _xRotation -= lookRotation.y;
         _yRotation += lookRotation.x;
+        _yRotation %= 360; // 絶対値が大きくなりすぎないように
 
         Vector3 currentRot = _currentRotation;
 
@@ -68,7 +77,6 @@ public class HeadController : MonoBehaviourPun
 
         //Perform the rotations
         _head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, 0, 0);
-        //_head.transform.localRotation = Quaternion.Euler(_xRotation + currentRot.x, currentRot.y, 0);
 
         photonView.RPC(nameof(RotationLookTarget), RpcTarget.All, _yRotation + currentRot.y, new Vector3(_xRotation + currentRot.x, currentRot.y, 0));
     }
@@ -95,6 +103,21 @@ public class HeadController : MonoBehaviourPun
         _rotationLookTarget.transform.localRotation = Quaternion.Euler(currentRotation);
     }
 
+    /// <summary>isMasterをもとにプレイヤーの向きをリセットする</summary>
+    /// <remarks>isMineでのみ実行すること</remarks>
+    public void ResetRotationYonMine()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            _yRotation = 0;
+        }
+        else
+        {
+            _yRotation = 180;
+        }
+    }
+
+    #region ADS
     /// <summary>ADS時のカメラ関連の処理</summary>
     public void OnADSCamera(bool on, float fov, float adsSpeed)
     {
@@ -120,21 +143,21 @@ public class HeadController : MonoBehaviourPun
     {
         _myVirtualCam.m_Lens.FieldOfView = _currentFov;
     }
-
+    #endregion
+    #region 設定変更の反映
     void OnHoriSensChanged(float value)
     {
         _XSensitivity = value;
     }
-
     void OnVerSensChanged(float value)
     {
         _YSensitivity = value;
     }
-
     void OnZoomSensChanged(float value)
     {
         _adsSensRate = value;
     }
+    #endregion
 
     private void OnEnable()
     {

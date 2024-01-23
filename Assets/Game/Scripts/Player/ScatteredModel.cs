@@ -1,28 +1,19 @@
 using Cinemachine;
-using DG.Tweening;
 using UnityEngine;
 
 public class ScatteredModel : MonoBehaviour
 {
-    [SerializeField] float _deadTime;
-    [SerializeField, Tooltip("自分のカメラ")] GameObject _myCinemachine;
-    [SerializeField] Transform _cameraPos;
-    [SerializeField] Vector3 _endDis;
-    /// <summary>Fov変更用</summary>
-    CinemachineVirtualCamera _myVirtualCam;
+    CinemachineBlendListCamera _myVirtualCam;
     Rigidbody[] bodies;
 
-    public void Initialize(bool isMine, Vector3 velo)
+    public void Initialize(bool isMine, float respawnTime, Vector3 velo)
     {
         bodies = GetComponentsInChildren<Rigidbody>();
 
         if (isMine)
         {
-            _myVirtualCam = Instantiate(_myCinemachine, _cameraPos).GetComponent<CinemachineVirtualCamera>();
-            _myVirtualCam.Follow = _cameraPos;
-            _myVirtualCam.MoveToTopOfPrioritySubqueue();
-            _cameraPos.DOMove(_cameraPos.position + _endDis, 3);
-            _cameraPos.DORotate(new Vector3(90, 0, 0), 3);
+            _myVirtualCam = GetComponentInChildren<CinemachineBlendListCamera>();
+            _myVirtualCam.Priority = 11; // 死んだのが自分だったらカメラの優先度を上げる
         }
 
         foreach (var body in bodies)
@@ -30,10 +21,12 @@ public class ScatteredModel : MonoBehaviour
             body.velocity = velo;
         }
 
-        Destroy(gameObject, _deadTime);
+        Destroy(gameObject, respawnTime);
     }
 
     private void Awake()
     {
+        // debug時の実行
+        //Initialize(true, Vector3.up * 5);
     }
 }

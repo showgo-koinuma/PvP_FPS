@@ -7,7 +7,10 @@ using DG.Tweening;
 
 public class MatchManager : MonoBehaviourPun
 {
-    [Tooltip("Area")]
+    [Header("GameRule")]
+    [SerializeField] float _respawnTime;
+
+    [Header("Area")]
     [SerializeField] PointAreaManager _masterArea;
     //[SerializeField] PointAreaManager _otherArea;
     [SerializeField] float _areaCountUpSpeed = 1f;
@@ -30,6 +33,7 @@ public class MatchManager : MonoBehaviourPun
 
     static MatchManager _instance;
     public static MatchManager Instance { get => _instance; }
+    public float RespawnTime {  get => _respawnTime; }
 
     PlayerManager _minePlayer, _otherPlayer;
     bool _thisIsMaster;

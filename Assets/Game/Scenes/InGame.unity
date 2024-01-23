@@ -1937,7 +1937,7 @@ MonoBehaviour:
   m_UpdateMethod: 2
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
-    m_Style: 1
+    m_Style: 0
     m_Time: 2
     m_CustomCurve:
       serializedVersion: 2
@@ -9062,6 +9062,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c25769db15abc01448b5bc6707f0f436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _respawnTime: 5
   _masterArea: {fileID: 1090249438}
   _areaCountUpSpeed: 1
   _myCountText: {fileID: 144629272}

@@ -8,8 +8,8 @@ using Photon.Pun;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviourPun
 {
-    Transform _orientation; // 違うオブジェクトだった場合SerializeFieldにする
     Rigidbody _rb;
+    PlayerManager _playerManager;
     LineRenderer _lineRenderer;
 
     [Header("移動")]
@@ -78,7 +78,7 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (!photonView.IsMine) this.enabled = false;
         _rb = GetComponent<Rigidbody>();
-        _orientation = GetComponent<Transform>();
+        _playerManager = GetComponent<PlayerManager>();
     }
 
     void Start()
@@ -89,6 +89,11 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void ThisUpdate()
     {
+        if (_playerManager.PlayerState != PlayerState.Nomal)
+        {
+            return;
+        }
+
         _jumping = false;
         if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         Movement();

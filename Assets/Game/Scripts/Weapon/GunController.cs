@@ -73,7 +73,7 @@ public class GunController : MonoBehaviourPun
             _ballisticTrailObjs[i] = Instantiate(_ballisticTrailPrefab);
         }
 
-        if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // ©•ª‚Å‚È‚¢‚È‚çÁ‚·
+        //if (!_playerManager.photonView.IsMine) _crosshairCntlr.gameObject.SetActive(false); // ©•ª‚Å‚È‚¢‚È‚çÁ‚·
 
         _currentMagazine = _gunStatus.FullMagazineSize; // ’e”‰Šú‰»
         _defaultPos = _recoilObj.transform.localPosition;
@@ -112,6 +112,11 @@ public class GunController : MonoBehaviourPun
         {
             _recoilIndex = 0;
             Reload();
+            return;
+        }
+
+        if (_playerManager.PlayerState != PlayerState.Nomal)
+        {
             return;
         }
 

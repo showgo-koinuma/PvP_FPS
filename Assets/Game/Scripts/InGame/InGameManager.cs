@@ -54,20 +54,17 @@ public class InGameManager : MonoBehaviourPun
     void PlayerInitialSpawn()
     {
         Vector3 position;
-        Quaternion forword;
 
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
             position = InGameManager.Instance.PlayerSpawnPoints[0];
-            forword = Quaternion.Euler(Vector3.forward);
         }
         else
         {
             position = InGameManager.Instance.PlayerSpawnPoints[1];
-            forword = Quaternion.AngleAxis(180, Vector3.up);
         }
 
-        PhotonNetwork.Instantiate("Player", position, forword);
+        PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
     }
 
     /// <summary>ÉQÅ[ÉÄÇë±ÇØÇÈÇëIë</summary>

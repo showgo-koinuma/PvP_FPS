@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Photon.Pun;
+using TMPro;
 using UnityEngine;
 
 /// <summary>Player全てを管理する</summary>
@@ -12,16 +13,21 @@ public class PlayerManager : MonoBehaviourPun
     [SerializeField, Tooltip("相手から見えなくなる(自分の画面に映る自分のモデル)の親")] GameObject[] _invisibleToEnemeyObjs;
     [Header("weapon [0] : AR, [1] : SG")]
     [SerializeField, Tooltip("[0] : AR, [1] : SG")] GameObject[] _weapons;
+    [Header("UI")]
+    [SerializeField] GameObject[] _playerCanvas;
     [SerializeField] RectTransform[] _weaponIconPivots;
     [SerializeField] GameObject[] _weaponIconOutLines;
+    [SerializeField] GameObject _respawnUI;
+    [SerializeField] TMP_Text _respawnCountText;
     [Header("ScatteredPlayer")]
     [SerializeField] GameObject _scatteredPlayer;
 
-    /// <summary>現在ActiveのGunController</summary>
-    //GunController _activeGun;
-    //public GunController ActiveGun { get => _activeGun;  set => _activeGun = value; }
     PlayerAnimationManager _pAnimMg;
+    HeadController _headController;
+    Rigidbody _rb;
 
+    PlayerState _playerState = PlayerState.Nomal;
+    public PlayerState PlayerState { get => _playerState; }
     int _hitLayer = 6;
     int _invisibleLayer = 7;
 
@@ -39,6 +45,9 @@ public class PlayerManager : MonoBehaviourPun
     float _switchInterval = 0.5f;
     float _selectWeaponPivotScale = 0.8f;
 
+    // respawn
+    float _respawnTimer;
+
     private void Awake()
     {
         if (MatchManager.Instance) MatchManager.Instance.SetPlayer(this, photonView.IsMine);
@@ -46,6 +55,22 @@ public class PlayerManager : MonoBehaviourPun
         InitializationLayer();
         Camera.main.GetComponent<Camera>().cullingMask = ~(1 << _invisibleLayer); // 見えないレイヤー設定
         _pAnimMg = GetComponent<PlayerAnimationManager>();
+        _headController = GetComponent<HeadController>();
+        _rb = GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
+        if (_playerState == PlayerState.DuringRespawn)
+        { // respawn timerの処理
+            _respawnTimer -= Time.deltaTime;
+            _respawnCountText.text = _respawnTimer.ToString("0.0");
+
+            if (_respawnTimer > 1)
+            {
+                _respawnCountText.text = ((int)_respawnTimer + 1).ToString();
+            }
+        }
     }
 
     /// <summary>IsMaster別のLayer設定</summary>
@@ -67,7 +92,14 @@ public class PlayerManager : MonoBehaviourPun
             {
                 foreach (Transform child in obj.transform) child.gameObject.layer = _invisibleLayer;
             }
+
+            foreach (GameObject canvas in _playerCanvas) // 敵のキャンバスは見えない
+            {
+                canvas.SetActive(false);
+            }
         }
+
+        _respawnUI.SetActive(false);
     }
 
     #region Helth -------------------------------------------------------
@@ -90,26 +122,46 @@ public class PlayerManager : MonoBehaviourPun
     [PunRPC]
     void RespawnPosition()
     {
-        ScatteredModel scatteredModel = Instantiate(_scatteredPlayer, transform.position, Quaternion.identity)
+        ScatteredModel scatteredModel = Instantiate(_scatteredPlayer, transform.position, transform.rotation)
                                             .GetComponent<ScatteredModel>();
+        scatteredModel.Initialize(photonView.IsMine, MatchManager.Instance.RespawnTime, _rb.velocity);
 
-        scatteredModel.Initialize(photonView.IsMine, Vector3.up * 6);
+        if (photonView.IsMine)
+        {
+            foreach (GameObject canvas in _playerCanvas)
+            {
+                canvas.SetActive(false);
+            }
+
+            _respawnUI.SetActive(true); // respawn ui 
+            _respawnTimer = MatchManager.Instance.RespawnTime;
+            _playerState = PlayerState.DuringRespawn;
+            _headController.ResetRotationYonMine();
+
+            Invoke(nameof(EndRespawn), MatchManager.Instance.RespawnTime);
+        }
 
         // 位置、向きの初期化
-        Vector3 position;
         if (PhotonNetwork.IsMasterClient ^ !photonView.IsMine)
         {
-            position = InGameManager.Instance.PlayerSpawnPoints[0];
-            transform.forward = Vector3.forward;
+            transform.position = InGameManager.Instance.PlayerSpawnPoints[0];
         }
         else
         {
-            position = InGameManager.Instance.PlayerSpawnPoints[1];
-            transform.forward = Vector3.back;
+            transform.position = InGameManager.Instance.PlayerSpawnPoints[1];
         }
-        transform.position = position;
+    }
+
+    void EndRespawn()
+    {
+        foreach (GameObject canvas in _playerCanvas)
+        {
+            canvas.SetActive(true);
+        }
+
+        _respawnUI.SetActive(false);
+        _playerState = PlayerState.Nomal;
         Debug.Log("respawn");
-        // TO:DO 内部データの初期化
     }
     #endregion
 
@@ -167,4 +219,10 @@ public class PlayerManager : MonoBehaviourPun
     {
         if (photonView.IsMine) PlayerInput.Instance.DelInputAction(InputType.SwitchWeapon, SwitchWeapon);
     }
+}
+
+public enum PlayerState
+{
+    Nomal,
+    DuringRespawn
 }
