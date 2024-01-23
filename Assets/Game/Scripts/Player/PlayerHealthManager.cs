@@ -41,7 +41,7 @@ public class PlayerHealthManager : Damageable
     {
         if (_damagePostProcessV.weight > 0)
         {
-            _damagePostProcessV.weight -= Time.deltaTime / 0.3f; // 0.1sでフェードアウト
+            _damagePostProcessV.weight -= Time.deltaTime / 0.3f; // 0.3sでフェードアウト
         }
     }
 
