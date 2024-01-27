@@ -81,9 +81,14 @@ public class Movement : MonoBehaviour
     {
         _jumping = false;
         if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
-        Move();
+        //Move();
         CrouchTransition();
         SlidingTimerCounter();
+    }
+
+    private void FixedUpdate()
+    {
+        Move();
     }
 
     void Move()
@@ -109,7 +114,7 @@ public class Movement : MonoBehaviour
         float speed = vec.magnitude;
 
         float control = speed < _groundAcceleration ? _groundAcceleration : speed;
-        float drop = control * _friction * Time.deltaTime;
+        float drop = control * _friction * 1 * Time.fixedDeltaTime;//Time.deltaTime;
         if (_jumping) drop = 0f;
         if (_isSliding) drop *= _slidingFriction;
 
@@ -152,7 +157,7 @@ public class Movement : MonoBehaviour
 
         float speed = _playerVelocity.magnitude;
         float control = speed < _airAcceleration ? _airAcceleration : speed;
-        float drop = control * _airFriction * Time.deltaTime;
+        float drop = control * _airFriction * 1 * Time.fixedDeltaTime;//Time.deltaTime;
 
         float newspeed = speed - drop;
         if (newspeed < 0) newspeed = 0;
@@ -172,9 +177,12 @@ public class Movement : MonoBehaviour
         float addspeed = wishSpeed - currentspeed;
         if (addspeed <= 0)
             return;
-        float accelspeed = accel * Time.deltaTime * wishSpeed; // * wishSpeed
+        float accelspeed = accel / 50f * wishSpeed; // * Time.deltaTime
         if (accelspeed > addspeed)
+        {
             accelspeed = addspeed;
+            Debug.Log("速さ上限");
+        }
 
         _playerVelocity.x += accelspeed * wishdir.x;
         _playerVelocity.z += accelspeed * wishdir.z;

@@ -2,6 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using DG.Tweening;
 using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.UI;
 
 /// <summary>playerのHPを管理する</summary>
 public class PlayerHealthManager : Damageable
@@ -11,6 +12,10 @@ public class PlayerHealthManager : Damageable
     [Header("UI")]
     [SerializeField] PostProcessVolume _damagePostProcessV;
     [SerializeField] DamageCounter _damageCounter;
+    [Space(10)]
+    [SerializeField] Image _armarGauge;
+    [SerializeField] Image _hitHealthGauge;
+    [SerializeField] Image _healthGauge;
 
     PlayerManager _pManager;
 
@@ -29,6 +34,10 @@ public class PlayerHealthManager : Damageable
     float _headDmgRate = 2f; // 頭
     float _limbsDmgRate = 0.8f; // 手足
 
+    // damage timer
+    float _timeLimit = 1f; // 1秒後にAction
+    float _damageTimer = 0;
+
     private void Awake()
     {
         _pManager = GetComponent<PlayerManager>();
@@ -39,10 +48,17 @@ public class PlayerHealthManager : Damageable
 
     private void Update()
     {
+        if (_damageTimer < _timeLimit)
+        {
+            _damageTimer += Time.deltaTime;
+        }
+
         if (_damagePostProcessV.weight > 0)
         {
             _damagePostProcessV.weight -= Time.deltaTime / 0.3f; // 0.3sでフェードアウト
         }
+
+        ReflectHitGauge();
     }
 
     protected override HitData OnDamageTaken(int dmg, int colliderIndex)
@@ -99,8 +115,29 @@ public class PlayerHealthManager : Damageable
     private void OnDamageTakenIsMine()
     {
         Debug.Log("dame-ji");
-
+        _damageTimer = 0; // ダメージタイマー開始
+        ReflectHPUI();
         _damagePostProcessV.weight = 1; // damage effect開始
+    }
+
+    /// <summary>hp uiを反映させる</summary>
+    void ReflectHPUI()
+    {
+        _armarGauge.fillAmount = (float)_armor / _maxArmor;
+        _healthGauge.fillAmount = (float)_hp / _maxHp;
+    }
+
+    /// <summary>updateでhitGaugeを動かす</summary>
+    void ReflectHitGauge()
+    {
+        if (_hitHealthGauge.fillAmount > (float)_hp / _maxHp && _damageTimer >= _timeLimit)
+        {
+            _hitHealthGauge.fillAmount -= Time.deltaTime * 0.5f;
+        }
+        else if (_damageTimer >= _timeLimit)
+        {
+            _hitHealthGauge.fillAmount = (float)_hp / _maxHp;
+        }
     }
 
     void OnDead()
