@@ -21,6 +21,7 @@ public class Movement : MonoBehaviour
     [SerializeField] float _airMoveSpeed;
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
     [SerializeField, Tooltip("空中摩擦")] float _airFriction;
+    [SerializeField] float _maxSpeed;
     [Space(5)]
     // その他
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
@@ -93,7 +94,7 @@ public class Movement : MonoBehaviour
 
     void Move()
     {
-        if (_isGround) GroundMove();
+        if (_isGround && !PlayerInput.Instance.OnJumpButton) GroundMove();
         else AirMove();
 
         _lineRenderer.SetPosition(0, transform.position);
@@ -103,7 +104,7 @@ public class Movement : MonoBehaviour
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
 
-        Debug.Log(_playerVelocity.magnitude);
+        //Debug.Log(_playerVelocity.magnitude);
     }
 
     /// <summary>地上での動き</summary>
@@ -132,8 +133,9 @@ public class Movement : MonoBehaviour
 
         if (_isSliding)
         {
-            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
-            if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _isSliding = false;
+            //Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+            Debug.Log("isSliding");
+            if (_playerVelocity.magnitude <= 5) _isSliding = false;
         }
         else if (_crouching)
         {
@@ -175,23 +177,25 @@ public class Movement : MonoBehaviour
     {
         float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
         float addspeed = wishSpeed - currentspeed;
-        if (addspeed <= 0)
-            return;
-        float accelspeed = accel / 50f * wishSpeed; // * Time.deltaTime
-        if (accelspeed > addspeed)
-        {
-            accelspeed = addspeed;
-            Debug.Log("速さ上限");
-        }
+        float accelspeed = Mathf.Clamp(accel * Time.fixedDeltaTime * wishSpeed, 0, addspeed);
+
+        //CurrentSpeed = Math.Pow(Vector3.Dot(Vel, inputVector), 5f); 誰かのやつ　なんかやり方違う
+        //addSpeed = Math.Clamp(Vel.magnitude - CurrentSpeed, 0, StrafeAmount);
 
         _playerVelocity.x += accelspeed * wishdir.x;
         _playerVelocity.z += accelspeed * wishdir.z;
+
+        if (_playerVelocity.magnitude > _maxSpeed)
+        {
+            _playerVelocity = _playerVelocity.normalized * _maxSpeed;
+        }
     }
 
     void Jump()
     {
         if (_isGround && _readyToJump)
         {
+            _isGround = false;
             _readyToJump = false;
             _jumping = true;
             _isSliding = false;
@@ -279,12 +283,17 @@ public class Movement : MonoBehaviour
     void Sliding(float speed)
     {
         if (!_readyToSliding || speed < _minCnaSlidingSpeed || !_readyToJump) return;
-        Debug.Log("sliding");
         _playerVelocity = _playerVelocity.normalized * _slidingSpeed;
         _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;
         _isSliding = true;
+        Invoke(nameof(FinishSliding), 1f);
         _slidingTimer = _slidingCooldown;
+    }
+
+    void FinishSliding()
+    {
+        _isSliding = false;
     }
 
     /// <summary>sliding timerの計算</summary>
@@ -293,11 +302,10 @@ public class Movement : MonoBehaviour
         if (_slidingTimer > 0 && _readyToJump && !_crouching)
         {
             _slidingTimer -= Time.deltaTime;
-
-            if (_slidingTimer <= 0)
-            {
-                _readyToSliding = true;
-            }
+        }
+        else if (_slidingTimer <= 0)
+        {
+            _readyToSliding = true;
         }
     }
 
