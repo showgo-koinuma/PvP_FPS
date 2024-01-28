@@ -15,15 +15,16 @@ public class Movement : MonoBehaviour
     [SerializeField] float _moveSpeed;
     [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
     [SerializeField, Tooltip("摩擦")] float _friction;
-    [SerializeField] float _adsMoveSpeedRate = 0.5f;
+    [SerializeField] float _maxSpeed;
     [Space(5)]
     // 空中
     [SerializeField] float _airMoveSpeed;
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
     [SerializeField, Tooltip("空中摩擦")] float _airFriction;
-    [SerializeField] float _maxSpeed;
+    [SerializeField] float _airMaxSpeed;
     [Space(5)]
     // その他
+    [SerializeField] float _adsMoveSpeedRate = 0.5f;
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
     [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
     /// <summary>rbに直接代入するplayerのvelocity</summary>
@@ -49,7 +50,7 @@ public class Movement : MonoBehaviour
     [Header("しゃがみ")]
     [SerializeField, Tooltip("キャラコン用colliderのscale変更のため")] GameObject _moveBodyObject;
     [SerializeField, Tooltip("しゃがみ時の視点移動のため")] GameObject _headObjct;
-    [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
+    [SerializeField, Tooltip("しゃがみ中の最大速度割合")] float _crouchMaxSpeedRate;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale;
     float _crouchTransitionTime = 0.2f;
     Vector3 _playerScale;
@@ -104,7 +105,7 @@ public class Movement : MonoBehaviour
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
 
-        //Debug.Log(_playerVelocity.magnitude);
+        Debug.Log(_playerVelocity.magnitude);
     }
 
     /// <summary>地上での動き</summary>
@@ -115,7 +116,7 @@ public class Movement : MonoBehaviour
         float speed = vec.magnitude;
 
         float control = speed < _groundAcceleration ? _groundAcceleration : speed;
-        float drop = control * _friction * 1 * Time.fixedDeltaTime;//Time.deltaTime;
+        float drop = control * _friction * Time.fixedDeltaTime;//Time.deltaTime;
         if (_jumping) drop = 0f;
         if (_isSliding) drop *= _slidingFriction;
 
@@ -126,29 +127,31 @@ public class Movement : MonoBehaviour
         _playerVelocity.x *= newspeed;
         _playerVelocity.z *= newspeed;
 
-        //Debug.Log(newspeed);
-
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
 
         if (_isSliding)
         {
-            //Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+            //Accelerate(wishdir, _moveSpeed, _groundAcceleration); どうしよう　これでいいのか
             Debug.Log("isSliding");
             if (_playerVelocity.magnitude <= 5) _isSliding = false;
         }
         else if (_crouching)
         {
-            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             Sliding(_playerVelocity.magnitude);
+
+            if (!_isSliding) 
+            {
+                Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+            }
         }
         else if (PlayerInput.Instance.IsADS) // ads中は遅くなる
         {
-            Accelerate(wishdir, _moveSpeed * _adsMoveSpeedRate, _groundAcceleration * _adsMoveSpeedRate);
+            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
         }
         else
         {
-            Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed);
         }
     }
 
@@ -169,11 +172,11 @@ public class Movement : MonoBehaviour
         _playerVelocity.z *= newspeed;
 
         wishdir = transform.TransformDirection(wishdir);
-        Accelerate(wishdir, _airMoveSpeed, _airAcceleration);
+        Accelerate(wishdir, _airMoveSpeed, _airAcceleration, _airMaxSpeed);
     }
 
     /// <summary>ベクトルを計算する</summary>
-    void Accelerate(Vector3 wishdir, float wishSpeed, float accel)
+    void Accelerate(Vector3 wishdir, float wishSpeed, float accel, float maxSpeed)
     {
         float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
         float addspeed = wishSpeed - currentspeed;
@@ -185,9 +188,9 @@ public class Movement : MonoBehaviour
         _playerVelocity.x += accelspeed * wishdir.x;
         _playerVelocity.z += accelspeed * wishdir.z;
 
-        if (_playerVelocity.magnitude > _maxSpeed)
+        if (_playerVelocity.magnitude > maxSpeed)
         {
-            _playerVelocity = _playerVelocity.normalized * _maxSpeed;
+            _playerVelocity = _playerVelocity.normalized * maxSpeed;
         }
     }
 

@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 410087041}
   - component: {fileID: 410087040}
-  - component: {fileID: 410087042}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -218,18 +217,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &410087042
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 410087039}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &776258095
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,8 +736,6 @@ GameObject:
   - component: {fileID: 645873609699499219}
   - component: {fileID: 1550693555208848677}
   - component: {fileID: 1550693555208848676}
-  - component: {fileID: 1550693555208848678}
-  - component: {fileID: 1550693555208848679}
   m_Layer: 0
   m_Name: TestPlayer
   m_TagString: Untagged
@@ -908,14 +893,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10944197f67654e4e83ac16f19f33f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 10
+  _moveSpeed: 9
   _groundAcceleration: 10
   _friction: 6
-  _adsMoveSpeedRate: 1
-  _airMoveSpeed: 10
+  _maxSpeed: 9
+  _airMoveSpeed: 9
   _airAcceleration: 3
   _airFriction: 0
-  _maxSpeed: 20
+  _airMaxSpeed: 13
+  _adsMoveSpeedRate: 0.5
   _maxSlopeAngle: 35
   _whatIsGround:
     serializedVersion: 2
@@ -926,80 +912,12 @@ MonoBehaviour:
   _maxWallAngle: 40
   _moveBodyObject: {fileID: 6502668387675866507}
   _headObjct: {fileID: 3941332430148718647}
-  _crouchMoveSpeedRate: 0.6
+  _crouchMaxSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
-  _slidingSpeed: 20
+  _slidingSpeed: 17
   _slidingFriction: 0.2
   _minCnaSlidingSpeed: 5
   _slidingCooldown: 1.5
---- !u!114 &1550693555208848678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 273246415099950196}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f153027be69b5e4fa5e5995a735dad0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 1550693555208848679}
-  GroundCheck: {fileID: 876343692}
-  GroundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  GroundDistance: 0.4
-  moveSpeed: 10
-  runAcceleration: 14
-  runDeacceleration: 10
-  airAcceleration: 10
-  airDeacceleration: 10
-  airControl: 0.3
-  sideStrafeAcceleration: 50
-  sideStrafeSpeed: 1
-  jumpSpeed: 8
-  friction: 6
-  playerFriction: 8.984
-  JumpQueue: 0
-  wishJump: 0
-  PlayerVel: {x: 0, y: 0, z: 0}
-  ModulasSpeed: 0
-  ZVelocity: 0
-  XVelocity: 0
-  moveDirection: {x: 0, y: 0, z: 0}
-  moveDirectionNorm: {x: 0, y: 0, z: 0}
-  playerView: {fileID: 0}
-  x: 0
-  z: 0
-  IsGrounded: 0
-  player: {fileID: 1550693555208848675}
---- !u!143 &1550693555208848679
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 273246415099950196}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Height: 1.8
-  m_Radius: 0.4
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!23 &2080111149755162626
 MeshRenderer:
   m_ObjectHideFlags: 0

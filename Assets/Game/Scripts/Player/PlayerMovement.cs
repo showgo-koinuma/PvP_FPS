@@ -17,14 +17,16 @@ public class PlayerMovement : MonoBehaviourPun
     [SerializeField] float _moveSpeed;
     [SerializeField, Tooltip("接地中の加速度")] float _groundAcceleration;
     [SerializeField, Tooltip("摩擦")] float _friction;
-    [SerializeField] float _adsMoveSpeedRate = 0.5f;
+    [SerializeField] float _maxSpeed;
     [Space(5)]
     // 空中
     [SerializeField] float _airMoveSpeed;
     [SerializeField, Tooltip("空中での加速度")] float _airAcceleration;
     [SerializeField, Tooltip("空中摩擦")] float _airFriction;
+    [SerializeField] float _airMaxSpeed;
     [Space(5)]
     // その他
+    [SerializeField] float _adsMoveSpeedRate = 0.5f;
     [SerializeField, Tooltip("地面と判定する最大の傾斜角度")] float _maxSlopeAngle;
     [SerializeField, Tooltip("地面のレイヤー")] LayerMask _whatIsGround;
     /// <summary>rbに直接代入するplayerのvelocity</summary>
@@ -50,7 +52,7 @@ public class PlayerMovement : MonoBehaviourPun
     [Header("しゃがみ")]
     [SerializeField, Tooltip("キャラコン用colliderのscale変更のため")] GameObject _moveBodyObject;
     [SerializeField, Tooltip("しゃがみ時の視点移動のため")] GameObject _headObjct;
-    [SerializeField, Tooltip("しゃがみによる速度低下割合")] float _crouchMoveSpeedRate;
+    [SerializeField, Tooltip("しゃがみ中の最大速度割合")] float _crouchMaxSpeedRate;
     [SerializeField, Tooltip("しゃがみでのスケール")] Vector3 _crouchScale;
     float _crouchTransitionTime = 0.2f;
     Vector3 _playerScale;
@@ -96,9 +98,13 @@ public class PlayerMovement : MonoBehaviourPun
 
         _jumping = false;
         if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
-        Movement();
         CrouchTransition();
         SlidingTimerCounter();
+    }
+
+    private void FixedUpdate()
+    {
+        Movement(); // 摩擦関係がFixedでやらないと不安
     }
 
     void Movement()
@@ -113,7 +119,7 @@ public class PlayerMovement : MonoBehaviourPun
         _rb.velocity = _playerVelocity;
         _playerVelocity.y = 0;
 
-        Debug.Log(_playerVelocity.magnitude);
+        //Debug.Log(_playerVelocity.magnitude);
     }
 
     /// <summary>地上での動き</summary>
@@ -124,7 +130,7 @@ public class PlayerMovement : MonoBehaviourPun
         float speed = vec.magnitude;
 
         float control = speed < _groundAcceleration ? _groundAcceleration : speed;
-        float drop = control * _friction * Time.deltaTime;
+        float drop = control * _friction * Time.fixedDeltaTime;
         if (_jumping) drop = 0f;
         if (_isSliding) drop *= _slidingFriction;
 
@@ -135,28 +141,30 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.x *= newspeed;
         _playerVelocity.z *= newspeed;
 
-        //Debug.Log(newspeed);
-
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
 
         if (_isSliding)
         {
-            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
-            if (_playerVelocity.magnitude <= _moveSpeed * _crouchMoveSpeedRate + 0.5f) _isSliding = false;
+            //Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
+            if (_playerVelocity.magnitude <= 5) _isSliding = false; // 5は要検討
         }
         else if (_crouching)
         {
-            Accelerate(wishdir, _moveSpeed * _crouchMoveSpeedRate, _groundAcceleration);
             Sliding(_playerVelocity.magnitude);
+
+            if (!_isSliding)
+            {
+                Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+            }
         }
         else if (PlayerInput.Instance.IsADS) // ads中は遅くなる
         {
-            Accelerate(wishdir, _moveSpeed * _adsMoveSpeedRate, _groundAcceleration * _adsMoveSpeedRate);
+            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
         }
         else 
         {
-            Accelerate(wishdir, _moveSpeed, _groundAcceleration);
+            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed);
         }
     }
 
@@ -167,7 +175,7 @@ public class PlayerMovement : MonoBehaviourPun
 
         float speed = _playerVelocity.magnitude;
         float control = speed < _airAcceleration ? _airAcceleration : speed;
-        float drop = control * _airFriction * Time.deltaTime;
+        float drop = control * _airFriction * Time.fixedDeltaTime;
 
         float newspeed = speed - drop;
         if (newspeed < 0) newspeed = 0;
@@ -177,22 +185,26 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.z *= newspeed;
 
         wishdir = transform.TransformDirection(wishdir);
-        Accelerate(wishdir, _airMoveSpeed, _airAcceleration);
+        Accelerate(wishdir, _airMoveSpeed, _airAcceleration, _airMaxSpeed);
     }
 
     /// <summary>ベクトルを計算する</summary>
-    void Accelerate(Vector3 wishdir, float wishSpeed, float accel)
+    void Accelerate(Vector3 wishdir, float wishSpeed, float accel, float maxSpeed)
     {
         float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
         float addspeed = wishSpeed - currentspeed;
-        if (addspeed <= 0)
-            return;
-        float accelspeed = accel * Time.deltaTime * wishSpeed; // * wishSpeed
-        if (accelspeed > addspeed)
-            accelspeed = addspeed;
+        float accelspeed = Mathf.Clamp(accel * Time.fixedDeltaTime * wishSpeed, 0, addspeed);
+
+        //CurrentSpeed = Math.Pow(Vector3.Dot(Vel, inputVector), 5f); 誰かのやつ　なんかやり方違う
+        //addSpeed = Math.Clamp(Vel.magnitude - CurrentSpeed, 0, StrafeAmount);
 
         _playerVelocity.x += accelspeed * wishdir.x;
         _playerVelocity.z += accelspeed * wishdir.z;
+
+        if (_playerVelocity.magnitude > maxSpeed)
+        {
+            _playerVelocity = _playerVelocity.normalized * maxSpeed;
+        }
     }
 
     void Jump()
@@ -236,7 +248,6 @@ public class PlayerMovement : MonoBehaviourPun
         wallLookJumpVec = new Vector3(wallLookJumpVec.x, 1, 1) * _wallJumpPower; // * 速度
         wallLookJumpVec = Quaternion.AngleAxis(Mathf.Atan2(_wallNormalVector.x, _wallNormalVector.z) * Mathf.Rad2Deg, Vector3.up) 
             * wallLookJumpVec; // world vectorに直す
-        //wallLookJumpVec.y = _wallJumpPower;
 
         // vectorの代入
         _playerVelocity = wallLookJumpVec; // 計算用変数に代入
@@ -250,14 +261,11 @@ public class PlayerMovement : MonoBehaviourPun
         if (PlayerInput.Instance.IsCrouching) // しゃがみ開始処理
         {
             _crouchDir = -1;
-            //transform.localScale = _crouchScale;
-            //transform.position = new Vector3(transform.position.x, transform.position.y - 0.25f, transform.position.z);
             _crouching = true;
             return;
         } // return切替してしゃがみ解除の処理
+
         _crouchDir = 1;
-        //transform.localScale = _playerScale;
-        //transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
         _crouching = false;
         _isSliding = false;
     }
@@ -298,7 +306,13 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;
         _isSliding = true;
+        Invoke(nameof(FinishSliding), 1f); // 1s後スライディング強制解除
         _slidingTimer = _slidingCooldown;
+    }
+
+    void FinishSliding()
+    {
+        _isSliding = false;
     }
 
     /// <summary>sliding timerの計算</summary>
@@ -379,14 +393,12 @@ public class PlayerMovement : MonoBehaviourPun
     private void OnEnable()
     {
         InGameManager.Instance.UpdateAction += ThisUpdate;
-        //PlayerInput.Instance.SetInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
 
     private void OnDisable()
     {
         InGameManager.Instance.UpdateAction -= ThisUpdate;
-        //PlayerInput.Instance.DelInputAction(InputType.Jump, Jump);
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }
 }

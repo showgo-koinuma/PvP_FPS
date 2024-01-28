@@ -2064,13 +2064,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f87875c2316584f9fc02be2d7f55cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 10
+  _moveSpeed: 9
   _groundAcceleration: 10
   _friction: 6
-  _adsMoveSpeedRate: 1
-  _airMoveSpeed: 10
-  _airAcceleration: 8
-  _airFriction: 1
+  _maxSpeed: 9
+  _airMoveSpeed: 9
+  _airAcceleration: 3
+  _airFriction: 0
+  _airMaxSpeed: 13
+  _adsMoveSpeedRate: 0.5
   _maxSlopeAngle: 35
   _whatIsGround:
     serializedVersion: 2
@@ -2081,9 +2083,9 @@ MonoBehaviour:
   _maxWallAngle: 40
   _moveBodyObject: {fileID: 7380744215933237831}
   _headObjct: {fileID: 784146708225388539}
-  _crouchMoveSpeedRate: 1
+  _crouchMaxSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
-  _slidingSpeed: 20
+  _slidingSpeed: 17
   _slidingFriction: 0.2
   _minCnaSlidingSpeed: 5
   _slidingCooldown: 1.5
