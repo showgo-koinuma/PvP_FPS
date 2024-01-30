@@ -329,3 +329,6 @@ MonoBehaviour:
   _buttonAction:
     m_PersistentCalls:
       m_Calls: []
+  _buttonText: {fileID: 1920737885725748606}
+  _changeColorImage: {fileID: 6396771909974501500}
+  _inactiveColor: {r: 0, g: 0, b: 0, a: 0}

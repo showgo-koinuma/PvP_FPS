@@ -324,6 +324,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _buttonText: {fileID: 0}
+  _changeColorImage: {fileID: 0}
+  _inactiveColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!225 &8666013
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2540,6 +2543,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: Create Room
+      objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6790311968079932095, guid: 5bc97ca25a3929e4eb2534bef32124e3,
         type: 3}
@@ -9996,6 +10009,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _buttonText: {fileID: 0}
+  _changeColorImage: {fileID: 0}
+  _inactiveColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!225 &1112181626
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -10496,6 +10512,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _buttonText: {fileID: 0}
+  _changeColorImage: {fileID: 0}
+  _inactiveColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!225 &1148951226
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -11974,6 +11993,16 @@ PrefabInstance:
       propertyPath: m_text
       value: Setting
       objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6790311968079932095, guid: 5bc97ca25a3929e4eb2534bef32124e3,
         type: 3}
       propertyPath: m_Pivot.x
@@ -12077,7 +12106,7 @@ PrefabInstance:
     - target: {fileID: 7256425641962635453, guid: 5bc97ca25a3929e4eb2534bef32124e3,
         type: 3}
       propertyPath: m_Name
-      value: ButtonBase (1)
+      value: SettingButton
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13798,6 +13827,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1701991637}
   - component: {fileID: 1701991638}
+  - component: {fileID: 1701991639}
   m_Layer: 0
   m_Name: LobbyManager
   m_TagString: Untagged
@@ -13827,7 +13857,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1701991635}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c5c23fd464c05242b1df664ea7af96a, type: 3}
   m_Name: 
@@ -13850,6 +13880,30 @@ MonoBehaviour:
     type: 3}
   _loadingObj: {fileID: 821410649}
   _loadingText: {fileID: 754158702}
+--- !u!114 &1701991639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701991635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f405b5660814ca4daf1af1cea7d7106, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _loadingText: {fileID: 140918550}
+  _defaultPlayButton: {fileID: 463978792}
+  _playButton: {fileID: 1784529279}
+  _selectModeCanvas: {fileID: 695071614}
+  _createRoomCanvas: {fileID: 1904183139}
+  _inputRoomName: {fileID: 296831069}
+  _joinRoomCanvas: {fileID: 367211955}
+  _roomContent: {fileID: 186762959}
+  _SelectRoomButton: {fileID: 4726465302166743007, guid: 1f2863b3d0e2f5f43ae8ef5fa494b268,
+    type: 3}
+  _mineNameText: {fileID: 0}
+  _otherNameText: {fileID: 0}
 --- !u!1001 &1704481052
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14324,6 +14378,16 @@ PrefabInstance:
       propertyPath: m_text
       value: Play
       objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+        type: 3}
+      propertyPath: _buttonAction.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6790311968079932095, guid: 5bc97ca25a3929e4eb2534bef32124e3,
         type: 3}
       propertyPath: m_Pivot.x
@@ -14427,7 +14491,7 @@ PrefabInstance:
     - target: {fileID: 7256425641962635453, guid: 5bc97ca25a3929e4eb2534bef32124e3,
         type: 3}
       propertyPath: m_Name
-      value: ButtonBase
+      value: PlayButton
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14440,6 +14504,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1784529277}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1784529279 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3957043246802628228, guid: 5bc97ca25a3929e4eb2534bef32124e3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1784529277}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eebc8e963d377194c95cf8ea99e657d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1793451210 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1886206111996814286, guid: 7ab8f7067288fdd41a0a75a10ba19ec0,
@@ -14615,6 +14691,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _buttonText: {fileID: 0}
+  _changeColorImage: {fileID: 0}
+  _inactiveColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!225 &1840926810
 CanvasGroup:
   m_ObjectHideFlags: 0
