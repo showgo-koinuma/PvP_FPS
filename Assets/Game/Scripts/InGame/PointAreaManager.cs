@@ -15,8 +15,7 @@ public class PointAreaManager : MonoBehaviourPun
 
     [Header("UI")]
     [SerializeField] Image _takingPerImage;
-    [SerializeField] Image _areaOwnerImage;
-    [SerializeField] Color[] _teamColor;
+    [SerializeField] PointColorChanger _colorChanger;
  
     [Header("Gizmos")]
     [SerializeField, Tooltip("Gizmosの表示切替")] bool _visible = true;
@@ -41,13 +40,6 @@ public class PointAreaManager : MonoBehaviourPun
     private void Awake()
     {
         _isMaster = PhotonNetwork.IsMasterClient;
-
-        if (!_isMaster)
-        {
-            Color masterColor = _teamColor[0];
-            _teamColor[0] = _teamColor[1];
-            _teamColor[1] = masterColor;
-        }
     }
 
     public void SetPlayerTransform(Transform player)
@@ -60,7 +52,11 @@ public class PointAreaManager : MonoBehaviourPun
         if (InGameManager.Instance.GameState != GameState.InGame) return;
 
         AreaStateUpdate();
-        UIUpdate();
+
+        _colorChanger.UpdatePerUI(_areaState, Math.Max(_masterTakePer, _otherTakePer));
+
+        if (_areaOwner == AreaOwner.master) _colorChanger.ChangeColor(_isMaster);
+        else if (_areaOwner == AreaOwner.other) _colorChanger.ChangeColor(!_isMaster);
     }
 
     /// <summary>playerがエリア内にいるか判定し、perValueとstateを更新する</summary>
@@ -246,19 +242,6 @@ public class PointAreaManager : MonoBehaviourPun
             _areaState = (AreaState)Enum.ToObject(typeof(AreaState), areaState);
             _areaOwner = (AreaOwner)Enum.ToObject(typeof(AreaOwner), areaOwner);
         }
-    }
-
-    /// <summary>内部データ更新をUIに反映させる</summary>
-    void UIUpdate()
-    {
-        _takingPerImage.fillAmount = Mathf.Max(_masterTakePer, _otherTakePer);
-
-        if (_areaState == AreaState.masterTaking) _takingPerImage.color = _teamColor[0];
-        else if (_areaState == AreaState.otherTaking) _takingPerImage.color = _teamColor[1];
-
-        if (_areaOwner == AreaOwner.master) _areaOwnerImage.color = _teamColor[0];
-        else if (_areaOwner == AreaOwner.other) _areaOwnerImage.color= _teamColor[1];
-        else _areaOwnerImage.color = _teamColor[2];
     }
 
     bool CheckArea(Transform player)

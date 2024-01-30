@@ -112,8 +112,8 @@ public class PlayerMovement : MonoBehaviourPun
         if (_isGround) GroundMove();
         else AirMove();
 
-        _lineRenderer.SetPosition(0, transform.position);
-        _lineRenderer.SetPosition(1, transform.position + _playerVelocity * 2);
+        //_lineRenderer.SetPosition(0, transform.position);
+        //_lineRenderer.SetPosition(1, transform.position + _playerVelocity * 2);
 
         _playerVelocity.y = _rb.velocity.y;
         _rb.velocity = _playerVelocity;
