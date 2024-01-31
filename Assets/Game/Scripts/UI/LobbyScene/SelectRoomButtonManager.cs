@@ -15,11 +15,11 @@ public class SelectRoomButtonManager : MonoBehaviour
         _roomNameText.text = roomInfo.Name + " Room";
         _roomNumOfPeopleText.text = roomInfo.PlayerCount.ToString() + " / 2"; // maxêlêîÇÕ2
         _thisRoomInfo = roomInfo;
-        GetComponent<CustomButton>().ButtonAction += JoinRoom;
+        GetComponent<CustomButton>().ButtonAction = JoinRoom;
     }
 
     void JoinRoom()
     {
-        LobbySceneUIManager.Instance.JoinRoom(_thisRoomInfo);
+        LobbyManager.Instance.JoinRoom(_thisRoomInfo);
     }
 }

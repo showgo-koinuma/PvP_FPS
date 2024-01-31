@@ -1,3 +1,4 @@
+using Cinemachine;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -30,6 +31,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [Header("Player Name")]
     [SerializeField] TMP_Text _mineNameText;
     [SerializeField] TMP_Text _otherNameText;
+    [SerializeField] GameObject _nameInputFieldObj;
+    [SerializeField] TMP_Text _nameInputFieldText;
+    [SerializeField] CustomButton _nameChangeButton;
+
+    [Header("sonota")]
+    [SerializeField] GameObject _joinedCamera;
 
     static LobbyManager _instance;
     public static LobbyManager Instance { get => _instance; }
@@ -54,6 +61,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         // マウスのロックが解除される
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        _joinedCamera.SetActive(false);
 
         // Canvasの初期設定
         _selectModeCanvas.SetActive(false);
@@ -68,6 +76,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         // 30だったけこれ
         PhotonNetwork.SendRate = 30;
         PhotonNetwork.SerializationRate = 30;
+
+        _nameChangeButton.ButtonAction = ToNameInputMode;
+        _mineNameText.gameObject.SetActive(true);
+        _nameInputFieldObj.SetActive(false);
     }
 
     /// <summary>ロビーに接続、またはロビー接続時の処理を実行</summary>
@@ -84,10 +96,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     }
 
     /// <summary>指定したUIObjに遷移する</summary>
-    void ChangeCanvas(GameObject openCanvas = null)
+    public void ChangeCanvas(GameObject openCanvas = null)
     {
         _activeCanvas?.SetActive(false);
-        _activeCanvas = openCanvas;
+        (_activeCanvas = openCanvas)?.SetActive(true);
     }
 
     /// <summary>PlayerNameを更新する</summary>
@@ -151,7 +163,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
             {
                 if (PhotonNetwork.IsMasterClient)
                 {
-                    _playButton.ChangeButtonState(false, "waiting ready...");
+                    _playButton.ChangeButtonState(false, "waiting\nready...");
                 }
                 else
                 {
@@ -168,7 +180,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     #region Button Action ===================================================================
     void OnPlayButtonToSelect()
     {
-        _selectModeCanvas.SetActive(true);
+        (_activeCanvas = _selectModeCanvas).SetActive(true);
     }
 
     void OnPlayButtonToStartGame()
@@ -192,7 +204,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void OnCreateRoomButton()
     {
-        if (!string.IsNullOrEmpty(_inputRoomName.text))
+        if (_inputRoomName.text != "")
         {
             RoomOptions options = new RoomOptions { MaxPlayers = _maxRoomPlayer };
             PhotonNetwork.CreateRoom(_inputRoomName.text, options); // Room作成
@@ -200,13 +212,24 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
             _loadingText.gameObject.SetActive(true);
             _loadingText.text = "Making Room...";
         }
-        else Debug.Log("roomの名前が設定されていません"); // to:do 入力がないエラー
     }
 
-    public void OnChangeNameButton()
+    void ToNameInputMode()
     {
-        //PhotonNetwork.NickName = _inputPlayerNameText.text;
+        _nameChangeButton.ButtonAction = OnChangeNameButton;
+        _mineNameText.gameObject.SetActive(false);
+        _nameInputFieldObj.SetActive(true);
+    }
+
+    void OnChangeNameButton()
+    {
+        //PhotonNetwork.NickName = _inputPlayerNameTyext.text;
         //_playerNameText.text = "Player Name : " + PhotonNetwork.NickName;
+        _nameChangeButton.ButtonAction = ToNameInputMode;
+        PhotonNetwork.NickName = _nameInputFieldText.text;
+        _mineNameText.text = PhotonNetwork.NickName;
+        _mineNameText.gameObject.SetActive(true);
+        _nameInputFieldObj.SetActive(false);
     }
 
     /// <summary>BackButtonを押したときの処理</summary>
@@ -226,6 +249,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
             ChangeCanvas();
         }
     }
+
+    public void OnSelectTutorial()
+    {
+        ChangeCanvas();
+        _playButton.ChangeButtonState(true, "Tutorial"); // todo set action
+    }
+
     /// <summary>roomから退出する</summary>
     void LeaveRoom()
     {
@@ -252,14 +282,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnJoinedRoom()
     {
         _loadingText.gameObject.SetActive(false);
+        ReflectPlayerName();
 
         if (PhotonNetwork.IsMasterClient)
         {
-            _playButton.ChangeButtonState(false, "waiting player...");
+            _playButton.ChangeButtonState(false, "waiting\nplayer...");
         }
         else
         {
             _playButton.ChangeButtonState(true, "Ready", OnPlayButtonToReady);
+            _joinedCamera.SetActive(true);
         }
     }
     public override void OnLeftRoom()
@@ -267,15 +299,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         _loadingText.gameObject.SetActive(false);
         ChangeCanvas();
         _playButton.ChangeButtonState(true, "Play", OnPlayButtonToSelect);
+        _joinedCamera.SetActive(false);
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         _playButton.ChangeButtonState(false, "waiting ready...");
         ReflectPlayerName();
+        _joinedCamera.SetActive(true);
     }
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        ReflectPlayerName(); // player listのUI更新
+        ReflectPlayerName();
+        _joinedCamera.SetActive(false);
     }
     public override void OnMasterClientSwitched(Player newMasterClient) // Masterに切り替わったらButton変更
     {

@@ -18,11 +18,13 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     public Action ButtonAction; // scriptからも設定出来る
 
     CanvasGroup _canvasGroup;
+    Vector3 _defaultScale;
     Color _activeColor;
 
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+        _defaultScale = transform.localScale;
         _activeColor = _changeColorImage.color;
     }
     
@@ -37,7 +39,7 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     {
         _changeColorImage.color = isActive? _activeColor : _inactiveColor; // activeに応じて色を変える
         _buttonText.text = buttonText;
-        if (newAction != null) ButtonAction = newAction;
+        ButtonAction = newAction;
     }
 
     // カーソルが重なる
@@ -49,13 +51,14 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     // クリックDown
     public void OnPointerDown(PointerEventData eventData)
     {
-        transform.DOScale(0.95f, 0.24f).SetEase(Ease.OutCubic);
+        transform.DOScale(_defaultScale * 0.95f, 0.24f).SetEase(Ease.OutCubic);
         _canvasGroup.DOFade(0.8f, 0.24f).SetEase(Ease.OutCubic);
     }
+
     // クリックUp
     public void OnPointerUp(PointerEventData eventData) 
     {
-        transform.DOScale(1f, 0.24f).SetEase(Ease.OutCubic);
+        transform.DOScale(_defaultScale, 0.24f).SetEase(Ease.OutCubic);
         _canvasGroup.DOFade(1f, 0.24f).SetEase(Ease.OutCubic);
     }
 }

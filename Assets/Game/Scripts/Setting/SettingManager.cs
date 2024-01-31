@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SettingManager : MonoBehaviour
 {
     [SerializeField] GameObject _settingCanvas;
+    [SerializeField] CustomButton _settingButton;
     [Header("SensSettings")]
     [SerializeField] TMP_InputField _horiSensText;
     [SerializeField] Slider _horiSensSlider;
@@ -15,6 +16,8 @@ public class SettingManager : MonoBehaviour
     [Space(5)]
     [SerializeField] TMP_InputField _zoomSensText;
     [SerializeField] Slider _zoomSensSlider;
+    [Header("BackButton")]
+    [SerializeField] CustomButton _backButton;
 
 
     static SettingManager _instance = default;
@@ -38,6 +41,8 @@ public class SettingManager : MonoBehaviour
 
         _settingCanvas.SetActive(false); // 設定画面は最初は表示しない
         PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // 切替アクションを登録
+        _settingButton.ButtonAction = SwitchCanvas;
+        _backButton.ButtonAction = SwitchCanvas;
     }
 
     /// <summary>Horizontal Sensの値を変更する</summary>
