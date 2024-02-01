@@ -9,6 +9,10 @@ public class InGameManager : MonoBehaviourPun
     [SerializeField] PlayableDirector _openingTimeline;
     [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
 
+    [Header("Result")]
+    [SerializeField] ResultManager _resultManager;
+    [SerializeField] CustomButton _continueButton;
+
     static InGameManager _instance;
     public static InGameManager Instance { get => _instance; }
     public event Action UpdateAction;
@@ -71,10 +75,11 @@ public class InGameManager : MonoBehaviourPun
     public void SelectContinueGame() // button call
     {
         PhotonNetwork.AutomaticallySyncScene = true;
+        _continueButton.ChangeButtonState(false, "wait\ncontinue");
 
         if (_otherContinue)
         {
-            photonView.RPC(nameof(ContinueGame), RpcTarget.MasterClient);
+            photonView.RPC(nameof(RestartGame), RpcTarget.MasterClient);
         }
         else
         {
@@ -86,10 +91,11 @@ public class InGameManager : MonoBehaviourPun
     void ShareContinueGame()
     {
         _otherContinue = true;
+        _resultManager.OtherIsContinue();
     }
 
     [PunRPC]
-    void ContinueGame()
+    void RestartGame()
     {
         PhotonNetwork.LoadLevel(2);
     }

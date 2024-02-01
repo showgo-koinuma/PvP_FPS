@@ -11,14 +11,17 @@ public class PlayerManager : MonoBehaviourPun
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)")] GameObject[] _invisibleToMyselfObj;
     [SerializeField, Tooltip("自分で見えなくなる(相手に映る自分のモデル)の親")] GameObject[] _invisibleToMyselfObjs;
     [SerializeField, Tooltip("相手から見えなくなる(自分の画面に映る自分のモデル)の親")] GameObject[] _invisibleToEnemeyObjs;
+
     [Header("weapon [0] : AR, [1] : SG")]
     [SerializeField, Tooltip("[0] : AR, [1] : SG")] GameObject[] _weapons;
+
     [Header("UI")]
     [SerializeField] GameObject[] _playerCanvas;
     [SerializeField] RectTransform[] _weaponIconPivots;
     [SerializeField] GameObject[] _weaponIconOutLines;
     [SerializeField] GameObject _respawnUI;
     [SerializeField] TMP_Text _respawnCountText;
+
     [Header("ScatteredPlayer")]
     [SerializeField] GameObject _scatteredPlayer;
 
@@ -209,6 +212,15 @@ public class PlayerManager : MonoBehaviourPun
         _canSwitch = true;
     }
     #endregion
+
+    /// <summary>ゲーム終了時にプレイヤーのUIをすべて消す</summary>
+    public void UIInvisibleOnGameOver()
+    {
+        foreach (GameObject canvas in _playerCanvas)
+        {
+            canvas.SetActive(false);
+        }
+    }
 
     private void OnEnable()
     {

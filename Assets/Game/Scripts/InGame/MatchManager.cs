@@ -8,6 +8,7 @@ using DG.Tweening;
 public class MatchManager : MonoBehaviourPun
 {
     [Header("GameRule")]
+    [SerializeField] int _winCount = 5;
     [SerializeField] float _respawnTime;
 
     [Header("Area")]
@@ -26,9 +27,10 @@ public class MatchManager : MonoBehaviourPun
     [SerializeField, Tooltip("inGameのキャンバス")] GameObject _inGameCanvas;
     [SerializeField] GameObject _pointCanves;
     [SerializeField, Tooltip("ゲーム終了時に表示するキャンバス")] GameObject _gameOverCanvas;
-    [SerializeField] TextMeshProUGUI _winOrLossText;
-    [SerializeField] GameObject _resultCanvas;
-    [SerializeField] TextMeshProUGUI _kdText;
+    [SerializeField] GameObject _winText;
+    [SerializeField] GameObject _lossText;
+    [SerializeField] GameObject _resultObj;
+    [SerializeField] ResultManager _resultManager;
     [SerializeField, Tooltip("Fade用パネル")] Image _resultFadePanel;
 
     static MatchManager _instance;
@@ -37,7 +39,6 @@ public class MatchManager : MonoBehaviourPun
 
     PlayerManager _minePlayer, _otherPlayer;
     bool _thisIsMaster;
-    int _winCount = 5;
 
     float _masterAreaCount = 0;
     float _otherAreaCount = 0;
@@ -53,7 +54,7 @@ public class MatchManager : MonoBehaviourPun
 
         _inGameCanvas.SetActive(true);
         _gameOverCanvas.SetActive(false); // 終了時キャンバス非表示
-        _resultCanvas.SetActive(false);
+        _resultObj.SetActive(false);
     }
 
     /// <summary>エリアにプレイヤーを登録する</summary>
@@ -160,17 +161,20 @@ public class MatchManager : MonoBehaviourPun
 
     IEnumerator GameOverUI(bool isWin)
     {
+        // ingameのUIを消す
+        _minePlayer.UIInvisibleOnGameOver();
+
         _inGameCanvas.SetActive(false);
         _pointCanves.SetActive(false);
         _gameOverCanvas.SetActive(true);
 
         if (isWin)
         {
-            _winOrLossText.text = "Victory";
+            _winText.SetActive(true);
         }
         else
         {
-            _winOrLossText.text = "Defeat";
+            _lossText.SetActive(true);
         }
 
         yield return new WaitForSeconds(2); // fade開始までのdelay
@@ -184,9 +188,8 @@ public class MatchManager : MonoBehaviourPun
 
         _resultFadePanel.DOFade(0, 1);
         _gameOverCanvas.SetActive(false);
-        _resultCanvas.SetActive(true);
-
-        _kdText.text = $"{_otherPlayer.DeadCount} / {_minePlayer.DeadCount}";
+        _resultObj.SetActive(true);
+        _resultManager.InitializeResult(isWin, _otherPlayer ? _otherPlayer.DeadCount : 0, _minePlayer.DeadCount, 1000, 500, 500);
     }
 
     private void Update()

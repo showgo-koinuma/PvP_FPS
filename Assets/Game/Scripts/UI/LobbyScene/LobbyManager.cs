@@ -52,6 +52,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     /// <summary>InGame‚Ìscene in build‚Ì”š</summary>
     int _inGameSceneInBuildNum = 1;
 
+    private void FixedUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.O)) OnPlayButtonToStartGame();
+    }
+
     private void Awake()
     {
         // ‚µ‚ñ‚®‚é‚Æ‚ñ
