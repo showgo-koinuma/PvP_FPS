@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class PointColorChanger : MonoBehaviour
 {
@@ -23,8 +24,8 @@ public class PointColorChanger : MonoBehaviour
 
     public void UpdatePerUI(AreaState areaState, float value)
     {
-        if (areaState == AreaState.masterTaking) _takingPercentImage.color = _teamColor[0];
-        else if (areaState == AreaState.otherTaking) _takingPercentImage.color = _teamColor[1];
+        if (areaState == AreaState.masterTaking ^ !PhotonNetwork.IsMasterClient) _takingPercentImage.color = _teamColor[0];
+        else if (areaState == AreaState.otherTaking ^ PhotonNetwork.IsMasterClient) _takingPercentImage.color = _teamColor[1];
         _takingPercentImage.fillAmount = value;
     }
 
