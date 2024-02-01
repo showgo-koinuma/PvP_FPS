@@ -66,7 +66,7 @@ public class ResultManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         _HSPerObj.DOAnchorPos(new Vector2(_textPosX[3], _HSPerObj.anchoredPosition.y), 1).SetEase(Ease.OutSine);
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
         _systems.SetActive(true);
     }
 
