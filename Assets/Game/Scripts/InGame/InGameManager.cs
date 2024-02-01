@@ -8,6 +8,8 @@ public class InGameManager : MonoBehaviourPun
 {
     [SerializeField] PlayableDirector _openingTimeline;
     [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
+    [SerializeField] GameObject _masterRespawnWall;
+    [SerializeField] GameObject _otherRespawnWall;
 
     [Header("Result")]
     [SerializeField] ResultManager _resultManager;
@@ -29,6 +31,12 @@ public class InGameManager : MonoBehaviourPun
 
         Cursor.lockState = CursorLockMode.Locked; // カーソル
         Cursor.visible = false;
+
+        // respawn collider setting
+        foreach (Collider col in PhotonNetwork.IsMasterClient? _otherRespawnWall.GetComponentsInChildren<Collider>() : _masterRespawnWall.GetComponentsInChildren<Collider>())
+        {
+            col.enabled = true;
+        }
     }
 
     private void Start()

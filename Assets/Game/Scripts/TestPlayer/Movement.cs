@@ -129,10 +129,12 @@ public class Movement : MonoBehaviour
 
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
+        Vector2 wishdir2 = new Vector2(wishdir.x, wishdir.z);
 
         if (_isSliding)
         {
             //Accelerate(wishdir, _moveSpeed, _groundAcceleration); どうしよう　これでいいのか
+            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
             Debug.Log("isSliding");
             if (_playerVelocity.magnitude <= 5) _isSliding = false;
         }
@@ -142,16 +144,19 @@ public class Movement : MonoBehaviour
 
             if (!_isSliding) 
             {
-                Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+                //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+                CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
             }
         }
         else if (PlayerInput.Instance.IsADS) // ads中は遅くなる
         {
-            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
+            //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
+            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
         }
         else
         {
-            Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed);
+            //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed);
+            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed);
         }
     }
 
@@ -172,7 +177,8 @@ public class Movement : MonoBehaviour
         _playerVelocity.z *= newspeed;
 
         wishdir = transform.TransformDirection(wishdir);
-        Accelerate(wishdir, _airMoveSpeed, _airAcceleration, _airMaxSpeed);
+        //Accelerate(wishdir, _airMoveSpeed, _airAcceleration, _airMaxSpeed);
+        CalcVector(new Vector2(wishdir.x, wishdir.z), 0, _airAcceleration, _airMaxSpeed);
     }
 
     /// <summary>ベクトルを計算する</summary>
@@ -192,6 +198,18 @@ public class Movement : MonoBehaviour
         {
             _playerVelocity = _playerVelocity.normalized * maxSpeed;
         }
+    }
+
+    void CalcVector(Vector2 inputVector, float draggingAccel, float accel, float maxSpeed)
+    {
+        Vector2 currentVector = new Vector2(_playerVelocity.x, _playerVelocity.z);
+
+        var magnitudeOfFriction = Mathf.Clamp(currentVector.magnitude, 0.0f, draggingAccel * Time.fixedDeltaTime);
+
+        var nextPlayerVector = currentVector + currentVector.normalized * (-Mathf.Clamp(currentVector.magnitude, 0.0f, draggingAccel * Time.fixedDeltaTime))
+            + inputVector * Mathf.Clamp(maxSpeed - Vector2.Dot(currentVector + currentVector.normalized * (-magnitudeOfFriction), inputVector), 0.0f, accel * Time.fixedDeltaTime);
+
+        _playerVelocity = new Vector3(nextPlayerVector.x, 0, nextPlayerVector.y);
     }
 
     void Jump()
