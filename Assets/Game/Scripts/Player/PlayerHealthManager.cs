@@ -34,7 +34,7 @@ public class PlayerHealthManager : Damageable
 
     // 部位によるダメージレート
     float _headDmgRate = 2f; // 頭
-    float _limbsDmgRate = 0.8f; // 手足
+    float _limbsDmgRate = 1; // 手足
 
     // damage timer
     float _timeLimit = 1f; // 1秒後にAction
@@ -93,7 +93,7 @@ public class PlayerHealthManager : Damageable
         if (colliderIndex == 8) calcDmg = (int)(calcDmg * _headDmgRate); // 頭
         else if (colliderIndex != 4) calcDmg = (int)(calcDmg * _limbsDmgRate); // 手足
 
-        return new HitData(colliderIndex == 8, _armor > 0, _armor <= calcDmg);
+        return new HitData(calcDmg, colliderIndex == 8, _armor > 0, _armor <= calcDmg);
     }
 
     [PunRPC]
@@ -230,13 +230,15 @@ public class PlayerHealthManager : Damageable
 
 public struct HitData
 {
-    public HitData(bool isHead, bool isArmor, bool exceedsArmor)
+    public HitData(int damage, bool isHead, bool isArmor, bool exceedsArmor)
     {
+        Damage = damage;
         IsHead = isHead;
         IsArmor = isArmor;
         ExceedsArmor = exceedsArmor;
     }
 
+    public int Damage;
     public bool IsHead;
     public bool IsArmor;
     public bool ExceedsArmor;

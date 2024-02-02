@@ -120,7 +120,9 @@ public class GunController : MonoBehaviourPun
             return;
         }
 
+        int damage = 0;
         bool isHit = false;
+        bool isHead = false;
 
         // Hit計算
         for (int i = 0; i < _gunStatus.OneShotNum; i++)
@@ -137,8 +139,15 @@ public class GunController : MonoBehaviourPun
                 // 親オブジェクトにTryGetComponent
                 if (hit.collider.gameObject.transform.root.gameObject.TryGetComponent(out Damageable damageable))
                 {
-                    DamageableHitEffect(damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider));
+                    HitData hitData = damageable.OnDamageTakenInvoker(_gunStatus.Damage, hit.collider);
+                    DamageableHitEffect(hitData);
                     isHit = true;
+                    damage += hitData.Damage;
+
+                    if (hitData.IsHead)
+                    {
+                        isHead = true;
+                    }
                 }
                 else
                 {
@@ -167,7 +176,7 @@ public class GunController : MonoBehaviourPun
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
 
-        _playerManager.OnShoot(isHit);
+        _playerManager.AddResultData(damage, isHit, isHead);
 
         _gunState = GunState.interval; // インターバルに入れて
         ShootInterval();

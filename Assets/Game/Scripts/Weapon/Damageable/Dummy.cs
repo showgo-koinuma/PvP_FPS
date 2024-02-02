@@ -52,7 +52,7 @@ public class Dummy : Damageable
         _damageCounter.DamageUpdate(calcDmg, isArmour);
         CancelInvoke(nameof(ResetHP));
         Invoke(nameof(ResetHP), _resetHpTime);
-        return new HitData(colliderIndex == 7, _armor > 0, _armor <= calcDmg);
+        return new HitData(calcDmg, colliderIndex == 7, _armor > 0, _armor <= calcDmg);
     }
 
     void ResetHP()

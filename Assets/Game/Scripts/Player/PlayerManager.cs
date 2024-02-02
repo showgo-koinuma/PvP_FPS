@@ -36,9 +36,13 @@ public class PlayerManager : MonoBehaviourPun
 
     // result data
     int _shootCount = 0;
-    public int ShootCount { get => _shootCount; }
+    public int ShootCount { get => _shootCount;}
     int _hitCount = 0;
-    public int HitCount { get => _hitCount; }
+    public int HitCount { get => _hitCount;}
+    int _headShotCount = 0;
+    public int HeadShotCount { get => _headShotCount;}
+    int _totalDamage = 0;
+    public int TotalDamage { get => _totalDamage;}
     int _deadCount = 0;
     public int DeadCount { get => _deadCount; }
 
@@ -169,10 +173,17 @@ public class PlayerManager : MonoBehaviourPun
     #endregion
 
     #region Weapon ----------------------------------------------
-    public void OnShoot(bool isHit)
+    public void AddResultData(int damage, bool isHit, bool isHead)
     {
+        _totalDamage += damage;
         _shootCount++;
-        if (isHit) _hitCount++;
+
+        if (isHit)
+        {
+            _hitCount++;
+
+            if (isHead) _headShotCount++;
+        }
     }
 
     void SwitchWeapon()

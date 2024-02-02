@@ -28,6 +28,6 @@ public class ChangeColorCntlr : Damageable
 
     protected override HitData OnDamageTaken(int dmg, int colliderIndex)
     {
-        return new HitData(false, false, false);
+        return new HitData(dmg, false, false, false);
     }
 }

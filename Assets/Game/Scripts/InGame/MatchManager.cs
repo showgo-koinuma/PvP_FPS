@@ -197,7 +197,8 @@ public class MatchManager : MonoBehaviourPun
         _resultFadePanel.DOFade(0, 1);
         _gameOverCanvas.SetActive(false);
         _resultObj.SetActive(true);
-        _resultManager.InitializeResult(isWin, _otherPlayer ? _otherPlayer.DeadCount : 0, _minePlayer.DeadCount, 1000, 500, 500);
+        _resultManager.InitializeResult(isWin, _otherPlayer ? _otherPlayer.DeadCount : 0, _minePlayer.DeadCount, _minePlayer.TotalDamage,
+            (int)((float)_minePlayer.HitCount / _minePlayer.ShootCount * 1000), (int)((float)_minePlayer.HeadShotCount / _minePlayer.HitCount * 1000));
     }
 
     void HealPlayer()
