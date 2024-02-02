@@ -2064,14 +2064,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f87875c2316584f9fc02be2d7f55cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 9
-  _groundAcceleration: 10
-  _friction: 6
-  _maxSpeed: 9
-  _airMoveSpeed: 9
-  _airAcceleration: 3
+  _groundAcceleration: 65
+  _friction: 45
+  _maxSpeed: 7.7
+  _airAcceleration: 5000
   _airFriction: 0
-  _airMaxSpeed: 13
+  _airMaxSpeed: 1.4
   _adsMoveSpeedRate: 0.5
   _maxSlopeAngle: 35
   _whatIsGround:
@@ -2085,8 +2083,8 @@ MonoBehaviour:
   _headObjct: {fileID: 784146708225388539}
   _crouchMaxSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
-  _slidingSpeed: 17
-  _slidingFriction: 0.2
+  _slidingSpeed: 15
+  _slidingFriction: 5
   _minCnaSlidingSpeed: 5
   _slidingCooldown: 1.5
 --- !u!114 &3429649735527690838

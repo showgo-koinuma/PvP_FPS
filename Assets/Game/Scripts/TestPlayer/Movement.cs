@@ -83,7 +83,6 @@ public class Movement : MonoBehaviour
     {
         _jumping = false;
         if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
-        //Move();
         CrouchTransition();
         SlidingTimerCounter();
     }
@@ -95,7 +94,7 @@ public class Movement : MonoBehaviour
 
     void Move()
     {
-        if (_isGround && !PlayerInput.Instance.OnJumpButton) GroundMove();
+        if (_isGround && !PlayerInput.Instance.OnJumpButton && !_jumping) GroundMove();
         else AirMove();
 
         _lineRenderer.SetPosition(0, transform.position);
@@ -111,30 +110,13 @@ public class Movement : MonoBehaviour
     /// <summary>地上での動き</summary>
     public void GroundMove()
     {
-        Vector3 vec = _playerVelocity; // Equivalent to: VectorCopy();
-        vec.y = 0f;
-        float speed = vec.magnitude;
-
-        float control = speed < _groundAcceleration ? _groundAcceleration : speed;
-        float drop = control * _friction * Time.fixedDeltaTime;//Time.deltaTime;
-        if (_jumping) drop = 0f;
-        if (_isSliding) drop *= _slidingFriction;
-
-        float newspeed = speed - drop;
-        if (newspeed < 0) newspeed = 0;
-        if (speed > 0) newspeed /= speed;
-
-        _playerVelocity.x *= newspeed;
-        _playerVelocity.z *= newspeed;
-
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
         wishdir = transform.TransformDirection(wishdir);
         Vector2 wishdir2 = new Vector2(wishdir.x, wishdir.z);
 
         if (_isSliding)
         {
-            //Accelerate(wishdir, _moveSpeed, _groundAcceleration); どうしよう　これでいいのか
-            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+            CalcVector(wishdir2, _slidingFriction, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
             Debug.Log("isSliding");
             if (_playerVelocity.magnitude <= 5) _isSliding = false;
         }
@@ -144,19 +126,16 @@ public class Movement : MonoBehaviour
 
             if (!_isSliding) 
             {
-                //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
-                CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
+                CalcVector(wishdir2, _friction, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
             }
         }
         else if (PlayerInput.Instance.IsADS) // ads中は遅くなる
         {
-            //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
-            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
+            CalcVector(wishdir2, _friction, _groundAcceleration, _maxSpeed * _adsMoveSpeedRate);
         }
         else
         {
-            //Accelerate(wishdir, _moveSpeed, _groundAcceleration, _maxSpeed);
-            CalcVector(wishdir2, 45f, _groundAcceleration, _maxSpeed);
+            CalcVector(wishdir2, _friction, _groundAcceleration, _maxSpeed);
         }
     }
 
@@ -164,52 +143,27 @@ public class Movement : MonoBehaviour
     public void AirMove()
     {
         Vector3 wishdir = PlayerInput.Instance.InputMoveVector;
-
-        float speed = _playerVelocity.magnitude;
-        float control = speed < _airAcceleration ? _airAcceleration : speed;
-        float drop = control * _airFriction * 1 * Time.fixedDeltaTime;//Time.deltaTime;
-
-        float newspeed = speed - drop;
-        if (newspeed < 0) newspeed = 0;
-        if (speed > 0) newspeed /= speed;
-
-        _playerVelocity.x *= newspeed;
-        _playerVelocity.z *= newspeed;
-
         wishdir = transform.TransformDirection(wishdir);
-        //Accelerate(wishdir, _airMoveSpeed, _airAcceleration, _airMaxSpeed);
-        CalcVector(new Vector2(wishdir.x, wishdir.z), 0, _airAcceleration, _airMaxSpeed);
+        CalcVector(new Vector2(wishdir.x, wishdir.z), _airFriction, _airAcceleration, _airMaxSpeed);
     }
 
-    /// <summary>ベクトルを計算する</summary>
-    void Accelerate(Vector3 wishdir, float wishSpeed, float accel, float maxSpeed)
+    void CalcVector(Vector2 inputVector, float friction, float accel, float maxSpeed)
     {
-        float currentspeed = Vector3.Dot(_playerVelocity, wishdir);
-        float addspeed = wishSpeed - currentspeed;
-        float accelspeed = Mathf.Clamp(accel * Time.fixedDeltaTime * wishSpeed, 0, addspeed);
+        // 水平ベクトル
+        Vector2 currentVector2d = new Vector2(_playerVelocity.x, _playerVelocity.z);
+        // 摩擦量の計算
+        float frictionMag = Mathf.Clamp(currentVector2d.magnitude, 0.0f, friction * Time.fixedDeltaTime);
+        // 摩擦を加味したplayer velocity
+        currentVector2d += currentVector2d.normalized * (-frictionMag);
+        // 現在の射影ベクトルMag
+        float currentSpeed = Vector2.Dot(currentVector2d, inputVector);
+        // add量を計算
+        float addSpeed = Mathf.Clamp(maxSpeed - currentSpeed, 0.0f, accel * Time.fixedDeltaTime);
+        // 現在のvelocityと合わせる
+        Vector2 calcVelocity = currentVector2d + inputVector * addSpeed;
 
-        //CurrentSpeed = Math.Pow(Vector3.Dot(Vel, inputVector), 5f); 誰かのやつ　なんかやり方違う
-        //addSpeed = Math.Clamp(Vel.magnitude - CurrentSpeed, 0, StrafeAmount);
-
-        _playerVelocity.x += accelspeed * wishdir.x;
-        _playerVelocity.z += accelspeed * wishdir.z;
-
-        if (_playerVelocity.magnitude > maxSpeed)
-        {
-            _playerVelocity = _playerVelocity.normalized * maxSpeed;
-        }
-    }
-
-    void CalcVector(Vector2 inputVector, float draggingAccel, float accel, float maxSpeed)
-    {
-        Vector2 currentVector = new Vector2(_playerVelocity.x, _playerVelocity.z);
-
-        var magnitudeOfFriction = Mathf.Clamp(currentVector.magnitude, 0.0f, draggingAccel * Time.fixedDeltaTime);
-
-        var nextPlayerVector = currentVector + currentVector.normalized * (-Mathf.Clamp(currentVector.magnitude, 0.0f, draggingAccel * Time.fixedDeltaTime))
-            + inputVector * Mathf.Clamp(maxSpeed - Vector2.Dot(currentVector + currentVector.normalized * (-magnitudeOfFriction), inputVector), 0.0f, accel * Time.fixedDeltaTime);
-
-        _playerVelocity = new Vector3(nextPlayerVector.x, 0, nextPlayerVector.y);
+        // velocityに反映
+        _playerVelocity = new Vector3(calcVelocity.x, 0, calcVelocity.y);
     }
 
     void Jump()

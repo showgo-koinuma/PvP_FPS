@@ -13277,6 +13277,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4582819006075063224, guid: 7676802c2b2ef9e4fb8b764105e4b1f4,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13482,7 +13487,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 9
   _groundAcceleration: 65
-  _friction: 0
+  _friction: 45
   _maxSpeed: 7.7
   _airMoveSpeed: 9
   _airAcceleration: 5000
@@ -13501,8 +13506,8 @@ MonoBehaviour:
   _headObjct: {fileID: 3941332430148718647}
   _crouchMaxSpeedRate: 0.5
   _crouchScale: {x: 1, y: 0.5, z: 1}
-  _slidingSpeed: 17
-  _slidingFriction: 0
+  _slidingSpeed: 15
+  _slidingFriction: 5
   _minCnaSlidingSpeed: 5
   _slidingCooldown: 1.5
 --- !u!23 &2080111149755162626
