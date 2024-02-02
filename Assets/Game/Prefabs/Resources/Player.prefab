@@ -2123,7 +2123,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxArmor: 100
   _maxHp: 100
-  _damagePostProcessV: {fileID: 6498674502706142140}
+  _healPostProcess: {fileID: 2195981179022540972}
+  _damagePostProcess: {fileID: 6498674502706142140}
   _damageCounter: {fileID: 4974036203137704364}
   _armarGauge: {fileID: 5275231941531212821}
   _hitHealthGauge: {fileID: 3062174004705803523}
@@ -2413,6 +2414,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 991387137254214586}
+  - {fileID: 2254398470486328657}
   - {fileID: 3923034341033419208}
   - {fileID: 8071710978725504833}
   - {fileID: 6214909124395718004}
@@ -3883,6 +3885,68 @@ Transform:
   - {fileID: 7377215540849900366}
   m_Father: {fileID: 3014770872836373231}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8841773222911211862
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2254398470486328657}
+  - component: {fileID: 3973892576003334597}
+  - component: {fileID: 2195981179022540972}
+  m_Layer: 5
+  m_Name: HealPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2254398470486328657
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8841773222911211862}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4774981172532584018}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3973892576003334597
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8841773222911211862}
+  m_CullTransparentMesh: 1
+--- !u!114 &2195981179022540972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8841773222911211862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedProfile: {fileID: 11400000, guid: 66b311774040adf48a80e7db8cd73f65, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 0
+  priority: 0
 --- !u!1 &9205642801942948838
 GameObject:
   m_ObjectHideFlags: 0
