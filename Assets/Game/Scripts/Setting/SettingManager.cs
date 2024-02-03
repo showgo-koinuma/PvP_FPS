@@ -2,11 +2,12 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SettingManager : MonoBehaviour
 {
     [SerializeField] GameObject _settingCanvas;
-    [SerializeField] CustomButton _settingButton;
+
     [Header("SensSettings")]
     [SerializeField] TMP_InputField _horiSensText;
     [SerializeField] Slider _horiSensSlider;
@@ -16,8 +17,12 @@ public class SettingManager : MonoBehaviour
     [Space(5)]
     [SerializeField] TMP_InputField _zoomSensText;
     [SerializeField] Slider _zoomSensSlider;
+
     [Header("BackButton")]
     [SerializeField] CustomButton _backButton;
+    [SerializeField] CustomButton _quitButton;
+    public CustomButton BackButton { get => _backButton; }
+    public CustomButton QuitButton { get => _quitButton; }
 
 
     static SettingManager _instance = default;
@@ -39,9 +44,7 @@ public class SettingManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-        _settingCanvas.SetActive(false); // 設定画面は最初は表示しない
         PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // 切替アクションを登録
-        _settingButton.ButtonAction = SwitchCanvas;
         _backButton.ButtonAction = SwitchCanvas;
     }
 
@@ -120,7 +123,7 @@ public class SettingManager : MonoBehaviour
         OnZoomSensChanged?.Invoke(_zoomSensSlider.value);
     }
 
-    void SwitchCanvas()
+    public void SwitchCanvas()
     {
         if (_settingCanvas.activeSelf)
         {
@@ -139,5 +142,19 @@ public class SettingManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        _settingCanvas.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

@@ -157,6 +157,11 @@ public class InGameManager : MonoBehaviourPun
         PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene(0);
     }
+
+    private void OnEnable()
+    {
+        SettingManager.Instance.QuitButton.ChangeButtonState(true, "Leave Match", GameEnded);
+    }
 }
 
 public enum GameState

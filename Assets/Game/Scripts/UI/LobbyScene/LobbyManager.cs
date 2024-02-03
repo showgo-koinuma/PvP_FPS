@@ -12,6 +12,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [Header("Default UI")]
     [SerializeField] GameObject _defaultPlayButton;
     [SerializeField] CustomButton _playButton;
+    [SerializeField] CustomButton _settingButton;
     [SerializeField] TMP_Text _loadingText;
     [SerializeField] GameObject _leaveRoomButton;
 
@@ -98,8 +99,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
             else if (PhotonNetwork.InLobby) Debug.Log("in lobby"); // in lobby のとき
             else OnConnectedToMaster();
         }
-        else PhotonNetwork.ConnectUsingSettings();
-        Debug.Log("接続処理");
+        else
+        {
+            PhotonNetwork.ConnectUsingSettings();
+            Debug.Log("接続処理");
+        }
     }
 
     /// <summary>指定したUIObjに遷移する</summary>
@@ -280,8 +284,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     #region Photon Call Back ==============================================================
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinLobby(); // ロビーに接続
         _loadingText.text = "Joining Room..."; // テキスト更新
+        PhotonNetwork.JoinLobby(); // ロビーに接続
         // Master Clientと同じレベルをロード Masterがシーン遷移すると同じシーンに遷移する(遅延あり)
         PhotonNetwork.AutomaticallySyncScene = true;
     }
@@ -332,6 +336,29 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnMasterClientSwitched(Player newMasterClient) // Masterに切り替わったらButton変更
     {
         _playButton.ChangeButtonState(false, "waiting\nplayer...");
+    }
+    #endregion
+
+    void ExitToDesctop()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;//ゲームプレイ終了
+#else
+        Application.Quit();//ゲームプレイ終了
+#endif
+    }
+
+    #region ActionSetting
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        _settingButton.ButtonAction = () => SettingManager.Instance.SwitchCanvas();
+        SettingManager.Instance.QuitButton.ChangeButtonState(true, "Exit Game", ExitToDesctop);
+    }
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        _settingButton.ButtonAction = null;
     }
     #endregion
 }
