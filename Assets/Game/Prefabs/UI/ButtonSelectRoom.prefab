@@ -110,6 +110,9 @@ MonoBehaviour:
   _buttonText: {fileID: 0}
   _changeColorImage: {fileID: 2575634447644651918}
   _inactiveColor: {r: 0, g: 0.6, b: 1, a: 0.16862746}
+  _audioSource: {fileID: 0}
+  _clickSound: {fileID: 8300000, guid: d70e29b1615f46f4793a5e19b8fe624c, type: 3}
+  _selectSound: {fileID: 8300000, guid: 6c96f17621974ab469d71b6645c210ae, type: 3}
 --- !u!114 &-2515426066445420796
 MonoBehaviour:
   m_ObjectHideFlags: 0

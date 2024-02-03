@@ -21,12 +21,19 @@ public class SettingManager : MonoBehaviour
     [Header("BackButton")]
     [SerializeField] CustomButton _backButton;
     [SerializeField] CustomButton _quitButton;
+
+    [Header("Sound")]
+    [SerializeField] AudioClip _openSetting;
+    [SerializeField] AudioClip _closeSetting;
+
     public CustomButton BackButton { get => _backButton; }
     public CustomButton QuitButton { get => _quitButton; }
 
 
     static SettingManager _instance = default;
     public static SettingManager Instance { get => _instance; }
+
+    AudioSource _audioSource;
 
     bool _cursolrVisible; // 開いたときのカーソル設定を保存し、閉じるときに再設定する
 
@@ -46,6 +53,7 @@ public class SettingManager : MonoBehaviour
 
         PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // 切替アクションを登録
         _backButton.ButtonAction = SwitchCanvas;
+        _audioSource = GetComponent<AudioSource>();
     }
 
     /// <summary>Horizontal Sensの値を変更する</summary>
@@ -128,6 +136,7 @@ public class SettingManager : MonoBehaviour
         if (_settingCanvas.activeSelf)
         {
             _settingCanvas.SetActive(false);
+            _audioSource.PlayOneShot(_closeSetting);
 
             if (!_cursolrVisible)
             {
@@ -138,6 +147,7 @@ public class SettingManager : MonoBehaviour
         else
         {
             _settingCanvas.SetActive(true);
+            _audioSource.PlayOneShot(_openSetting);
             _cursolrVisible = Cursor.visible;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;

@@ -27,6 +27,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] GameObject _joinRoomCanvas;
     [SerializeField, Tooltip("scroll view‚Ìcontent")] GameObject _roomContent;
     [SerializeField, Tooltip("content‚É•À‚×‚éroomƒ{ƒ^ƒ“")] GameObject _SelectRoomButton;
+    [SerializeField] AudioSource _selectRoomButtonAudioSource;
 
     [Header("Player Name")]
     [SerializeField] TMP_Text _mineNameText;
@@ -136,7 +137,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         foreach (RoomInfo roomInfo in roomList)
         {
             Instantiate(_SelectRoomButton, _roomContent.transform).
-                GetComponent<SelectRoomButtonManager>().Initialization(roomInfo);
+                GetComponent<SelectRoomButtonManager>().Initialization(roomInfo, _selectRoomButtonAudioSource);
         }
     }
 

@@ -10,12 +10,14 @@ public class SelectRoomButtonManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI _roomNumOfPeopleText;
     RoomInfo _thisRoomInfo;
 
-    public void Initialization(RoomInfo roomInfo)
+    public void Initialization(RoomInfo roomInfo, AudioSource audioSource)
     {
         _roomNameText.text = roomInfo.Name + " Room";
         _roomNumOfPeopleText.text = roomInfo.PlayerCount.ToString() + " / 2"; // maxêlêîÇÕ2
         _thisRoomInfo = roomInfo;
-        GetComponent<CustomButton>().ButtonAction = JoinRoom;
+        CustomButton button =  GetComponent<CustomButton>();
+        button.ButtonAction = JoinRoom;
+        button.AudioSource = audioSource;
     }
 
     void JoinRoom()

@@ -14,19 +14,21 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     [SerializeField] TMP_Text _buttonText;
     [SerializeField] Image _changeColorImage;
     [SerializeField] Color _inactiveColor;
+    [Space(10)]
+    [SerializeField] AudioSource _audioSource;
     [SerializeField] AudioClip _clickSound;
+    [SerializeField] AudioClip _selectSound;
 
     public Action ButtonAction; // scriptからも設定出来る
+    public AudioSource AudioSource { set => _audioSource = value; }
 
     CanvasGroup _canvasGroup;
-    AudioSource _audioSource;
     Vector3 _defaultScale;
     Color _activeColor;
 
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
-        _audioSource = GetComponent<AudioSource>();
         _defaultScale = transform.localScale;
         _activeColor = _changeColorImage.color;
     }
@@ -48,10 +50,17 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     }
 
     // カーソルが重なる
-    public void OnPointerEnter(PointerEventData eventData) { }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        transform.DOScale(_defaultScale * 1.05f, 0.24f).SetEase(Ease.OutCubic);
+        if (_selectSound) _audioSource.PlayOneShot(_selectSound);
+    }
 
     // カーソルが離れる
-    public void OnPointerExit(PointerEventData eventData) { }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        transform.DOScale(_defaultScale, 0.24f).SetEase(Ease.OutCubic);
+    }
 
     // クリックDown
     public void OnPointerDown(PointerEventData eventData)

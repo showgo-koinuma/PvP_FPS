@@ -120,8 +120,8 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
         foreach (Transform child in _contentRoom.transform) Destroy(child.gameObject);
         foreach (RoomInfo roomInfo in roomList)
         {
-            Instantiate(_SelectRoomButton, _contentRoom.transform).
-                GetComponent<SelectRoomButtonManager>().Initialization(roomInfo);
+            //Instantiate(_SelectRoomButton, _contentRoom.transform).
+                //GetComponent<SelectRoomButtonManager>().Initialization(roomInfo);
         }
     }
 
