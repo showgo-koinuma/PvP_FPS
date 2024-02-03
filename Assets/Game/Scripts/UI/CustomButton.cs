@@ -14,16 +14,19 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     [SerializeField] TMP_Text _buttonText;
     [SerializeField] Image _changeColorImage;
     [SerializeField] Color _inactiveColor;
+    [SerializeField] AudioClip _clickSound;
 
     public Action ButtonAction; // scriptÇ©ÇÁÇ‡ê›íËèoóàÇÈ
 
     CanvasGroup _canvasGroup;
+    AudioSource _audioSource;
     Vector3 _defaultScale;
     Color _activeColor;
 
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+        _audioSource = GetComponent<AudioSource>();
         _defaultScale = transform.localScale;
         _activeColor = _changeColorImage.color;
     }
@@ -33,6 +36,8 @@ public class CustomButton : MonoBehaviour, IPointerClickHandler, IPointerDownHan
     {
         _buttonAction?.Invoke(); // ActionÇ™ê›íËÇ≥ÇÍÇƒÇ»Ç¢Ç∆Ç´ÇÕDebugÇèoÇµÇΩÇ¢
         ButtonAction?.Invoke();
+
+        if (_clickSound) _audioSource.PlayOneShot(_clickSound);
     }
 
     public void ChangeButtonState(bool isActive, string buttonText, Action newAction = null)

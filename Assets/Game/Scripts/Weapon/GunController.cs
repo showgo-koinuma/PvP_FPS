@@ -38,6 +38,7 @@ public class GunController : MonoBehaviourPun
     PlayerManager _playerManager;
     HeadController _headCntler;
     protected PlayerAnimationManager _playerAnimManager;
+    protected GunAudioManager _gunAudioManager;
 
     static int _hitLayer = ~(1 << 7 | 1 << 3);
     protected int _currentMagazine;
@@ -65,6 +66,7 @@ public class GunController : MonoBehaviourPun
         _playerManager = transform.root.GetComponent<PlayerManager>();
         _headCntler = transform.root.GetComponent<HeadController>();
         _playerAnimManager = transform.root.GetComponent<PlayerAnimationManager>();
+        _gunAudioManager = GetComponent<GunAudioManager>();
 
         _ballisticTrailObjs = new TrailRenderer[_gunStatus.OneShotNum];
 
@@ -176,6 +178,8 @@ public class GunController : MonoBehaviourPun
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
 
+        _gunAudioManager.PlayShotSound(); // shot sound
+
         _playerManager.AddResultData(damage, isHit, isHead);
 
         _gunState = GunState.interval; // インターバルに入れて
@@ -201,6 +205,8 @@ public class GunController : MonoBehaviourPun
         _gunState = GunState.reloading;
         _weaponModelAnimator.SetTrigger("Reload");
         _playerAnimManager.SetReloadTrigger();
+        _gunAudioManager.PlayReloadSound();
+
         Invoke(nameof(ReturnGunState), _gunStatus.ReloadTime);
         Invoke((new Action(delegate 
         { // リロード完了したときの処理
@@ -297,6 +303,7 @@ public class GunController : MonoBehaviourPun
 
     IEnumerator SwitchWeaponAnimation()
     {
+        _gunAudioManager.PlaySwitchSound();
         transform.localPosition = _startPos;
         transform.localRotation = Quaternion.Euler(_startRotX, 0, 0);
 
