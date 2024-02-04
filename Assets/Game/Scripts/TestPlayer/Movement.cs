@@ -73,6 +73,7 @@ public class Movement : MonoBehaviour
     {
         _playerScale = transform.localScale;
         _rb = GetComponent<Rigidbody>();
+        _rb.useGravity = false;
         _lineRenderer = GetComponent<LineRenderer>();
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
 

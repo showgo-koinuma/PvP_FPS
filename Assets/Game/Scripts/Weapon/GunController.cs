@@ -178,7 +178,18 @@ public class GunController : MonoBehaviourPun
         _playerAnimManager.SetFireTrigger(); // play model animation
         _muzzleFlash.Emit(1); // play muzzle flash
 
-        _gunAudioManager.PlayShotSound(); // shot sound
+        // shot sound
+        if (isHit)
+        {
+            if (isHead)
+            {
+                _gunAudioManager.PlayHitSound();
+            }
+            else
+            {
+                _gunAudioManager.PlayHeadSound();
+            }
+        }
 
         _playerManager.AddResultData(damage, isHit, isHead);
 
@@ -196,6 +207,7 @@ public class GunController : MonoBehaviourPun
     protected virtual void ShareFireAction(Vector3 hitPoint)
     {
         DrawBallistic(hitPoint);
+        _gunAudioManager.PlayShotSound();
     }
 
     protected virtual void Reload()

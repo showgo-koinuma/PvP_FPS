@@ -9,6 +9,9 @@ public class GunAudioManager : MonoBehaviour
     [SerializeField] AudioClip _reload;
     [SerializeField] AudioClip _ads;
     [SerializeField] AudioClip _switch;
+    [Space(10)]
+    [SerializeField] AudioClip _hit;
+    [SerializeField] AudioClip _head;
 
     [Header("ShotGun")]
     [SerializeField] AudioClip _cocking;
@@ -18,15 +21,25 @@ public class GunAudioManager : MonoBehaviour
     {
         _audioSource.PlayOneShot(_shot);
     }
-
     public void PlayReloadSound()
     {
         if (_reload) _audioSource.PlayOneShot(_reload);
     }
-
     public void PlaySwitchSound()
     {
         if (_switch) _audioSource.PlayOneShot(_switch);
+    }
+    public void PlayHitSound()
+    {
+        _audioSource.PlayOneShot(_hit);
+    }
+    public void PlayHeadSound()
+    {
+        _audioSource.PlayOneShot(_hit);
+    }
+    public void PlayKillSound()
+    {
+        _audioSource.PlayOneShot(_hit);
     }
 
     // shot gun

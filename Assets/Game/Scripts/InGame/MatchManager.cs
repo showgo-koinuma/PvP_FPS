@@ -27,6 +27,7 @@ public class MatchManager : MonoBehaviourPun
     [SerializeField] Image _myCoutnBackImage;
     [SerializeField] TextMeshProUGUI _otherCountText;
     [SerializeField] Image _otherCoutnBackImage;
+    [SerializeField] AudioClip _pointCountUpSound;
     [SerializeField] Color[] _uiColors; // [0]:my color, [1]:other color, [2]:default back
 
     [Header("ÉQÅ[ÉÄèIóπéû")]
@@ -125,6 +126,8 @@ public class MatchManager : MonoBehaviourPun
     [PunRPC]
     void SynchroAreaCountText(int masterCount, int otherCount)
     {
+        _audioSource.PlayOneShot(_pointCountUpSound);
+
         if (_isMaster)
         {
             _myCountText.text = masterCount.ToString("D2") + "%";

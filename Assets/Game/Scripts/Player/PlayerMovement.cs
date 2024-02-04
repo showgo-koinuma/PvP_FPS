@@ -75,11 +75,20 @@ public class PlayerMovement : MonoBehaviourPun
     public bool IsCrouching { get => _crouching; }
     public bool IsSliding { get => _isSliding; }
 
+    // move sound
+    [Header("Sound")]
+    [SerializeField] AudioClip[] _walkSounds;
+    [SerializeField] AudioClip[] _jumpSounds;
+    AudioSource _moveSoundAudioSource;
+    float _moveSoundTimer = 0;
+    int _walkSoundIndex = 0;
+
     void Awake()
     {
-        if (!photonView.IsMine) this.enabled = false;
         _rb = GetComponent<Rigidbody>();
+        _rb.useGravity = false;
         _playerManager = GetComponent<PlayerManager>();
+        _moveSoundAudioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -102,7 +111,9 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void FixedUpdate()
     {
+        if (!photonView.IsMine) return;
         Movement(); // 摩擦関係がFixedでやらないと不安
+        if (_isGround) PlayMoveSound(); // oto mo kottide yacchae
     }
 
     void Movement()
@@ -205,6 +216,7 @@ public class PlayerMovement : MonoBehaviourPun
 
             _velocityY = _jumpForce;
 
+            _moveSoundAudioSource.PlayOneShot(_jumpSounds[Random.Range(0, _jumpSounds.Length)]);
             Invoke(nameof(ResetJump), _jumpCooldown);
         }
     }
@@ -234,6 +246,8 @@ public class PlayerMovement : MonoBehaviourPun
         _playerVelocity = wallLookJumpVec; // 計算用変数に代入
         _velocityY = wallLookJumpVec.y;
         // cool timeは必要だろうか
+
+        photonView.RPC(nameof(ShareJumpSound), RpcTarget.All);
     }
 
     /// <summary>しゃがみ状態を切り替える</summary>
@@ -310,6 +324,29 @@ public class PlayerMovement : MonoBehaviourPun
         }
     }
 
+    void PlayMoveSound()
+    {
+        _moveSoundTimer += _playerVelocity.magnitude * Time.fixedDeltaTime;
+
+        if (_moveSoundTimer > 2.5f)
+        {
+            _moveSoundTimer = 0;
+            _walkSoundIndex = (_walkSoundIndex + 1) % _walkSounds.Length;
+            photonView.RPC(nameof(ShareWalkSound), RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void ShareWalkSound()
+    {
+        _moveSoundAudioSource.PlayOneShot(_walkSounds[_walkSoundIndex]);
+    }
+    [PunRPC]
+    void ShareJumpSound()
+    {
+        _moveSoundAudioSource.PlayOneShot(_jumpSounds[Random.Range(0, _jumpSounds.Length)]);
+    }
+
     /// <summary>その法線ベクトルの面は地面として扱えるか</summary>
     private bool IsFloor(Vector3 nomalVector)
     {
@@ -319,6 +356,7 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void OnCollisionStay(Collision other)
     {
+        if (!photonView.IsMine) return;
         int layer = other.gameObject.layer;
         if (_whatIsGround != (_whatIsGround | (1 << layer))) return; // 地面のレイヤーでなければ当たっていても地面だと判定しない
         float minAngle = 180;
@@ -373,12 +411,14 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void OnEnable()
     {
+        if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += ThisUpdate;
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
     }
 
     private void OnDisable()
     {
+        if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= ThisUpdate;
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
     }

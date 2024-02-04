@@ -25,6 +25,10 @@ public class PlayerManager : MonoBehaviourPun
     [Header("ScatteredPlayer")]
     [SerializeField] GameObject _scatteredPlayer;
 
+    [Header("Audio")]
+    [SerializeField] AudioSource _playerSystemAudioSource;
+    [SerializeField] AudioClip _killSound;
+
     PlayerAnimationManager _pAnimMg;
     HeadController _headController;
     Rigidbody _rb;
@@ -119,6 +123,11 @@ public class PlayerManager : MonoBehaviourPun
     void ShareDead()
     {
         _deadCount++;
+
+        if (!photonView.IsMine)
+        {
+            _playerSystemAudioSource.PlayOneShot(_killSound);
+        }
     }
 
     public void RespawnPosShare()

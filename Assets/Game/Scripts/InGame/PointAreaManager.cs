@@ -16,12 +16,16 @@ public class PointAreaManager : MonoBehaviourPun
     [Header("UI")]
     [SerializeField] Image _takingPerImage;
     [SerializeField] PointColorChanger _colorChanger;
- 
+    [SerializeField] AudioSource _audioSource;
+    // [SerializeField] AudioClip _takingAreaSound; iranaku natta
+    [SerializeField] AudioClip _changeOwnerSound;
+
     [Header("Gizmos")]
     [SerializeField, Tooltip("Gizmos‚Ì•\¦Ø‘Ö")] bool _visible = true;
     [SerializeField] Color _color = Color.yellow;
 
     Transform _myPlayer;
+    AudioSource _gaugeAudioSource;
 
     // Area‚Ìó‘Ô
     bool _isMaster;
@@ -40,6 +44,8 @@ public class PointAreaManager : MonoBehaviourPun
     private void Awake()
     {
         _isMaster = PhotonNetwork.IsMasterClient;
+        _gaugeAudioSource = GetComponent<AudioSource>();
+        _gaugeAudioSource.enabled = false;
     }
 
     public void SetPlayerTransform(Transform player)
@@ -155,6 +161,11 @@ public class PointAreaManager : MonoBehaviourPun
 
             if (lastAreaState != _areaState || lastAreaOwner != _areaOwner) // ó‹µ‚ª•Ï‚í‚Á‚½‚ç‹¤—L
             {
+                if (lastAreaOwner != _areaOwner) _audioSource.PlayOneShot(_changeOwnerSound); // owner‚ª•Ï‚í‚Á‚Ä‚¢‚½Sound
+
+                // gauge sound set
+                _gaugeAudioSource.enabled = _areaState == AreaState.masterTaking || _areaState == AreaState.otherTaking;
+
                 photonView.RPC(nameof(SynchroAreaSituation), RpcTarget.Others, (int)_areaState, (int)_areaOwner); // other‚É‹¤—L
             }
         }
@@ -239,8 +250,16 @@ public class PointAreaManager : MonoBehaviourPun
     {
         if (!_isMaster)
         {
+            if (_areaOwner != (AreaOwner)Enum.ToObject(typeof(AreaOwner), areaOwner))
+            { // owner‚ª•Ï‚í‚Á‚Ä‚¢‚½‚çSound
+                _audioSource.PlayOneShot(_changeOwnerSound);
+            }
+
             _areaState = (AreaState)Enum.ToObject(typeof(AreaState), areaState);
             _areaOwner = (AreaOwner)Enum.ToObject(typeof(AreaOwner), areaOwner);
+
+            // gauge sound set
+            _gaugeAudioSource.enabled = _areaState == AreaState.masterTaking || _areaState == AreaState.otherTaking;
         }
     }
 
