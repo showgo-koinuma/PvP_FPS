@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class GunAudioManager : MonoBehaviour
 {
+    [SerializeField] AudioSource _audioSource;
+
+    [Header("Share")]
     [SerializeField] AudioClip _shot;
     [SerializeField] AudioClip _reload;
     [SerializeField] AudioClip _ads;
     [SerializeField] AudioClip _switch;
 
-    AudioSource _audioSource;
-
-    private void Awake()
-    {
-        _audioSource = GetComponentInParent<AudioSource>();
-    }
+    [Header("ShotGun")]
+    [SerializeField] AudioClip _cocking;
+    [SerializeField] AudioClip _insertShell;
 
     public void PlayShotSound()
     {
@@ -21,11 +21,22 @@ public class GunAudioManager : MonoBehaviour
 
     public void PlayReloadSound()
     {
-        //_audioSource.PlayOneShot(_reload);
+        if (_reload) _audioSource.PlayOneShot(_reload);
     }
 
     public void PlaySwitchSound()
     {
-        //_audioSource.PlayOneShot(_switch);
+        if (_switch) _audioSource.PlayOneShot(_switch);
+    }
+
+    // shot gun
+    public void PlayCocking()
+    {
+        _audioSource.PlayOneShot(_cocking);
+    }
+
+    public void PlayInsertShell()
+    {
+        _audioSource.PlayOneShot(_insertShell);
     }
 }

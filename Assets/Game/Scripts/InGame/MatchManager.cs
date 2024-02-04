@@ -194,7 +194,7 @@ public class MatchManager : MonoBehaviourPun
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        _resultFadePanel.DOFade(0, 1);
+        _resultFadePanel.DOFade(0, 1).OnComplete(() => _resultFadePanel.gameObject.SetActive(false));
         _gameOverCanvas.SetActive(false);
         _resultObj.SetActive(true);
         _resultManager.InitializeResult(isWin, _otherPlayer ? _otherPlayer.DeadCount : 0, _minePlayer.DeadCount, _minePlayer.TotalDamage,

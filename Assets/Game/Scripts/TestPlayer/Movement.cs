@@ -35,9 +35,11 @@ public class Movement : MonoBehaviour
     bool _cancellingGrounded;
 
     [Header("ジャンプ")]
+    [SerializeField] float _gravity;
     [SerializeField] float _jumpCooldown;
     [SerializeField] float _jumpForce;
     bool _readyToJump = true;
+    float _velocityY = 0;
     [Space(10)]
     // 壁ジャン
     [SerializeField, Tooltip("壁ジャンの強さ")] float _wallJumpPower;
@@ -94,17 +96,37 @@ public class Movement : MonoBehaviour
 
     void Move()
     {
-        if (_isGround && !PlayerInput.Instance.OnJumpButton && !_jumping) GroundMove();
-        else AirMove();
+        Vector3 onPlaneVec = _playerVelocity;
+
+        if (_isGround && !PlayerInput.Instance.OnJumpButton && !_jumping)
+        {
+            GroundMove();
+            
+            if (_readyToJump)
+            {
+                _velocityY = 0;
+                onPlaneVec = Vector3.ProjectOnPlane(onPlaneVec, _groundNormalVector);
+            }
+            else
+            {
+                _velocityY -= _gravity;
+            }
+        }
+        else
+        {
+            AirMove();
+            _velocityY -= _gravity;
+        }
 
         _lineRenderer.SetPosition(0, transform.position);
         _lineRenderer.SetPosition(1, transform.position + _playerVelocity * 2);
 
-        _playerVelocity.y = _rb.velocity.y;
-        _rb.velocity = _playerVelocity;
-        _playerVelocity.y = 0;
+        onPlaneVec.y += _velocityY;
+        _rb.velocity = onPlaneVec;
+        //_playerVelocity.y = 0;
 
-        Debug.Log(_playerVelocity.magnitude);
+        //Debug.Log(_playerVelocity.magnitude);
+        //Debug.Log(_rb.velocity.y);
     }
 
     /// <summary>地上での動き</summary>
@@ -159,6 +181,7 @@ public class Movement : MonoBehaviour
         float currentSpeed = Vector2.Dot(currentVector2d, inputVector);
         // add量を計算
         float addSpeed = Mathf.Clamp(maxSpeed - currentSpeed, 0.0f, accel * Time.fixedDeltaTime);
+        Debug.Log(addSpeed);
         // 現在のvelocityと合わせる
         Vector2 calcVelocity = currentVector2d + inputVector * addSpeed;
 
@@ -175,12 +198,14 @@ public class Movement : MonoBehaviour
             _jumping = true;
             _isSliding = false;
 
-            _rb.AddForce(Vector2.up * _jumpForce * 1.5f);
-            Vector3 vel = _rb.velocity;
-            if (_rb.velocity.y < 0.5f)
-                _rb.velocity = new Vector3(vel.x, 0, vel.z);
-            else if (_rb.velocity.y > 0)
-                _rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
+            _velocityY = _jumpForce;
+
+            //_rb.AddForce(Vector2.up * _jumpForce * 1.5f);
+            //Vector3 vel = _rb.velocity;
+            //if (_rb.velocity.y < 0.5f)
+            //    _rb.velocity = new Vector3(vel.x, 0, vel.z);
+            //else if (_rb.velocity.y > 0)
+            //    _rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
 
             Invoke(nameof(ResetJump), _jumpCooldown);
         }
@@ -209,6 +234,7 @@ public class Movement : MonoBehaviour
 
         // vectorの代入
         _playerVelocity = wallLookJumpVec; // 計算用変数に代入
+        _velocityY = wallLookJumpVec.y;
         _rb.velocity = wallLookJumpVec; // velocityに直接代入 y軸は直接入れないと面倒
     }
 

@@ -21,6 +21,7 @@ public class ShotGunCntlr : GunController
     {
         _weaponModelAnimator.SetBool("Reloading", _reloading = false);
         _weaponModelAnimator.SetTrigger("Shot");
+        Invoke(nameof(PlayCockingSound), 0.15f); // コッキング音
     }
 
     // アニメーションからコッキングが終わったことを受け取る
@@ -48,16 +49,24 @@ public class ShotGunCntlr : GunController
     {
         _currentMagazine++;
         _curretnMagText.text = _currentMagazine.ToString(); // 弾数UI更新
-        //Debug.Log("shotgun magazine : " + _currentMagazine);
+        _gunAudioManager.PlayInsertShell(); // sound
+
         if (_currentMagazine >= _gunStatus.FullMagazineSize)
         {
             _weaponModelAnimator.SetTrigger("FinishReload");
             _weaponModelAnimator.SetBool("Reloading", _reloading = false);
+            Invoke(nameof(PlayCockingSound), 0.1f); // リロード終わりコッキング音
         }
         else
         {
             _playerAnimManager.SetContInsertTrig();
         }
+    }
+
+    // タイムラグ上、コッキング音をInvokeするためにかませる
+    void PlayCockingSound()
+    {
+        _gunAudioManager.PlayCocking();
     }
 
     protected override void ReturnLastState()

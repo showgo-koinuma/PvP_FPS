@@ -34,9 +34,11 @@ public class PlayerMovement : MonoBehaviourPun
     bool _cancellingGrounded;
 
     [Header("ジャンプ")]
+    [SerializeField] float _gravity;
     [SerializeField] float _jumpCooldown;
     [SerializeField] float _jumpForce;
     bool _readyToJump = true;
+    float _velocityY;
     [Space(10)]
     // 壁ジャン
     [SerializeField, Tooltip("壁ジャンの強さ")] float _wallJumpPower;
@@ -105,12 +107,30 @@ public class PlayerMovement : MonoBehaviourPun
 
     void Movement()
     {
-        if (_isGround && !PlayerInput.Instance.OnJumpButton && !_jumping) GroundMove();
-        else AirMove();
+        Vector3 onPlaneVec = _playerVelocity;
 
-        _playerVelocity.y = _rb.velocity.y;
-        _rb.velocity = _playerVelocity;
-        _playerVelocity.y = 0;
+        if (_isGround && !PlayerInput.Instance.OnJumpButton && !_jumping)
+        {
+            GroundMove();
+
+            if (_readyToJump)
+            {
+                _velocityY = 0;
+                onPlaneVec = Vector3.ProjectOnPlane(onPlaneVec, _groundNormalVector);
+            }
+            else
+            {
+                _velocityY -= _gravity;
+            }
+        }
+        else
+        {
+            AirMove();
+            _velocityY -= _gravity;
+        }
+
+        onPlaneVec.y += _velocityY;
+        _rb.velocity = onPlaneVec;
 
         //Debug.Log(_playerVelocity.magnitude);
     }
@@ -183,14 +203,7 @@ public class PlayerMovement : MonoBehaviourPun
             _jumping = true;
             _isSliding = false;
 
-            _rb.AddForce(Vector2.up * _jumpForce * 1.5f);
-            //_rb.AddForce(_normalVector * _jumpForce * 0.5f); // 坂道の影響を少し受ける
-            //If jumping while falling, reset y velocity. よくわからん　リセットは必要だけどAddForceの後にやるのか...
-            Vector3 vel = _rb.velocity;
-            if (_rb.velocity.y < 0.5f)
-                _rb.velocity = new Vector3(vel.x, 0, vel.z);
-            else if (_rb.velocity.y > 0)
-                _rb.velocity = new Vector3(vel.x, vel.y / 2, vel.z);
+            _velocityY = _jumpForce;
 
             Invoke(nameof(ResetJump), _jumpCooldown);
         }

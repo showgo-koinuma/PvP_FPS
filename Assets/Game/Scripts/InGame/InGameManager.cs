@@ -9,7 +9,11 @@ using UnityEngine.SceneManagement;
 
 public class InGameManager : MonoBehaviourPun
 {
+    [Header("Opening")]
     [SerializeField] PlayableDirector _openingTimeline;
+    [SerializeField, Tooltip("0:mine, 1:other")] TMP_Text[] _playerNameTexts;
+
+    [Header("InGame")]
     [SerializeField, Tooltip("playerのスポーン地点 [0]:Master, [1]:not Master")] Vector3[] _playerSpawnPoints;
     [SerializeField] GameObject _masterRespawnWall;
     [SerializeField] GameObject _otherRespawnWall;
@@ -40,7 +44,11 @@ public class InGameManager : MonoBehaviourPun
 
     private void Start()
     {
-        _openingTimeline.Play();
+        // opening timeline player name set
+        _playerNameTexts[0].text = PhotonNetwork.NickName;
+        _playerNameTexts[1].text = PhotonNetwork.IsMasterClient ? PhotonNetwork.PlayerList[1].NickName : PhotonNetwork.MasterClient.NickName;
+
+        _openingTimeline.Play(); // opening time line 再生
     }
 
     private void Update()
