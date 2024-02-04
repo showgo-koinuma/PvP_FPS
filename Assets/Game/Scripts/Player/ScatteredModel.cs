@@ -23,10 +23,4 @@ public class ScatteredModel : MonoBehaviour
 
         Destroy(gameObject, respawnTime);
     }
-
-    private void Awake()
-    {
-        // debug‚ÌÀs
-        //Initialize(true, Vector3.up * 5);
-    }
 }

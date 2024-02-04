@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class GunAudioManager : MonoBehaviour
 {
-    [SerializeField] AudioSource _audioSource;
+    [SerializeField] AudioSource _worldAudioSource;
+    [SerializeField] AudioSource _localAudioSource;
 
     [Header("Share")]
     [SerializeField] AudioClip _shot;
@@ -19,37 +20,37 @@ public class GunAudioManager : MonoBehaviour
 
     public void PlayShotSound()
     {
-        _audioSource.PlayOneShot(_shot);
+        _worldAudioSource.PlayOneShot(_shot);
     }
     public void PlayReloadSound()
     {
-        if (_reload) _audioSource.PlayOneShot(_reload);
+        if (_reload) _worldAudioSource.PlayOneShot(_reload);
     }
     public void PlaySwitchSound()
     {
-        if (_switch) _audioSource.PlayOneShot(_switch);
+        if (_switch) _worldAudioSource.PlayOneShot(_switch);
     }
     public void PlayHitSound()
     {
-        _audioSource.PlayOneShot(_hit);
+        _localAudioSource.PlayOneShot(_hit);
     }
     public void PlayHeadSound()
     {
-        _audioSource.PlayOneShot(_hit);
+        _localAudioSource.PlayOneShot(_head);
     }
     public void PlayKillSound()
     {
-        _audioSource.PlayOneShot(_hit);
+        _worldAudioSource.PlayOneShot(_hit);
     }
 
     // shot gun
     public void PlayCocking()
     {
-        _audioSource.PlayOneShot(_cocking);
+        _worldAudioSource.PlayOneShot(_cocking);
     }
 
     public void PlayInsertShell()
     {
-        _audioSource.PlayOneShot(_insertShell);
+        _worldAudioSource.PlayOneShot(_insertShell);
     }
 }

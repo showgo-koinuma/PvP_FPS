@@ -50,7 +50,7 @@ public class InGameManager : MonoBehaviourPun
     {
         // opening timeline player name set
         _playerNameTexts[0].text = PhotonNetwork.NickName;
-        _playerNameTexts[1].text = PhotonNetwork.IsMasterClient ? PhotonNetwork.PlayerList[1].NickName : PhotonNetwork.MasterClient.NickName;
+        _playerNameTexts[1].text = PhotonNetwork.IsMasterClient && PhotonNetwork.PlayerList.Length == 2 ? PhotonNetwork.PlayerList[1].NickName : PhotonNetwork.MasterClient.NickName;
 
         _openingTimeline.Play(); // opening time line 再生
     }
@@ -99,7 +99,7 @@ public class InGameManager : MonoBehaviourPun
     }
     IEnumerator GameStartCountDown()
     {
-        yield return new WaitForSeconds(2); // count down 開始まで
+        yield return new WaitForSeconds(3); // count down 開始まで
         _gameStartCountText.text = "5";
         _audioSource.PlayOneShot(_gameStartSounds[0]);
         yield return new WaitForSeconds(0.5f);

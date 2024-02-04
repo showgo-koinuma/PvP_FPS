@@ -121,7 +121,7 @@ public class PlayerInput : MonoBehaviour
     }
     void OnJump(InputAction.CallbackContext context)
     {
-        //_actionDic[InputType.Jump]?.Invoke();
+        if (context.phase == InputActionPhase.Started) _actionDic[InputType.Jump]?.Invoke();
         _onJump = context.phase == InputActionPhase.Started;
     }
     void OnCrouch(InputAction.CallbackContext context)

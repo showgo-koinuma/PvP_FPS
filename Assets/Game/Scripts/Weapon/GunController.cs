@@ -181,7 +181,7 @@ public class GunController : MonoBehaviourPun
         // shot sound
         if (isHit)
         {
-            if (isHead)
+            if (!isHead)
             {
                 _gunAudioManager.PlayHitSound();
             }

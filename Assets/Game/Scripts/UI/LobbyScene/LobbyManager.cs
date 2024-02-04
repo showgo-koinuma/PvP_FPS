@@ -1,3 +1,5 @@
+using Cinemachine;
+using DG.Tweening;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
@@ -5,6 +7,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -30,15 +33,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [SerializeField] AudioSource _selectRoomButtonAudioSource;
 
     [Header("Player Name")]
+    [SerializeField] GameObject _minePlayerCanvas;
     [SerializeField] TMP_Text _mineNameText;
     [SerializeField] GameObject _nameInputFieldObj;
     [SerializeField] TMP_Text _nameInputFieldText;
     [SerializeField] CustomButton _nameChangeButton;
+    [SerializeField] GameObject _otherPlayerCanvas;
     [SerializeField] GameObject _otherPlayerModelObj;
     [SerializeField] TMP_Text _otherNameText;
 
-    [Header("sonota")]
+    [Header("Camera, Start Event")]
     [SerializeField] GameObject _joinedCamera;
+    [SerializeField] GameObject _startGameBeginCamera;
+    [SerializeField] GameObject _startGameEndCamera;
+    [SerializeField] Image _fadePanelImage;
+    [SerializeField] AudioClip _startGameSound;
 
     static LobbyManager _instance;
     public static LobbyManager Instance { get => _instance; }
@@ -56,7 +65,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void FixedUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.O)) OnPlayButtonToStartGame();
+        //if (Input.GetKeyDown(KeyCode.RightAlt)) OnPlayButtonToStartGame();
+        if (Input.GetKeyDown(KeyCode.RightShift))
+        {
+            _defaultPlayButton.SetActive(false);
+            _minePlayerCanvas.SetActive(false);
+            _otherPlayerCanvas.SetActive(false);
+            _startGameBeginCamera.SetActive(true);
+            _fadePanelImage.enabled = true;
+            _fadePanelImage.DOFade(1, 2.4f);
+            Invoke(nameof(StartBlend), 1.2f);
+            _selectRoomButtonAudioSource.PlayOneShot(_startGameSound);
+        }
     }
 
     private void Awake()
@@ -189,6 +209,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
+    void StartBlend()
+    {
+        _startGameEndCamera.SetActive(true);
+        Invoke(nameof(SenceLoadToStartGame), 1.2f);
+    }
+
+    void SenceLoadToStartGame()
+    {
+        PhotonNetwork.LoadLevel(_inGameSceneInBuildNum);
+    }
+
     #region Button Action ===================================================================
     void OnPlayButtonToSelect()
     {
@@ -197,7 +228,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     void OnPlayButtonToStartGame()
     {
-        PhotonNetwork.LoadLevel(_inGameSceneInBuildNum);
+        _defaultPlayButton.SetActive(false);
+        _minePlayerCanvas.SetActive(false);
+        _otherPlayerCanvas.SetActive(false);
+        _startGameBeginCamera.SetActive(true);
+        _fadePanelImage.enabled = true;
+        _fadePanelImage.DOFade(1, 2.4f);
+        Invoke(nameof(StartBlend), 1.2f);
+        _selectRoomButtonAudioSource.PlayOneShot(_startGameSound);
     }
 
     void OnPlayButtonToReady()

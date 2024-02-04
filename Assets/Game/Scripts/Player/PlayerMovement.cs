@@ -104,7 +104,7 @@ public class PlayerMovement : MonoBehaviourPun
         }
 
         _jumping = false;
-        if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); WallJump(); } // マウスホイールをボタンみたいに使いたいんだけどな
+        if (Input.mouseScrollDelta.y < 0 || PlayerInput.Instance.OnJumpButton) { Jump(); } // マウスホイールをボタンみたいに使いたいんだけどな
         CrouchTransition();
         SlidingTimerCounter();
     }
@@ -113,7 +113,7 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (!photonView.IsMine) return;
         Movement(); // 摩擦関係がFixedでやらないと不安
-        if (_isGround) PlayMoveSound(); // oto mo kottide yacchae
+        if (_isGround && !_isSliding) PlayMoveSound(); // oto mo kottide yacchae
     }
 
     void Movement()
@@ -414,6 +414,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction += ThisUpdate;
         PlayerInput.Instance.SetInputAction(InputType.Crouch, SwitchCrouch);
+        PlayerInput.Instance.SetInputAction(InputType.Jump, WallJump);
     }
 
     private void OnDisable()
@@ -421,5 +422,6 @@ public class PlayerMovement : MonoBehaviourPun
         if (!photonView.IsMine) return;
         InGameManager.Instance.UpdateAction -= ThisUpdate;
         PlayerInput.Instance.DelInputAction(InputType.Crouch, SwitchCrouch);
+        PlayerInput.Instance.DelInputAction(InputType.Jump, WallJump);
     }
 }
