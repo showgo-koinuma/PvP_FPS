@@ -232,7 +232,7 @@ public class PlayerMovement : MonoBehaviourPun
 
         // vectorの代入
         _playerVelocity = wallLookJumpVec; // 計算用変数に代入
-        _rb.velocity = wallLookJumpVec; // velocityに直接代入 y軸は直接入れないと面倒
+        _velocityY = wallLookJumpVec.y;
         // cool timeは必要だろうか
     }
 

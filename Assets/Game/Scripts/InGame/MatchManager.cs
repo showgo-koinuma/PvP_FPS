@@ -35,6 +35,7 @@ public class MatchManager : MonoBehaviourPun
     [SerializeField, Tooltip("ゲーム終了時に表示するキャンバス")] GameObject _gameOverCanvas;
     [SerializeField] GameObject _winText;
     [SerializeField] GameObject _lossText;
+    [SerializeField] AudioClip[] _winLoseSouneds;
     [SerializeField] GameObject _resultObj;
     [SerializeField] ResultManager _resultManager;
     [SerializeField, Tooltip("Fade用パネル")] Image _resultFadePanel;
@@ -43,6 +44,7 @@ public class MatchManager : MonoBehaviourPun
     public static MatchManager Instance { get => _instance; }
     public float RespawnTime {  get => _respawnTime; }
 
+    AudioSource _audioSource;
     PlayerManager _minePlayer, _otherPlayer;
     PlayerHealthManager _minePlayerHealth;
     bool _isMaster;
@@ -58,6 +60,7 @@ public class MatchManager : MonoBehaviourPun
         else _instance = this;
 
         _isMaster = PhotonNetwork.IsMasterClient;
+        _audioSource = GetComponent<AudioSource>();
 
         _inGameCanvas.SetActive(true);
         _gameOverCanvas.SetActive(false); // 終了時キャンバス非表示
@@ -179,10 +182,12 @@ public class MatchManager : MonoBehaviourPun
         if (isWin)
         {
             _winText.SetActive(true);
+            _audioSource.PlayOneShot(_winLoseSouneds[0]);
         }
         else
         {
             _lossText.SetActive(true);
+            _audioSource.PlayOneShot(_winLoseSouneds[1]);
         }
 
         yield return new WaitForSeconds(2); // fade開始までのdelay

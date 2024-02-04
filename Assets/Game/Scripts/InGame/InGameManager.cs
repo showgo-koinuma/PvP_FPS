@@ -18,6 +18,7 @@ public class InGameManager : MonoBehaviourPun
     [SerializeField] GameObject _masterRespawnWall;
     [SerializeField] GameObject _otherRespawnWall;
     [SerializeField] TMP_Text _gameStartCountText;
+    [SerializeField, Tooltip("0:count, 1:start")] AudioClip[] _gameStartSounds;
     [SerializeField] GameObject _gameStartWall;
 
     [Header("Result")]
@@ -27,6 +28,7 @@ public class InGameManager : MonoBehaviourPun
     static InGameManager _instance;
     public static InGameManager Instance { get => _instance; }
     public event Action UpdateAction;
+    AudioSource _audioSource;
 
     public GameState GameState = GameState.Ready;
 
@@ -40,6 +42,8 @@ public class InGameManager : MonoBehaviourPun
 
         Cursor.lockState = CursorLockMode.Locked; // カーソル
         Cursor.visible = false;
+
+        _audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -97,20 +101,32 @@ public class InGameManager : MonoBehaviourPun
     {
         yield return new WaitForSeconds(2); // count down 開始まで
         _gameStartCountText.text = "5";
+        _audioSource.PlayOneShot(_gameStartSounds[0]);
         yield return new WaitForSeconds(0.5f);
         _gameStartCountText.GetComponent<Animator>().Play("CountDownTextScale");
         yield return new WaitForSeconds(0.5f);
         _gameStartCountText.text = "4";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.4f);
+        _audioSource.PlayOneShot(_gameStartSounds[0]);
+        yield return new WaitForSeconds(0.6f);
         _gameStartCountText.text = "3";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.4f);
+        _audioSource.PlayOneShot(_gameStartSounds[0]);
+        yield return new WaitForSeconds(0.6f);
         _gameStartCountText.text = "2";
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.4f);
+        _audioSource.PlayOneShot(_gameStartSounds[0]);
+        yield return new WaitForSeconds(0.6f);
         _gameStartCountText.text = "1";
-        yield return new WaitForSeconds(1);
-        _gameStartCountText.text = "Go";
-        _gameStartCountText.DOFade(0, 0.5f).OnComplete(() => _gameStartCountText.gameObject.SetActive(false));
-        _gameStartCountText.rectTransform.DOScale(4, 0.5f);
+        yield return new WaitForSeconds(0.4f);
+        _audioSource.PlayOneShot(_gameStartSounds[0]);
+        yield return new WaitForSeconds(0.6f);
+        _gameStartCountText.rectTransform.localScale = Vector3.one * 1.4f;
+        _gameStartCountText.text = "GO";
+        yield return new WaitForSeconds(0.4f);
+        _audioSource.PlayOneShot(_gameStartSounds[1]);
+        _gameStartCountText.DOFade(0, 1f).OnComplete(() => _gameStartCountText.gameObject.SetActive(false));
+        _gameStartCountText.rectTransform.DOScale(4, 1f);
         yield return new WaitForSeconds(0.5f);
         // game start
         _gameStartWall.transform.DOMove(Vector3.up * 3, 1f).OnComplete(() => _gameStartWall.SetActive(false));
