@@ -59,7 +59,6 @@ public class CrosshairCntlr : MonoBehaviour
         Vector2 currentScale = _crosshair.localScale;
         Vector2 targetScale = new Vector2(_targetSizeDelta - 107, _targetSizeDelta - 107);
         Vector2 smoothedScale = Vector2.Lerp(currentScale, targetScale, _timeItTake); // ‘JˆÚ
-        Debug.Log(_targetSizeDelta);
 
         _crosshair.localScale = smoothedScale;
     }

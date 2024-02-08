@@ -65,17 +65,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void FixedUpdate()
     {
-        //if (Input.GetKeyDown(KeyCode.RightAlt)) OnPlayButtonToStartGame();
         if (Input.GetKeyDown(KeyCode.RightShift))
         {
-            _defaultPlayButton.SetActive(false);
-            _minePlayerCanvas.SetActive(false);
-            _otherPlayerCanvas.SetActive(false);
-            _startGameBeginCamera.SetActive(true);
-            _fadePanelImage.enabled = true;
-            _fadePanelImage.DOFade(1, 2.4f);
-            Invoke(nameof(StartBlend), 1.2f);
-            _selectRoomButtonAudioSource.PlayOneShot(_startGameSound);
+            OnPlayButtonToStartGame();
         }
     }
 
@@ -207,12 +199,29 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
 
         }
+        else if ((int)e.Code == 2) // ゲームスタートボタンが押された
+        {
+            ReflectStartAnimation();
+        }
+    }
+
+    void ReflectStartAnimation()
+    {
+        _defaultPlayButton.SetActive(false);
+        _minePlayerCanvas.SetActive(false);
+        _otherPlayerCanvas.SetActive(false);
+        _startGameBeginCamera.SetActive(true);
+        _fadePanelImage.enabled = true;
+        _fadePanelImage.DOFade(1, 2.4f);
+        Invoke(nameof(StartBlend), 1.2f);
+        _selectRoomButtonAudioSource.PlayOneShot(_startGameSound);
     }
 
     void StartBlend()
     {
         _startGameEndCamera.SetActive(true);
-        Invoke(nameof(SenceLoadToStartGame), 1.2f);
+        // masterはシーン遷移処理をする
+        if (PhotonNetwork.IsMasterClient) Invoke(nameof(SenceLoadToStartGame), 1.2f);
     }
 
     void SenceLoadToStartGame()
@@ -228,14 +237,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     void OnPlayButtonToStartGame()
     {
-        _defaultPlayButton.SetActive(false);
-        _minePlayerCanvas.SetActive(false);
-        _otherPlayerCanvas.SetActive(false);
-        _startGameBeginCamera.SetActive(true);
-        _fadePanelImage.enabled = true;
-        _fadePanelImage.DOFade(1, 2.4f);
-        Invoke(nameof(StartBlend), 1.2f);
-        _selectRoomButtonAudioSource.PlayOneShot(_startGameSound);
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions();
+        raiseEventOptions.Receivers = ReceiverGroup.All;
+        PhotonNetwork.RaiseEvent(2, true, raiseEventOptions, new SendOptions());
     }
 
     void OnPlayButtonToReady()

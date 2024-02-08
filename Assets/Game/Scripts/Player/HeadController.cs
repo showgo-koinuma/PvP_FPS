@@ -144,6 +144,7 @@ public class HeadController : MonoBehaviourPun
         _myVirtualCam.m_Lens.FieldOfView = _currentFov;
     }
     #endregion
+
     #region ê›íËïœçXÇÃîΩâf
     void OnHoriSensChanged(float value)
     {
@@ -169,6 +170,7 @@ public class HeadController : MonoBehaviourPun
         SettingManager.Instance.OnHoriSensChanged += OnHoriSensChanged;
         SettingManager.Instance.OnVerSensChanged += OnVerSensChanged;
         SettingManager.Instance.OnZoomSensChanged += OnZoomSensChanged;
+        SettingManager.Instance.ReflectCurrentSettings();
     }
 
     private void OnDisable()

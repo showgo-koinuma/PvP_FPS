@@ -53,7 +53,7 @@ public class PlayerManager : MonoBehaviourPun
     // weapon switch
     int _weaponIndex = 0;
     bool _canSwitch = true;
-    float _switchInterval = 0.5f;
+    float _switchInterval = 0.6f;
     float _selectWeaponPivotScale = 0.8f;
 
     // respawn

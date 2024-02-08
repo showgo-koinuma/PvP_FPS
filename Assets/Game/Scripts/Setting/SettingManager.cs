@@ -56,6 +56,7 @@ public class SettingManager : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
+    #region OnSensValueChanged
     /// <summary>Horizontal Sensの値を変更する</summary>
     public void HoriSensValueChange(bool isInputField)
     {
@@ -130,6 +131,7 @@ public class SettingManager : MonoBehaviour
 
         OnZoomSensChanged?.Invoke(_zoomSensSlider.value);
     }
+    #endregion
 
     public void SwitchCanvas()
     {
@@ -154,9 +156,18 @@ public class SettingManager : MonoBehaviour
         }
     }
 
+    /// <summary>プレイヤースポーン時に設定を反映させる</summary>
+    public void ReflectCurrentSettings()
+    {
+        OnHoriSensChanged?.Invoke(_horiSensSlider.value);
+        OnVerSensChanged?.Invoke(_verSensSlider.value);
+        OnZoomSensChanged?.Invoke(_zoomSensSlider.value);
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _settingCanvas.SetActive(false);
+        Debug.Log("invoke onsceneloaded");
     }
 
     private void OnEnable()

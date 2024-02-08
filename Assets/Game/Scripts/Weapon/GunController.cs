@@ -381,6 +381,7 @@ public class GunController : MonoBehaviourPun
         InGameManager.Instance.UpdateAction -= FireCalculation;
         InGameManager.Instance.UpdateAction -= ReflectRecoil;
 
+        CancelInvoke(nameof(ReturnGunState));
         _lastState = _gunState;
     }
 }
