@@ -73,7 +73,6 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
             else OnConnectedToMaster();
         }
         else PhotonNetwork.ConnectUsingSettings();
-        Debug.Log("接続処理");
     }
 
     /// <summary>指定したUIObjに遷移する</summary>
@@ -147,8 +146,7 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
             PhotonNetwork.CreateRoom(_inputRoomName.text, options); // Room作成
             ChangeUIObj(_loadingObj); // Loading
             _loadingText.text = "Making Room...";
-        }
-        else Debug.Log("roomの名前が設定されていません"); // to:do 入力がないエラー
+        } // to:do 入力がないエラー
     }
 
     public void OnStartGame() // start game button
@@ -171,7 +169,6 @@ public class LobbySceneUIManager : MonoBehaviourPunCallbacks
     /// <summary>roomから退出する</summary>
     void LeaveRoom()
     {
-        Debug.Log("leave room");
         PhotonNetwork.LeaveRoom();
         ChangeUIObj(_loadingObj); // UI更新
         _loadingText.text = "Leaving Room...";

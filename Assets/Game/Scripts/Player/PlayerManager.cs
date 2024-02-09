@@ -177,7 +177,6 @@ public class PlayerManager : MonoBehaviourPun
 
         _respawnUI.SetActive(false);
         _playerState = PlayerState.Nomal;
-        Debug.Log("respawn");
     }
     #endregion
 

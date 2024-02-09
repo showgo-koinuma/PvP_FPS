@@ -115,7 +115,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
         else
         {
             PhotonNetwork.ConnectUsingSettings();
-            Debug.Log("ê⁄ë±èàóù");
         }
     }
 
@@ -309,7 +308,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IOnEventCallback
     /// <summary>roomÇ©ÇÁëﬁèoÇ∑ÇÈ</summary>
     public void LeaveRoom()
     {
-        Debug.Log("leave room");
         if (PhotonNetwork.InRoom)
         {
             PhotonNetwork.LeaveRoom();

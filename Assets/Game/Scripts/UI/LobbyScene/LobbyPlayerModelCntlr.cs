@@ -20,7 +20,6 @@ public class LobbyPlayerModelCntlr : MonoBehaviour
         {
             _timer = 0;
             int n = Random.Range(1, _animationCount + 1);
-            Debug.Log(n);
             _animator.SetInteger("RandomAnimation", n);
         }
         else

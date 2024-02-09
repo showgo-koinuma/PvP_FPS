@@ -156,7 +156,6 @@ public class PlayerMovement : MonoBehaviourPun
         if (_isSliding)
         {
             CalcVector(wishdir2, _slidingFriction, _groundAcceleration, _maxSpeed * _crouchMaxSpeedRate);
-            Debug.Log("isSliding");
             if (_playerVelocity.magnitude <= 5) _isSliding = false;
         }
         else if (_crouching)
@@ -229,7 +228,6 @@ public class PlayerMovement : MonoBehaviourPun
     void WallJump()
     {
         if (!_onWall || _isGround) return; // •Ç‚ÉÚ‚µ‚Ä‚¢‚È‚¢ || Ú’n’†
-        Debug.Log("wall jump");
 
         _jumping = true;
         // Šp“x‚ÌŒvŽZ
@@ -296,7 +294,6 @@ public class PlayerMovement : MonoBehaviourPun
     void Sliding(float speed)
     {
         if (!_readyToSliding || speed < _minCnaSlidingSpeed || !_readyToJump) return;
-        Debug.Log("sliding");
         _playerVelocity = _playerVelocity.normalized * _slidingSpeed;
         _playerVelocity.y = _rb.velocity.y;
         _readyToSliding = false;

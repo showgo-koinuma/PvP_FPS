@@ -137,7 +137,6 @@ public class PlayerHealthManager : Damageable
     /// <summary>自分がダメージを受けたときの処理</summary>
     private void OnDamageTakenIsMine()
     {
-        Debug.Log("dame-ji");
         _damageTimer = 0; // ダメージタイマー開始
         ReflectHPUI();
         _damagePostProcess.weight = 1; // damage effect開始
@@ -219,7 +218,6 @@ public class PlayerHealthManager : Damageable
     {
         if (!photonView.IsMine) return;
 
-        Debug.Log("sinnda");
         _armor = _maxArmor;
         _hp = _maxHp;
 

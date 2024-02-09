@@ -135,7 +135,6 @@ public class GunController : MonoBehaviourPun
 
             if (Physics.Raycast(Camera.main.transform.position, dir, out RaycastHit hit, float.MaxValue, _hitLayer))
             {
-                Debug.Log(hit.collider.name);
                 photonView.RPC(nameof(ShareFireAction), RpcTarget.All, hit.point);
 
                 // 親オブジェクトにTryGetComponent
@@ -213,7 +212,6 @@ public class GunController : MonoBehaviourPun
     protected virtual void Reload()
     {
         if ((_gunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize) && _lastState != GunState.reloading) return;
-        Debug.Log("reload");
         _gunState = GunState.reloading;
         _weaponModelAnimator.SetTrigger("Reload");
         _playerAnimManager.SetReloadTrigger();

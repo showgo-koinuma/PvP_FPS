@@ -49,11 +49,11 @@ public class SettingManager : MonoBehaviour
         {
             _instance = this;
             DontDestroyOnLoad(gameObject);
-        }
 
-        PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // Ø‘ÖƒAƒNƒVƒ‡ƒ“‚ğ“o˜^
-        _backButton.ButtonAction = SwitchCanvas;
-        _audioSource = GetComponent<AudioSource>();
+            PlayerInput.Instance.SetInputAction(InputType.SettingSwitch, SwitchCanvas); // Ø‘ÖƒAƒNƒVƒ‡ƒ“‚ğ“o˜^
+            _backButton.ButtonAction = SwitchCanvas;
+            _audioSource = GetComponent<AudioSource>();
+        }
     }
 
     #region OnSensValueChanged
@@ -167,7 +167,6 @@ public class SettingManager : MonoBehaviour
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _settingCanvas.SetActive(false);
-        Debug.Log("invoke onsceneloaded");
     }
 
     private void OnEnable()
