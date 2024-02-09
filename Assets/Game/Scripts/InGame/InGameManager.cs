@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections;
 using TMPro;
@@ -7,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
-public class InGameManager : MonoBehaviourPun
+public class InGameManager : MonoBehaviourPunCallbacks
 {
     [Header("Opening")]
     [SerializeField] PlayableDirector _openingTimeline;
@@ -169,9 +170,7 @@ public class InGameManager : MonoBehaviourPun
     /// <summary>ゲーム終了を選択</summary>
     public void SelectEndGame() // button call
     {
-        photonView.RPC(nameof(GameEnded), RpcTarget.Others); // 終了を共有
-        PhotonNetwork.LeaveRoom();
-        SceneManager.LoadScene(0);
+        photonView.RPC(nameof(GameEnded), RpcTarget.MasterClient); // 終了を共有
     }
 
     /// <summary>相手がゲーム終了を選択した</summary>
@@ -182,9 +181,16 @@ public class InGameManager : MonoBehaviourPun
         SceneManager.LoadScene(0);
     }
 
-    private void OnEnable()
+    public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        SettingManager.Instance.QuitButton.ChangeButtonState(true, "Leave Match", GameEnded);
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        SettingManager.Instance.QuitButton.ChangeButtonState(true, "Leave Match", SelectEndGame);
     }
 }
 
