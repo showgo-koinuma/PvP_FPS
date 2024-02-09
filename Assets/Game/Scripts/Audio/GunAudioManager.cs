@@ -1,4 +1,5 @@
 using UnityEngine;
+using Photon.Pun;
 
 public class GunAudioManager : MonoBehaviour
 {
@@ -18,17 +19,42 @@ public class GunAudioManager : MonoBehaviour
     [SerializeField] AudioClip _cocking;
     [SerializeField] AudioClip _insertShell;
 
+    PhotonView _photonView;
+
     public void PlayShotSound()
     {
-        _worldAudioSource.PlayOneShot(_shot);
+        if (_photonView.IsMine)
+        {
+            _localAudioSource.PlayOneShot(_shot);
+        }
+        else
+        {
+            _worldAudioSource.PlayOneShot(_shot);
+        }
     }
     public void PlayReloadSound()
     {
-        if (_reload) _worldAudioSource.PlayOneShot(_reload);
+        if (_photonView.IsMine)
+        {
+            _localAudioSource.PlayOneShot(_reload);
+        }
+        else
+        {
+            _worldAudioSource.PlayOneShot(_reload);
+        }
     }
     public void PlaySwitchSound()
     {
-        if (_switch) _worldAudioSource.PlayOneShot(_switch);
+        if (!_switch) return;
+
+        if (_photonView.IsMine)
+        {
+            _localAudioSource.PlayOneShot(_switch);
+        }
+        else
+        {
+            _worldAudioSource.PlayOneShot(_switch);
+        }
     }
     public void PlayHitSound()
     {
@@ -38,19 +64,33 @@ public class GunAudioManager : MonoBehaviour
     {
         _localAudioSource.PlayOneShot(_head);
     }
-    public void PlayKillSound()
-    {
-        _worldAudioSource.PlayOneShot(_hit);
-    }
 
     // shot gun
     public void PlayCocking()
     {
-        _worldAudioSource.PlayOneShot(_cocking);
+        if (_photonView.IsMine)
+        {
+            _localAudioSource.PlayOneShot(_cocking);
+        }
+        else
+        {
+            _worldAudioSource.PlayOneShot(_cocking);
+        }
     }
-
     public void PlayInsertShell()
     {
-        _worldAudioSource.PlayOneShot(_insertShell);
+        if (_photonView.IsMine)
+        {
+            _localAudioSource.PlayOneShot(_insertShell);
+        }
+        else
+        {
+            _worldAudioSource.PlayOneShot(_insertShell);
+        }
+    }
+
+    private void Awake()
+    {
+        _photonView = GetComponent<PhotonView>();
     }
 }

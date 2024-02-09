@@ -41,7 +41,6 @@ public class ShotGunCntlr : GunController
         if (_gunState != GunState.nomal || _currentMagazine >= _gunStatus.FullMagazineSize || _reloading) return;
         _weaponModelAnimator.SetBool("Reloading", _reloading = true);
         _playerAnimManager.SetReloadTrigger();
-        Debug.Log("shotgun reload");
     }
 
     // shell‚ª“ü‚Á‚½‚Æ‚«‚ÉanimCntlr‚©‚çŒÄ‚Ño‚·
